@@ -70,19 +70,28 @@ class NavMenuApiPlugin extends Plugin {
 
   async waitForNavMenu() {
     return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds max wait for items
+
       const checkNav = () => {
         this.navMenu = document.querySelector(".el-menu");
 
         if (this.navMenu) {
-          // Wait for VRCX menu items to be rendered
-          const navItems = this.navMenu.querySelectorAll(
-            ".el-menu-item[index]"
-          );
+          // Check if VRCX menu items are rendered
+          const navItems = this.navMenu.querySelectorAll(".el-menu-item");
+
           if (navItems.length > 0) {
             this.logger.log("Navigation menu found with items");
             resolve();
-          } else {
+          } else if (attempts < maxAttempts) {
+            attempts++;
             setTimeout(checkNav, 100);
+          } else {
+            // Timeout - proceed anyway
+            this.logger.log(
+              "Navigation menu found (no items yet, proceeding anyway)"
+            );
+            resolve();
           }
         } else {
           setTimeout(checkNav, 500);
@@ -391,11 +400,24 @@ class NavMenuApiPlugin extends Plugin {
 
     // If item has positioning requirements, ensure VRCX items are loaded
     if (item.position !== null || item.before || item.after) {
-      const navItems = this.navMenu.querySelectorAll(".el-menu-item[index]");
-      if (navItems.length === 0) {
-        // VRCX items not ready yet, retry later
-        setTimeout(() => this.renderItem(item), 100);
-        return;
+      const navItems = this.navMenu.querySelectorAll(".el-menu-item");
+      const vrcxItems = Array.from(navItems).filter(
+        (el) => !el.hasAttribute("data-custom-nav-item")
+      );
+
+      if (vrcxItems.length === 0) {
+        // VRCX items not ready yet, retry later (max 5 seconds)
+        if (!item._retryCount) item._retryCount = 0;
+        if (item._retryCount < 50) {
+          item._retryCount++;
+          setTimeout(() => this.renderItem(item), 100);
+          return;
+        } else {
+          // Give up and just append
+          this.logger.log(
+            `Timed out waiting for VRCX items, appending ${item.id} to end`
+          );
+        }
       }
     }
 
