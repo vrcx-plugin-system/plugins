@@ -24,32 +24,22 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async start() {
-    this.logger.log("🚀 Starting Plugin Manager UI...");
-
-    // Setup utils shortcut
-    this.logger.log("📦 Setting up utils shortcut...");
     this.utils = window.customjs.utils;
-    this.logger.log("✅ Utils shortcut ready");
 
-    // Wait for dependencies
-    this.logger.log("⏳ Waiting for nav-menu-api plugin...");
     this.navMenuApi = await window.customjs.pluginManager.waitForPlugin(
       "nav-menu-api"
     );
 
     if (!this.navMenuApi) {
-      this.logger.error("❌ Nav Menu API plugin not found after waiting");
+      this.logger.error("Nav Menu API plugin not found");
       return;
     }
-    this.logger.log("✅ nav-menu-api plugin found!");
 
-    this.logger.log("🎯 Setting up nav menu item...");
     this.setupNavMenuItem();
-    this.logger.log("✅ Nav menu item setup complete");
 
     this.enabled = true;
     this.started = true;
-    this.logger.log("🎉 Plugin Manager UI started successfully");
+    this.logger.log("Plugin Manager UI started");
   }
 
   async onLogin(user) {
@@ -86,29 +76,17 @@ class PluginManagerUIPlugin extends Plugin {
       onShow: () => this.onPluginsTabShown(),
       onHide: () => this.onPluginsTabHidden(),
     });
-
-    this.logger.log("Navigation menu item added with lifecycle callbacks");
   }
 
   onPluginsTabShown() {
-    this.logger.log("🎯 Plugins tab shown - refreshing grid...");
-
-    // Refresh the plugin grid when tab becomes visible
-    setTimeout(() => {
-      this.refreshPluginGrid();
-    }, 50);
+    setTimeout(() => this.refreshPluginGrid(), 50);
   }
 
   onPluginsTabHidden() {
-    this.logger.log("👋 Plugins tab hidden");
     // Could pause any active operations here if needed
   }
 
   createPanelContent() {
-    this.logger.log(
-      "📦 createPanelContent() called - building content immediately"
-    );
-
     const container = document.createElement("div");
     container.style.cssText = `
       padding: 20px;
@@ -118,24 +96,12 @@ class PluginManagerUIPlugin extends Plugin {
 
     try {
       // Build all content immediately - nav-menu-api handles visibility
-      this.logger.log("📊 Creating stats section...");
-      const statsSection = this.createStatsSection();
-      container.appendChild(statsSection);
-
-      this.logger.log("⚙️ Creating config sync section...");
-      const syncSection = this.createConfigSyncSection();
-      container.appendChild(syncSection);
-
-      this.logger.log("📥 Creating load plugin section...");
-      const loadSection = this.createLoadPluginSection();
-      container.appendChild(loadSection);
-
-      this.logger.log("🔍 Creating filter section...");
-      const filterSection = this.createFilterSection();
-      container.appendChild(filterSection);
+      container.appendChild(this.createStatsSection());
+      container.appendChild(this.createConfigSyncSection());
+      container.appendChild(this.createLoadPluginSection());
+      container.appendChild(this.createFilterSection());
 
       // Plugin grid container
-      this.logger.log("🎯 Creating plugin grid container...");
       const pluginGrid = document.createElement("div");
       pluginGrid.id = "plugin-grid-container";
       pluginGrid.className = "vc-plugins-grid";
@@ -143,10 +109,8 @@ class PluginManagerUIPlugin extends Plugin {
 
       // Store reference for later refreshing
       this.pluginGridContainer = pluginGrid;
-
-      this.logger.log("🎉 Panel content created successfully!");
     } catch (error) {
-      this.logger.error("❌ Error creating plugin manager content:", error);
+      this.logger.error("Error creating plugin manager content:", error);
       const errorDiv = document.createElement("div");
       errorDiv.style.cssText =
         "padding: 20px; text-align: center; color: #dc3545;";
@@ -168,7 +132,6 @@ class PluginManagerUIPlugin extends Plugin {
       container.appendChild(errorDiv);
     }
 
-    this.logger.log("✅ Returning panel content to nav-menu-api");
     return container;
   }
 
@@ -643,25 +606,15 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   refreshPluginGrid() {
-    this.logger.log("🔄 refreshPluginGrid() called");
-
     try {
       const gridContainer = this.pluginGridContainer;
 
       if (!gridContainer) {
-        this.logger.warn(
-          "⚠️ Plugin grid container not available - cannot refresh"
-        );
+        this.logger.warn("Plugin grid container not available");
         return;
       }
 
-      this.logger.log("📦 Grid container ready, refreshing...");
-
-      this.logger.log("🧹 Clearing grid container...");
       gridContainer.innerHTML = "";
-      this.logger.log(
-        `✅ Grid container cleared, innerHTML length: ${gridContainer.innerHTML.length}`
-      );
 
       // Get all plugins and apply filters
       const allPlugins = window.customjs?.plugins || [];
@@ -669,76 +622,45 @@ class PluginManagerUIPlugin extends Plugin {
       const failedUrls =
         window.customjs?.pluginManager?.failedUrls || new Set();
 
-      this.logger.log(
-        `📊 Total plugins: ${allPlugins.length}, Core: ${coreModules.length}, Failed: ${failedUrls.size}`
-      );
-
-      // Filter plugins
-      this.logger.log(`🔍 Filtering plugins...`);
       const filteredPlugins = this.filterPlugins(
         allPlugins,
         coreModules,
         failedUrls
       );
 
-      this.logger.log(`✅ Filtered plugins: ${filteredPlugins.length}`);
-
-      // Reset visible count when filter changes
       this.visibleCount = Math.min(this.pluginsPerPage, filteredPlugins.length);
-      this.logger.log(`👁️ Visible count: ${this.visibleCount}`);
 
-      // Create title for plugins section
-      this.logger.log("📝 Creating plugins title...");
+      // Create title
       const pluginsTitle = document.createElement("h5");
       pluginsTitle.style.cssText =
         "margin: 0 0 16px 0; font-size: 16px; font-weight: 600;";
       pluginsTitle.textContent = `Plugins (${filteredPlugins.length})`;
       gridContainer.appendChild(pluginsTitle);
-      this.logger.log("✅ Added plugins title");
 
       // Create grid
-      this.logger.log("🎨 Creating grid element...");
       const grid = document.createElement("div");
       grid.style.cssText =
         "display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 16px; margin-bottom: 20px;";
-      this.logger.log("✅ Grid element created");
 
       if (filteredPlugins.length === 0) {
-        this.logger.warn("⚠️ No filtered plugins to display");
         const noResults = document.createElement("div");
         noResults.style.cssText =
           "padding: 40px; text-align: center; color: #6c757d;";
         noResults.textContent = "No plugins meet the search criteria.";
         gridContainer.appendChild(noResults);
-        this.logger.log("📝 Added 'no results' message");
         return;
       }
 
-      // Show only visible plugins
+      // Show visible plugins
       const visiblePlugins = filteredPlugins.slice(0, this.visibleCount);
-      this.logger.log(`🎴 Rendering ${visiblePlugins.length} plugin cards...`);
-
-      visiblePlugins.forEach((plugin, index) => {
-        if (index === 0) {
-          this.logger.log(
-            `📋 First plugin: ${plugin.metadata?.name || "Unknown"}`
-          );
-        }
-        const card = this.createPluginCard(plugin);
-        grid.appendChild(card);
+      visiblePlugins.forEach((plugin) => {
+        grid.appendChild(this.createPluginCard(plugin));
       });
 
-      this.logger.log(`✅ Created ${visiblePlugins.length} plugin cards`);
-
-      this.logger.log("📦 Appending grid to container...");
       gridContainer.appendChild(grid);
-      this.logger.log(
-        `✅ Grid appended, gridContainer children: ${gridContainer.children.length}`
-      );
 
       // Load more button if needed
       if (this.visibleCount < filteredPlugins.length) {
-        this.logger.log("➕ Adding 'Load More' button...");
         const loadMoreBtn = document.createElement("button");
         loadMoreBtn.className = "el-button el-button--default";
         loadMoreBtn.style.cssText = "width: 100%; margin-top: 16px;";
@@ -755,12 +677,9 @@ class PluginManagerUIPlugin extends Plugin {
         });
 
         gridContainer.appendChild(loadMoreBtn);
-        this.logger.log("✅ Load More button added");
       }
-
-      this.logger.log("🎉 refreshPluginGrid() complete!");
     } catch (error) {
-      this.logger.error("❌ Error refreshing plugin grid:", error);
+      this.logger.error("Error refreshing plugin grid:", error);
       console.error(error);
     }
   }
