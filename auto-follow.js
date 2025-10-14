@@ -284,7 +284,7 @@ class AutoFollowPlugin extends Plugin {
     }
 
     // Parse the location to get instance details
-    const L = window.$app.parseLocation(location);
+    const L = window.utils.parseLocation(location);
     if (!L.isRealInstance) {
       this.logger.warn(
         `Invalid instance location for ${userName}: ${location}`
