@@ -36,10 +36,9 @@ class BioUpdaterPlugin extends Plugin {
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.SettingType;
 
-    const defaultTemplate = `-
-Relationship: {partners} <3
+    const defaultTemplate = `Relationship: {partners} <3
 Auto Accept: {autojoin}
-Auto Invite: {autoinvite}
+{autoinviteprefix}{autoinvite}
 
 Real Rank: {rank}
 Friends: {friends} | Blocked: {blocked} | Muted: {muted}
@@ -111,6 +110,7 @@ Oculus ID: {oculusId}`;
           "{partners}": "Relationship partners count",
           "{autojoin}": "Auto-accept friends status",
           "{autoinvite}": "Auto-invite status",
+          "{autoinviteprefix}": "Literal text: 'Auto Invite: '",
           "{rank}": "Real VRChat trust rank",
           "{friends}": "Friend count",
           "{blocked}": "Blocked users count",
@@ -215,7 +215,10 @@ Oculus ID: {oculusId}`;
       const bioParts = currentUser.bio
         ? currentUser.bio.split(separator)
         : [""];
-      const oldBio = bioParts.length > 0 ? bioParts[0] : "";
+
+      // If separator not found (bioParts.length === 1), assume no custom bio
+      // This handles cases where bio is entirely template or separator changed
+      const oldBio = bioParts.length > 1 ? bioParts[0] : "";
 
       // Get Steam playtime if configured
       const steamId = this.settings.store.steamId;
@@ -262,6 +265,10 @@ Oculus ID: {oculusId}`;
       // Apply template with replacements
       const bioTemplate = this.settings.store.template;
 
+      const autoInviteUsers = this.autoInvite
+        ?.getAutoInviteUsersList()
+        ?.map((u) => u.displayName);
+
       const newBio = bioTemplate
         .replace("{last_activity}", this.timeToText(now - last_activity))
         .replace("{playtime}", playTimeText)
@@ -278,12 +285,10 @@ Oculus ID: {oculusId}`;
         .replace("{now}", this.formatDateTime())
         .replace("{autojoin}", joiners.map((f) => f.name).join(", "))
         .replace("{partners}", partners.map((f) => f.name).join(", "))
+        .replace("{autoinvite}", autoInviteUsers.join(", ") ?? "")
         .replace(
-          "{autoinvite}",
-          this.autoInvite
-            ?.getAutoInviteUsersList()
-            ?.map((u) => u.displayName)
-            .join(", ") ?? ""
+          "{autoinviteprefix}",
+          autoInviteUsers.length > 0 ? "Auto Invite: " : ""
         )
         .replace("{tags_loaded}", this.tagManager?.getLoadedTagsCount() ?? 0)
         .replace("{userId}", currentUser.id)
