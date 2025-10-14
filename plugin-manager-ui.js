@@ -343,11 +343,9 @@ class PluginManagerUIPlugin extends Plugin {
           result.filePath || window.customjs.configManager.vrchatConfigPath;
         await this.utils.copyToClipboard(configPath, "VRChat config.json path");
 
-        // Print to console
-        console.log(`[CJS|PluginManagerUI] Exported to: ${configPath}`);
-        console.log(
-          `[CJS|PluginManagerUI] Exported ${result.settingsCount} settings`
-        );
+        // Log export details
+        this.logger.log(`Exported to: ${configPath}`);
+        this.logger.log(`Exported ${result.settingsCount} settings`);
 
         this.logger.showSuccess(
           `Settings exported successfully! Path copied to clipboard.`
@@ -623,7 +621,6 @@ class PluginManagerUIPlugin extends Plugin {
       gridContainer.appendChild(grid);
     } catch (error) {
       this.logger.error("Error refreshing plugin grid:", error);
-      console.error(error);
     }
   }
 
@@ -1374,8 +1371,8 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   handleShowDetails(plugin) {
-    // Just dump to console and open devtools
-    console.log(plugin); // eslint-disable-line no-console
+    // Dump to console and open devtools
+    this.logger.log("Plugin details:", plugin);
     if (window.AppApi?.ShowDevTools) {
       window.AppApi.ShowDevTools();
     }
