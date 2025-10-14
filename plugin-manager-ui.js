@@ -16,6 +16,7 @@ class PluginManagerUIPlugin extends Plugin {
     this.searchValue = { value: "", filter: "all" }; // all, enabled, disabled, core, failed, new
     this.visibleCount = 12;
     this.pluginsPerPage = 12;
+    this.togglingPlugins = new Set(); // Track plugins currently being toggled
   }
 
   async load() {
@@ -987,6 +988,16 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleTogglePlugin(pluginId) {
+    // Prevent concurrent toggles of the same plugin
+    if (this.togglingPlugins.has(pluginId)) {
+      this.logger.warn(
+        `Plugin ${pluginId} is already being toggled, ignoring duplicate request`
+      );
+      return;
+    }
+
+    this.togglingPlugins.add(pluginId);
+
     try {
       const plugin = window.customjs.pluginManager.getPlugin(pluginId);
       if (!plugin) {
@@ -1007,13 +1018,19 @@ class PluginManagerUIPlugin extends Plugin {
         window.customjs.pluginManager.savePluginConfig(config);
       }
 
-      setTimeout(() => this.refreshPluginGrid(), 100);
-
       const statusMsg = plugin.enabled ? "enabled" : "disabled";
       this.logger.showSuccess(`${plugin.metadata.name} ${statusMsg}`);
+
+      // Refresh after toggle completes
+      setTimeout(() => this.refreshPluginGrid(), 200);
     } catch (error) {
       this.logger.error(`Error toggling plugin ${pluginId}:`, error);
       this.logger.showError(`Error: ${error.message}`);
+    } finally {
+      // Remove lock after a delay to ensure no race conditions
+      setTimeout(() => {
+        this.togglingPlugins.delete(pluginId);
+      }, 500);
     }
   }
 
