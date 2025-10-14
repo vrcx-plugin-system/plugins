@@ -1,10 +1,15 @@
 /**
  * Auto Follow Plugin
  * Automatic location tracking system that follows selected users
- * Monitors user location changes and sends you invites to join them
+ *
+ * Behavior:
+ * - When a followed user joins a joinable instance (public/friends/friends+/invite+/group):
+ *   Automatically sends you an invite to join them
+ * - When a followed user joins a private/invite-only instance:
+ *   Sends them an invite request (using customInviteRequestMessage template)
  *
  * Configuration:
- * - window.customjs.config.autofollow.customInviteMessage: Custom invite request message template
+ * - customInviteRequestMessage: Custom message template for invite requests to private instances
  *
  * Template Variables:
  * - {userId}: Target user ID being followed
@@ -21,17 +26,17 @@
  * - {iso}: ISO 8601 date/time
  *
  * Example:
- * window.customjs.config.autofollow.customInviteMessage = "Following you to {worldName}!"
+ * Set in plugin settings: "Can I join you in {worldName}?"
  */
 class AutoFollowPlugin extends Plugin {
   constructor() {
     super({
       name: "Auto Follow",
       description:
-        "Automatic location tracking system that follows selected users",
+        "Automatically sends you invites when followed users join worlds (or requests invites for private instances)",
       author: "Bluscream",
-      version: "3.0.0",
-      build: "1728847200",
+      version: "3.1.0",
+      build: "1729018400",
       tags: ["Automation", "Social"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/context-menu-api.js",
@@ -74,7 +79,7 @@ class AutoFollowPlugin extends Plugin {
     const SettingType = window.customjs.SettingType;
 
     this.settings = this.defineSettings({
-      customInviteMessage: {
+      customInviteRequestMessage: {
         type: SettingType.STRING,
         description:
           "Message template for invite requests when following users",
@@ -100,7 +105,7 @@ class AutoFollowPlugin extends Plugin {
     });
 
     this.logger.log(
-      `⚙️ Custom invite message: "${this.settings.store.customInviteMessage}"`
+      `⚙️ Custom invite message: "${this.settings.store.customInviteRequestMessage}"`
     );
 
     this.logger.log("Auto Follow plugin ready");
@@ -270,76 +275,139 @@ class AutoFollowPlugin extends Plugin {
 
   async requestInviteToUser(user, location) {
     const userName = user.displayName;
-    let instanceId = location;
-    let worldId = location.split(":")[0];
+    const currentUser = window.$pinia?.user?.currentUser;
+
+    // Check if we're already in this location
+    if (currentUser?.location === location) {
+      this.logger.log(`Already in the same instance as ${userName}, skipping`);
+      return;
+    }
+
+    // Parse the location to get instance details
+    const L = window.customjs.utils.parseLocation(location);
+    if (!L.isRealInstance) {
+      this.logger.warn(
+        `Invalid instance location for ${userName}: ${location}`
+      );
+      return;
+    }
+
     let worldName = "Unknown World";
 
     // Try to get world name
     try {
-      worldName = await window.$app.getWorldName(worldId);
+      worldName = await window.$app.getWorldName(L.worldId);
     } catch (error) {
       this.logger.warn(`Failed to get world name: ${error.message}`);
     }
 
-    this.logger.log(
-      `Requesting invite from ${userName} to "${worldName}" (${instanceId})`
-    );
+    // Determine if this is a private/invite-only instance we can't join
+    const isPrivateInviteOnly =
+      L.accessType === "invite" && !L.canRequestInvite;
 
-    try {
-      // Get custom message template from config
-      const messageTemplate = this.get(
-        "messages.customInviteMessage",
-        "Can I join you?"
+    // Check if this is an instance we can potentially join
+    const isJoinable =
+      [
+        "public",
+        "friends",
+        "friends+",
+        "invite+",
+        "group",
+        "groupPublic",
+        "groupPlus",
+      ].includes(L.accessType) ||
+      (L.accessType === "group" && L.groupId);
+
+    if (isJoinable) {
+      // Send ourselves an invite to join them
+      this.logger.log(
+        `Sending self-invite to join ${userName} in "${worldName}" (${L.accessType})`
       );
 
-      // Process template
-      let customMessage = null;
+      try {
+        await window.request.instanceRequest.selfInvite({
+          instanceId: L.instanceId,
+          worldId: L.worldId,
+        });
 
-      if (messageTemplate) {
-        customMessage = this.processInviteMessageTemplate(
+        this.lastRequestedFrom.set(user.id, location);
+        this.logger.showSuccess(
+          `Sent invite to join ${userName} in ${worldName}`
+        );
+        this.logger.log(`✓ Successfully sent self-invite to ${worldName}`);
+        this.logger.addNotification({
+          id: currentUser?.id,
+          displayName: currentUser?.displayName,
+          type: "invite",
+          created_at: new Date().toJSON(),
+          message: "Generated by VRCX Auto Follow plugin",
+          senderUserId: user.id,
+          senderUsername: user.displayName,
+        });
+      } catch (error) {
+        this.logger.error(
+          `Failed to send self-invite to ${worldName}: ${error.message}`
+        );
+      }
+    } else if (isPrivateInviteOnly || L.accessType === "invite") {
+      // This is a private instance, send them an invite request
+      this.logger.log(
+        `Requesting invite from ${userName} to private instance "${worldName}"`
+      );
+
+      try {
+        // Get custom message template from settings
+        const messageTemplate =
+          this.settings.store.customInviteRequestMessage || "Can I join you?";
+
+        // Process template
+        const customMessage = this.processInviteMessageTemplate(
           messageTemplate,
           user,
           worldName,
-          instanceId
+          location
+        );
+
+        // Build invite request params
+        const inviteParams = {
+          instanceId: location,
+          worldId: L.worldId,
+          worldName: worldName,
+        };
+
+        // Only add message if we have one
+        if (customMessage) {
+          inviteParams.message = customMessage;
+        }
+
+        // Send invite request to the user
+        await window.request.notificationRequest.sendRequestInvite(
+          inviteParams,
+          user.id
+        );
+
+        this.lastRequestedFrom.set(user.id, location);
+        this.logger.showSuccess(
+          `Requested invite from ${userName} to ${worldName}`
+        );
+        this.logger.addNotification({
+          id: user.id,
+          displayName: user.displayName,
+          type: "requestInvite",
+          created_at: new Date().toJSON(),
+          message: "Generated by VRCX Auto Follow plugin",
+          senderUserId: currentUser?.id,
+          senderUsername: currentUser?.displayName,
+        });
+        this.logger.log(`✓ Successfully requested invite from ${userName}`);
+      } catch (error) {
+        this.logger.error(
+          `Failed to request invite from ${userName}: ${error.message}`
         );
       }
-
-      // Fallback to default config if null
-      if (
-        !customMessage &&
-        this.get("messages.customInviteMessage", "Can I join you?")
-      ) {
-        customMessage = this.processInviteMessageTemplate(
-          this.get("messages.customInviteMessage", "Can I join you?"),
-          user,
-          worldName,
-          instanceId
-        );
-      }
-
-      // Build invite request params
-      const inviteParams = {
-        instanceId: instanceId,
-        worldId: worldId,
-        worldName: worldName,
-      };
-
-      // Only add message if we have one
-      if (customMessage) {
-        inviteParams.message = customMessage;
-      }
-
-      // Send invite request
-      await window.request.notificationRequest.sendRequestInvite(
-        inviteParams,
-        user.id
-      );
-
-      this.lastRequestedFrom.set(user.id, location);
-      this.logger.log(`✓ Successfully requested invite from ${userName}`);
-    } catch (error) {
-      this.logger.error(
-        `Failed to request invite from ${userName}: ${error.message}`
+    } else {
+      this.logger.warn(
+        `Unknown instance type "${L.accessType}" for ${userName} in ${worldName}, skipping`
       );
     }
   }
@@ -521,8 +589,8 @@ class AutoFollowPlugin extends Plugin {
    * Get the current custom invite message template
    * @returns {string|null} Current message template or null if disabled
    */
-  getCustomInviteMessage() {
-    return this.settings.store.customInviteMessage;
+  getcustomInviteRequestMessage() {
+    return this.settings.store.customInviteRequestMessage;
   }
 
   /**
@@ -546,8 +614,9 @@ class AutoFollowPlugin extends Plugin {
    * Example: "Following you to {worldName}!"
    * Set to null to omit custom messages (will use default config or no message)
    */
-  async setCustomInviteMessage(message) {
-    this.settings.store.customInviteMessage = message || "Can I join you?";
+  async setcustomInviteRequestMessage(message) {
+    this.settings.store.customInviteRequestMessage =
+      message || "Can I join you?";
     if (message === null) {
       this.logger.log("Custom invite message disabled");
     } else {
