@@ -331,74 +331,6 @@ class TestLoggerPlugin extends Plugin {
         ],
       },
       {
-        title: "Plugin Logger - Pinia Notifications",
-        buttons: [
-          {
-            label: "logger.showPluginNoty()",
-            color: "#00bcd4",
-            test: async () => {
-              this.logger.showPluginNoty(this.testMessage, {
-                type: "Event",
-                displayName: "Logger Test Plugin",
-              });
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showEventNoty()",
-            color: "#ff9800",
-            test: async () => {
-              this.logger.showEventNoty(this.testMessage, "Test Plugin");
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showOnlineNoty()",
-            color: "#4caf50",
-            test: async () => {
-              this.logger.showOnlineNoty("Test User");
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showOfflineNoty()",
-            color: "#9e9e9e",
-            test: async () => {
-              this.logger.showOfflineNoty("Test User");
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showGPSNoty()",
-            color: "#03a9f4",
-            test: async () => {
-              this.logger.showGPSNoty(
-                "Test User",
-                "Test World",
-                "wrld_test:123456"
-              );
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showPlayerJoinedNoty()",
-            color: "#8bc34a",
-            test: async () => {
-              this.logger.showPlayerJoinedNoty("Test User");
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showPlayerLeftNoty()",
-            color: "#ff5722",
-            test: async () => {
-              this.logger.showPlayerLeftNoty("Test User");
-              return { success: true };
-            },
-          },
-        ],
-      },
-      {
         title: "Pinia Notification Store (Direct)",
         buttons: [
           {
@@ -753,16 +685,17 @@ class TestLoggerPlugin extends Plugin {
     infoList.style.cssText =
       "color: #b0b0b0; margin: 0; padding-left: 20px; line-height: 1.6;";
     infoList.innerHTML = `
-      <li><code>$message.*</code> - Toast messages (brief, top-center) ✓ Works</li>
-      <li><code>$notify.*</code> - Notifications (persistent, top-right corner) ✓ Works</li>
-      <li><code>$pinia.notification.playNoty</code> - VRCX game event notifications (VR overlay) ✓ Works</li>
-      <li><code>$pinia.notification.queue*Noty</code> - Queue notifications with filters ✓ Works</li>
-      <li><code>Noty</code> - VRCX login-style notifications ✓ Works</li>
-      <li><code>AppApi.DesktopNotification</code> - Windows toasts (may not work in Electron)</li>
-      <li><code>AppApi.XSNotification</code> - XSOverlay VR notifications</li>
-      <li><code>AppApi.OVRTNotification</code> - OVRToolkit VR notifications</li>
-      <li><code>alert()</code> - Browser native alert dialog ✓ Works</li>
-      <li><code>Notification API</code> - Browser notification API (needs permission)</li>
+      <li><strong>Plugin Logger API (Simplified):</strong></li>
+      <li style="margin-left: 20px;"><code>logger.show*()</code> - Toast messages ($message → $notify → console)</li>
+      <li style="margin-left: 20px;"><code>logger.notify*()</code> - Notifications ($notify → $message → console)</li>
+      <li style="margin-left: 20px;"><code>logger.notifyAll()</code> - Everything (console, UI, desktop, VR, logs)</li>
+      <li style="margin-left: 20px;"><code>logger.addGameLog()</code> - Add to Game Log tab</li>
+      <li style="margin-left: 20px;"><code>logger.addNotificationLog()</code> - Add to Notifications tab</li>
+      <li style="margin-left: 20px;"><code>logger.alert()</code> - Browser alert dialog</li>
+      <li style="margin-top: 10px;"><strong>VRCX Native Methods:</strong></li>
+      <li style="margin-left: 20px;"><code>$message.*</code> - Toast messages ✓ Works</li>
+      <li style="margin-left: 20px;"><code>$notify.*</code> - Notifications ✓ Works</li>
+      <li style="margin-left: 20px;"><code>Noty</code> - Login-style notifications ✓ Works</li>
     `;
 
     infoSection.appendChild(infoTitle);
@@ -847,34 +780,67 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "logger.showPluginNoty()",
+        name: "logger.showSuccess()",
         fn: async () => {
-          this.logger.showPluginNoty(this.testMessage, {
+          this.logger.showSuccess(this.testMessage);
+        },
+      },
+      {
+        name: "logger.showInfo()",
+        fn: async () => {
+          this.logger.showInfo(this.testMessage);
+        },
+      },
+      {
+        name: "logger.showWarning()",
+        fn: async () => {
+          this.logger.showWarning(this.testMessage);
+        },
+      },
+      {
+        name: "logger.showError()",
+        fn: async () => {
+          this.logger.showError(this.testMessage);
+        },
+      },
+      {
+        name: "logger.notifySuccess()",
+        fn: async () => {
+          this.logger.notifySuccess(this.testMessage);
+        },
+      },
+      {
+        name: "logger.notifyInfo()",
+        fn: async () => {
+          this.logger.notifyInfo(this.testMessage);
+        },
+      },
+      {
+        name: "logger.notifyWarning()",
+        fn: async () => {
+          this.logger.notifyWarning(this.testMessage);
+        },
+      },
+      {
+        name: "logger.notifyError()",
+        fn: async () => {
+          this.logger.notifyError(this.testMessage);
+        },
+      },
+      {
+        name: "logger.notifyAll()",
+        fn: async () => {
+          await this.logger.notifyAll(this.testMessage);
+        },
+      },
+      {
+        name: "logger.addGameLog()",
+        fn: async () => {
+          this.logger.addGameLog({
             type: "Event",
-            displayName: "Logger Test Plugin",
+            created_at: new Date().toJSON(),
+            data: this.testMessage,
           });
-        },
-      },
-      {
-        name: "logger.showEventNoty()",
-        fn: async () => {
-          this.logger.showEventNoty(this.testMessage, "Test Plugin");
-        },
-      },
-      {
-        name: "logger.showOnlineNoty()",
-        fn: async () => {
-          this.logger.showOnlineNoty("Test User");
-        },
-      },
-      {
-        name: "logger.showGPSNoty()",
-        fn: async () => {
-          this.logger.showGPSNoty(
-            "Test User",
-            "Test World",
-            "wrld_test:123456"
-          );
         },
       },
       {
