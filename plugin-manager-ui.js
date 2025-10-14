@@ -1450,6 +1450,9 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   createSettingRow(plugin, key, settingDef) {
+    const container = document.createElement("div");
+    container.style.cssText = "margin-bottom: 8px;";
+
     const row = document.createElement("div");
     row.style.cssText = `
       display: flex;
@@ -1458,7 +1461,6 @@ class PluginManagerUIPlugin extends Plugin {
       padding: 10px 12px;
       background: #353535;
       border-radius: 6px;
-      margin-bottom: 8px;
       border: 1px solid #4a4a4a;
     `;
 
@@ -1491,8 +1493,98 @@ class PluginManagerUIPlugin extends Plugin {
 
     row.appendChild(labelSection);
     row.appendChild(inputSection);
+    container.appendChild(row);
 
-    return row;
+    // Add variables display if they exist
+    if (settingDef.variables && Object.keys(settingDef.variables).length > 0) {
+      const variablesSection = this.createVariablesDisplay(
+        settingDef.variables
+      );
+      container.appendChild(variablesSection);
+    }
+
+    return container;
+  }
+
+  createVariablesDisplay(variables) {
+    const container = document.createElement("div");
+    container.style.cssText = `
+      margin-top: 4px;
+      padding: 8px 12px;
+      background: #2a2a2a;
+      border-radius: 4px;
+      border-left: 3px solid #409eff;
+    `;
+
+    const header = document.createElement("div");
+    header.style.cssText = `
+      font-size: 11px;
+      font-weight: 600;
+      color: #409eff;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    `;
+    header.textContent = "Available Variables";
+
+    const variablesList = document.createElement("div");
+    variablesList.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 4px;
+      font-size: 11px;
+    `;
+
+    Object.entries(variables).forEach(([placeholder, description]) => {
+      const varItem = document.createElement("div");
+      varItem.style.cssText = `
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 2px 0;
+      `;
+
+      const varPlaceholder = document.createElement("code");
+      varPlaceholder.style.cssText = `
+        color: #67c23a;
+        background: #1e1e1e;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 10px;
+        white-space: nowrap;
+        cursor: pointer;
+        border: 1px solid #3a3a3a;
+      `;
+      varPlaceholder.textContent = placeholder;
+      varPlaceholder.title = "Click to copy";
+
+      // Copy to clipboard on click
+      this.registerListener(varPlaceholder, "click", () => {
+        if (this.utils) {
+          this.utils.copyToClipboard(placeholder);
+          // Visual feedback
+          const originalBg = varPlaceholder.style.background;
+          varPlaceholder.style.background = "#67c23a";
+          setTimeout(() => {
+            varPlaceholder.style.background = originalBg;
+          }, 200);
+        }
+      });
+
+      const varDesc = document.createElement("span");
+      varDesc.style.cssText = "color: #909090; flex: 1;";
+      varDesc.textContent = description;
+
+      varItem.appendChild(varPlaceholder);
+      varItem.appendChild(varDesc);
+      variablesList.appendChild(varItem);
+    });
+
+    container.appendChild(header);
+    container.appendChild(variablesList);
+
+    return container;
   }
 
   createInputForSetting(plugin, key, settingDef) {
