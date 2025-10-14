@@ -344,6 +344,7 @@ class AutoFollowPlugin extends Plugin {
         await window.request.instanceRequest.selfInvite({
           instanceId: L.instanceId,
           worldId: L.worldId,
+          shortName: "Auto Follow: Sent self-invite",
         });
 
         this.lastRequestedFrom.set(user.id, location);
