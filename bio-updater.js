@@ -36,7 +36,7 @@ class BioUpdaterPlugin extends Plugin {
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.SettingType;
 
-    const defaultTemplate = `Relationship: {partners} <3
+    const defaultTemplate = `Relationship: {group1} <3
 Auto Accept: {autojoin}
 {autoinviteprefix}{autoinvite}
 
@@ -45,11 +45,11 @@ Friends: {friends} | Blocked: {blocked} | Muted: {muted}
 Time played: {playtime}
 Date joined: {date_joined}
 Last updated: {now} (every 2h)
-Tags loaded: {tags_loaded}
+Tagged: {tagged_users}/{tags_loaded}
 
-User ID: {userId}
-Steam ID: {steamId}
-Oculus ID: {oculusId}`;
+User ID: {user_id}
+Steam ID: {steam_id}
+Oculus ID: {oculus_id}`;
 
     // Define category metadata
     this.categories = this.defineSettingsCategories({
@@ -107,10 +107,13 @@ Oculus ID: {oculusId}`;
         category: "template",
         default: defaultTemplate,
         variables: {
-          "{partners}": "Relationship partners count",
-          "{autojoin}": "Auto-accept friends status",
-          "{autoinvite}": "Auto-invite status",
-          "{autoinviteprefix}": "Literal text: 'Auto Invite: '",
+          "{group1}": "Favorite Group 1",
+          "{group2}": "Favorite Group 2",
+          "{group3}": "Favorite Group 3",
+          "{autojoin}": "Auto-accept friends status (alias for group2)",
+          "{autoinvite}": "Auto-invite users list",
+          "{autoinviteprefix}":
+            "Literal text: 'Auto Invite: ' (only if autoinvite list not empty)",
           "{rank}": "Real VRChat trust rank",
           "{friends}": "Friend count",
           "{blocked}": "Blocked users count",
@@ -119,9 +122,12 @@ Oculus ID: {oculusId}`;
           "{date_joined}": "Account creation date",
           "{now}": "Current date/time",
           "{tags_loaded}": "Number of custom tags loaded",
-          "{userId}": "Your VRChat user ID",
-          "{steamId}": "Your Steam ID64",
-          "{oculusId}": "Your Oculus ID",
+          "{tagged_users}": "Total count of tagged users across all stores",
+          "{user_id}": "Your VRChat user ID",
+          "{steam_id}": "Your Steam ID64",
+          "{oculus_id}": "Your Oculus ID",
+          "{pico_id}": "Your Pico ID",
+          "{vive_id}": "Your Vive ID",
           "{last_activity}": "Time since last activity",
         },
       },
@@ -251,15 +257,18 @@ Oculus ID: {oculusId}`;
       // Get last activity
       const last_activity = new Date(currentUser.last_activity);
 
-      // Get favorites
+      // Get favorites by groups
       const favs = Array.from(
         window.$pinia?.favorite?.favoriteFriends?.values() || []
       );
-      const joiners = favs.filter(
+      const group1 = favs.filter(
+        (friend) => friend.groupKey === "friend:group_1"
+      );
+      const group2 = favs.filter(
         (friend) => friend.groupKey === "friend:group_2"
       );
-      const partners = favs.filter(
-        (friend) => friend.groupKey === "friend:group_1"
+      const group3 = favs.filter(
+        (friend) => friend.groupKey === "friend:group_3"
       );
 
       // Apply template with replacements
@@ -268,6 +277,16 @@ Oculus ID: {oculusId}`;
       const autoInviteUsers = this.autoInvite
         ?.getAutoInviteUsersList()
         ?.map((u) => u.displayName);
+
+      // Get tagged users count
+      let taggedUsersCount = 0;
+      if (this.tagManager?.findTaggedUsers) {
+        const taggedUsers = this.tagManager.findTaggedUsers(false);
+        taggedUsersCount = Object.values(taggedUsers).reduce(
+          (sum, store) => sum + Object.keys(store).length,
+          0
+        );
+      }
 
       const newBio = bioTemplate
         .replace("{last_activity}", this.timeToText(now - last_activity))
@@ -283,19 +302,22 @@ Oculus ID: {oculusId}`;
           moderations.filter((item) => item.type === "mute").length ?? "?"
         )
         .replace("{now}", this.formatDateTime())
-        .replace("{autojoin}", joiners.map((f) => f.name).join(", "))
-        .replace("{partners}", partners.map((f) => f.name).join(", "))
+        .replace("{group1}", group1.map((f) => f.name).join(", "))
+        .replace("{group2}", group2.map((f) => f.name).join(", "))
+        .replace("{group3}", group3.map((f) => f.name).join(", "))
+        .replace("{autojoin}", group2.map((f) => f.name).join(", ")) // Alias for group2
         .replace("{autoinvite}", autoInviteUsers.join(", ") ?? "")
         .replace(
           "{autoinviteprefix}",
           autoInviteUsers.length > 0 ? "Auto Invite: " : ""
         )
         .replace("{tags_loaded}", this.tagManager?.getLoadedTagsCount() ?? 0)
-        .replace("{userId}", currentUser.id)
-        .replace("{steamId}", currentUser.steamId)
-        .replace("{oculusId}", currentUser.oculusId)
-        .replace("{picoId}", currentUser.picoId)
-        .replace("{viveId}", currentUser.viveId)
+        .replace("{tagged_users}", taggedUsersCount)
+        .replace("{user_id}", currentUser.id)
+        .replace("{steam_id}", currentUser.steamId)
+        .replace("{oculus_id}", currentUser.oculusId)
+        .replace("{pico_id}", currentUser.picoId)
+        .replace("{vive_id}", currentUser.viveId)
         .replace("{rank}", currentUser.$trustLevel);
 
       // Combine old bio with new bio using separator

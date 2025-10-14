@@ -221,8 +221,8 @@ this.registerVoidHook("annoyingFunc", () => {
 // Replace-hook (custom implementation)
 this.registerReplaceHook("func", (original, ...args) => {
   return original(...args) + " modified";
-});
-```
+   });
+   ```
 
 ## Plugin URLs
 
