@@ -85,8 +85,8 @@ Oculus ID: {oculusId}`;
         default: "438100",
       },
       template: {
-        type: SettingType.STRING,
-        description: "Bio template with placeholders",
+        type: SettingType.CUSTOM,
+        description: "Bio template with placeholders (multiline text)",
         category: "template",
         placeholder: defaultTemplate,
         default: defaultTemplate,
