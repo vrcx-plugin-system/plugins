@@ -1632,10 +1632,24 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   createStringInput(plugin, key, currentValue, placeholder) {
+    const stringValue = currentValue || "";
+    const hasNewlines = stringValue.includes("\n");
+
+    // If string contains newlines, use multiline textarea
+    if (hasNewlines) {
+      return this.createMultilineTextarea(plugin, key, stringValue, {
+        placeholder: placeholder,
+        maxLines: 30,
+        minLines: 3,
+        validateJson: false,
+      });
+    }
+
+    // Single line input (no newlines)
     const input = document.createElement("input");
     input.type = "text";
     input.className = "el-input__inner";
-    input.value = currentValue || "";
+    input.value = stringValue;
     input.placeholder = placeholder || "";
     input.style.cssText =
       "width: 100%; padding: 6px 10px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 13px; background: #1e1e1e; color: #e0e0e0;";
@@ -1650,6 +1664,147 @@ class PluginManagerUIPlugin extends Plugin {
     });
 
     return input;
+  }
+
+  createMultilineTextarea(plugin, key, value, options = {}) {
+    const {
+      placeholder = "",
+      maxLines = 30,
+      minLines = 3,
+      validateJson = false,
+    } = options;
+
+    const container = document.createElement("div");
+    container.style.cssText = "width: 100%;";
+
+    const stringValue = validateJson
+      ? JSON.stringify(value, null, 2)
+      : value || "";
+    const lineCount = Math.min(
+      (stringValue.match(/\n/g) || []).length + 1,
+      maxLines
+    );
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "el-textarea__inner";
+    textarea.value = stringValue;
+    textarea.placeholder = placeholder;
+    textarea.rows = Math.max(lineCount, minLines);
+    textarea.style.cssText = `
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #5a5a5a;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      background: #1e1e1e;
+      color: #e0e0e0;
+      resize: vertical;
+      min-height: ${minLines * 20}px;
+      max-height: ${maxLines * 20}px;
+      line-height: 1.5;
+    `;
+
+    // Message containers for JSON validation
+    let errorMsg, successMsg;
+    if (validateJson) {
+      errorMsg = document.createElement("div");
+      errorMsg.style.cssText = `
+        font-size: 11px;
+        color: #f56c6c;
+        margin-top: 4px;
+        display: none;
+      `;
+
+      successMsg = document.createElement("div");
+      successMsg.style.cssText = `
+        font-size: 11px;
+        color: #67c23a;
+        margin-top: 4px;
+        display: none;
+      `;
+    }
+
+    // Auto-adjust height on input
+    this.registerListener(textarea, "input", () => {
+      const newLineCount = Math.min(
+        (textarea.value.match(/\n/g) || []).length + 1,
+        maxLines
+      );
+      textarea.rows = Math.max(newLineCount, minLines);
+
+      if (validateJson && errorMsg && successMsg) {
+        errorMsg.style.display = "none";
+        successMsg.style.display = "none";
+      }
+    });
+
+    // Update border color on focus
+    this.registerListener(textarea, "focus", () => {
+      textarea.style.borderColor = "#409eff";
+    });
+
+    // Save on blur
+    this.registerListener(textarea, "blur", () => {
+      textarea.style.borderColor = "#5a5a5a";
+
+      if (validateJson) {
+        // JSON validation mode
+        try {
+          const parsed = JSON.parse(textarea.value);
+          plugin.settings.store[key] = parsed;
+
+          // Show success
+          if (successMsg) {
+            successMsg.textContent = "✓ Valid JSON saved";
+            successMsg.style.display = "block";
+          }
+          if (errorMsg) {
+            errorMsg.style.display = "none";
+          }
+
+          // Re-format the JSON
+          const formatted = JSON.stringify(parsed, null, 2);
+          textarea.value = formatted;
+          const newLineCount = Math.min(
+            (formatted.match(/\n/g) || []).length + 1,
+            maxLines
+          );
+          textarea.rows = Math.max(newLineCount, minLines);
+
+          // Hide success message after 2 seconds
+          setTimeout(() => {
+            if (successMsg) successMsg.style.display = "none";
+          }, 2000);
+        } catch (error) {
+          // Show error
+          if (errorMsg) {
+            errorMsg.textContent = `✗ Invalid JSON: ${error.message}`;
+            errorMsg.style.display = "block";
+          }
+          if (successMsg) {
+            successMsg.style.display = "none";
+          }
+          textarea.style.borderColor = "#f56c6c";
+        }
+      } else {
+        // Plain text mode
+        try {
+          plugin.settings.store[key] = textarea.value;
+          this.logger.log(`Setting ${key} updated (multiline)`);
+        } catch (error) {
+          this.logger.error(`Error updating ${key}:`, error);
+        }
+      }
+    });
+
+    container.appendChild(textarea);
+    if (validateJson && errorMsg && successMsg) {
+      container.appendChild(errorMsg);
+      container.appendChild(successMsg);
+    }
+
+    return container;
   }
 
   createSelectInput(plugin, key, currentValue, options) {
@@ -1714,105 +1869,13 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   createCustomInput(plugin, key, currentValue) {
-    const container = document.createElement("div");
-    container.style.cssText = "width: 100%;";
-
-    // Format JSON with indentation
-    const jsonString = JSON.stringify(currentValue, null, 2);
-    const lineCount = Math.min((jsonString.match(/\n/g) || []).length + 1, 50);
-
-    const textarea = document.createElement("textarea");
-    textarea.className = "el-textarea__inner";
-    textarea.value = jsonString;
-    textarea.rows = lineCount;
-    textarea.style.cssText = `
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid #dcdfe6;
-      border-radius: 4px;
-      font-size: 12px;
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-      resize: vertical;
-      min-height: 40px;
-      max-height: ${50 * 20}px;
-      line-height: 1.5;
-    `;
-
-    // Error message display
-    const errorMsg = document.createElement("div");
-    errorMsg.style.cssText = `
-      font-size: 11px;
-      color: #f56c6c;
-      margin-top: 4px;
-      display: none;
-    `;
-
-    // Success indicator
-    const successMsg = document.createElement("div");
-    successMsg.style.cssText = `
-      font-size: 11px;
-      color: #67c23a;
-      margin-top: 4px;
-      display: none;
-    `;
-
-    this.registerListener(textarea, "input", () => {
-      // Auto-adjust height based on content
-      const newLineCount = Math.min(
-        (textarea.value.match(/\n/g) || []).length + 1,
-        50
-      );
-      textarea.rows = Math.max(newLineCount, 2);
-
-      // Reset messages
-      errorMsg.style.display = "none";
-      successMsg.style.display = "none";
+    // Use shared multiline textarea with JSON validation
+    return this.createMultilineTextarea(plugin, key, currentValue, {
+      placeholder: "",
+      maxLines: 50,
+      minLines: 2,
+      validateJson: true,
     });
-
-    this.registerListener(textarea, "blur", () => {
-      try {
-        const parsed = JSON.parse(textarea.value);
-        plugin.settings.store[key] = parsed;
-
-        // Show success
-        successMsg.textContent = "✓ Valid JSON saved";
-        successMsg.style.display = "block";
-        errorMsg.style.display = "none";
-
-        // Re-format the JSON
-        const formatted = JSON.stringify(parsed, null, 2);
-        textarea.value = formatted;
-        const newLineCount = Math.min(
-          (formatted.match(/\n/g) || []).length + 1,
-          50
-        );
-        textarea.rows = Math.max(newLineCount, 2);
-
-        // Reset border color
-        textarea.style.borderColor = "#dcdfe6";
-
-        // Hide success message after 2 seconds
-        setTimeout(() => {
-          successMsg.style.display = "none";
-        }, 2000);
-      } catch (error) {
-        // Show error
-        errorMsg.textContent = `✗ Invalid JSON: ${error.message}`;
-        errorMsg.style.display = "block";
-        successMsg.style.display = "none";
-        textarea.style.borderColor = "#f56c6c";
-      }
-    });
-
-    this.registerListener(textarea, "focus", () => {
-      textarea.style.borderColor = "#409eff";
-    });
-
-    container.appendChild(textarea);
-    container.appendChild(errorMsg);
-    container.appendChild(successMsg);
-
-    return container;
   }
 
   /**
