@@ -91,27 +91,12 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   onPluginsTabShown() {
-    this.logger.log("🎯 Plugins tab shown!");
+    this.logger.log("🎯 Plugins tab shown - refreshing grid...");
 
-    // Ensure content is rendered when tab becomes active
-    if (!this.contentRendered && this.contentContainer) {
-      this.logger.log("🎨 Rendering content now...");
-      try {
-        this.renderContent(this.contentContainer);
-        this.contentRendered = true;
-        this.logger.log("✅ Content rendered successfully!");
-      } catch (error) {
-        this.logger.error("❌ Error rendering content:", error);
-      }
-    } else if (this.contentRendered) {
-      this.logger.log("⏭️ Content already rendered, refreshing grid...");
-      // Refresh grid when switching back to this tab
-      setTimeout(() => {
-        this.refreshPluginGrid();
-      }, 100);
-    } else {
-      this.logger.warn("⚠️ No container available to render content!");
-    }
+    // Refresh the plugin grid when tab becomes visible
+    setTimeout(() => {
+      this.refreshPluginGrid();
+    }, 50);
   }
 
   onPluginsTabHidden() {
@@ -120,123 +105,48 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   createPanelContent() {
-    this.logger.log("📦 createPanelContent() called");
+    this.logger.log(
+      "📦 createPanelContent() called - building content immediately"
+    );
 
-    this.logger.log("🎨 Creating div container...");
     const container = document.createElement("div");
     container.style.cssText = `
       padding: 20px;
       max-width: 1400px;
       margin: 0 auto;
     `;
-    this.logger.log("✅ Container element created");
-
-    this.contentContainer = container;
-    this.logger.log("💾 Content container stored in this.contentContainer");
-
-    // Check if we're already on the plugins tab
-    this.logger.log("🔍 Checking current menu state...");
-    const currentMenuIndex = window.$pinia?.ui?.menuActiveIndex;
-    const isPluginsActive = currentMenuIndex === "plugins";
-
-    this.logger.log(
-      `📍 Current menu index: "${currentMenuIndex}", isPluginsActive: ${isPluginsActive}`
-    );
-
-    if (isPluginsActive) {
-      // If already active, render immediately
-      this.logger.log("🎯 Already on plugins tab, rendering immediately");
-      try {
-        this.renderContent(container);
-        this.contentRendered = true;
-        this.logger.log("✅ Content rendered immediately");
-      } catch (error) {
-        this.logger.error("❌ Error rendering content immediately:", error);
-      }
-    } else {
-      // Otherwise wait for menu watcher to trigger render
-      this.logger.log("⏳ Not on plugins tab yet, waiting for tab activation");
-      this.logger.log(
-        "👀 Menu watcher will handle rendering when tab is clicked"
-      );
-    }
-
-    this.logger.log("✅ createPanelContent() returning container");
-    return container;
-  }
-
-  renderContent(container) {
-    this.logger.log("🎨 renderContent() called");
-    this.logger.log(
-      `📦 Container: ${container ? "exists" : "NULL"}, isInDOM: ${
-        container?.parentElement ? "yes" : "no"
-      }, children: ${container?.children?.length || 0}`
-    );
 
     try {
-      this.logger.log("🧹 Clearing container innerHTML...");
-      container.innerHTML = "";
-      this.logger.log(
-        `✅ Container cleared, innerHTML length: ${container.innerHTML.length}`
-      );
-
-      // Stats cards section
+      // Build all content immediately - nav-menu-api handles visibility
       this.logger.log("📊 Creating stats section...");
       const statsSection = this.createStatsSection();
-      this.logger.log(`✅ Stats section created, appending to container...`);
       container.appendChild(statsSection);
-      this.logger.log(
-        `✅ Stats section added, container children: ${container.children.length}`
-      );
 
-      // Config sync section (import/export)
       this.logger.log("⚙️ Creating config sync section...");
       const syncSection = this.createConfigSyncSection();
-      this.logger.log(`✅ Config sync section created, appending...`);
       container.appendChild(syncSection);
-      this.logger.log(
-        `✅ Config sync section added, container children: ${container.children.length}`
-      );
 
-      // Load plugin section
       this.logger.log("📥 Creating load plugin section...");
       const loadSection = this.createLoadPluginSection();
-      this.logger.log(`✅ Load plugin section created, appending...`);
       container.appendChild(loadSection);
-      this.logger.log(
-        `✅ Load plugin section added, container children: ${container.children.length}`
-      );
 
-      // Filter section
       this.logger.log("🔍 Creating filter section...");
       const filterSection = this.createFilterSection();
-      this.logger.log(`✅ Filter section created, appending...`);
       container.appendChild(filterSection);
-      this.logger.log(
-        `✅ Filter section added, container children: ${container.children.length}`
-      );
 
       // Plugin grid container
       this.logger.log("🎯 Creating plugin grid container...");
       const pluginGrid = document.createElement("div");
       pluginGrid.id = "plugin-grid-container";
       pluginGrid.className = "vc-plugins-grid";
-      this.logger.log(`✅ Plugin grid container created, appending...`);
       container.appendChild(pluginGrid);
-      this.logger.log(
-        `✅ Plugin grid container added, final container children: ${container.children.length}`
-      );
 
-      // Refresh grid immediately since we know container is in DOM and visible
-      this.logger.log("⏱️ Scheduling grid refresh in 50ms...");
-      setTimeout(() => {
-        this.logger.log("⏰ Grid refresh timeout triggered!");
-        this.refreshPluginGrid();
-      }, 50);
+      // Store reference for later refreshing
+      this.pluginGridContainer = pluginGrid;
 
-      this.logger.log("🎉 renderContent() complete!");
+      this.logger.log("🎉 Panel content created successfully!");
     } catch (error) {
-      this.logger.error("❌ Error rendering plugin manager content:", error);
+      this.logger.error("❌ Error creating plugin manager content:", error);
       const errorDiv = document.createElement("div");
       errorDiv.style.cssText =
         "padding: 20px; text-align: center; color: #dc3545;";
@@ -257,6 +167,9 @@ class PluginManagerUIPlugin extends Plugin {
       errorDiv.appendChild(reloadBtn);
       container.appendChild(errorDiv);
     }
+
+    this.logger.log("✅ Returning panel content to nav-menu-api");
+    return container;
   }
 
   createStatsSection() {
@@ -733,42 +646,16 @@ class PluginManagerUIPlugin extends Plugin {
     this.logger.log("🔄 refreshPluginGrid() called");
 
     try {
-      this.logger.log(
-        `🔍 Looking for grid container, contentContainer: ${
-          this.contentContainer ? "exists" : "NULL"
-        }, isInDOM: ${this.contentContainer?.parentElement ? "yes" : "no"}`
-      );
-
-      const gridContainer = this.contentContainer?.querySelector(
-        "#plugin-grid-container"
-      );
-
-      this.logger.log(
-        `📦 Grid container: ${gridContainer ? "found" : "NOT FOUND"}${
-          gridContainer
-            ? `, isInDOM: ${gridContainer.parentElement ? "yes" : "no"}`
-            : ""
-        }`
-      );
+      const gridContainer = this.pluginGridContainer;
 
       if (!gridContainer) {
-        this.logger.warn("⚠️ Plugin grid container not found - cannot refresh");
-        this.logger.log(
-          "🔍 Debugging - contentContainer children:",
-          this.contentContainer?.children?.length
+        this.logger.warn(
+          "⚠️ Plugin grid container not available - cannot refresh"
         );
-        if (this.contentContainer) {
-          for (let i = 0; i < this.contentContainer.children.length; i++) {
-            const child = this.contentContainer.children[i];
-            this.logger.log(
-              `  Child ${i}: ${child.tagName}#${child.id || "no-id"}.${
-                child.className || "no-class"
-              }`
-            );
-          }
-        }
         return;
       }
+
+      this.logger.log("📦 Grid container ready, refreshing...");
 
       this.logger.log("🧹 Clearing grid container...");
       gridContainer.innerHTML = "";
