@@ -19,7 +19,9 @@ class BioSymbolsPatchPlugin extends Plugin {
     });
 
     this.originalFunction = null;
+    this.originalUtils = null;
     this.patched = false;
+    this.patchedViaProxy = false;
   }
 
   async load() {
@@ -92,14 +94,65 @@ class BioSymbolsPatchPlugin extends Plugin {
       // Create patched version
       const patchedFunc = this.createPatchedFunction(this.originalFunction);
 
-      // Replace
-      obj[funcName] = patchedFunc;
+      // Try direct assignment first
+      try {
+        obj[funcName] = patchedFunc;
+        this.logger.log(`✓ Patched ${funcName} via direct assignment`);
+      } catch (e) {
+        // If direct assignment fails (read-only), try Object.defineProperty
+        try {
+          Object.defineProperty(obj, funcName, {
+            value: patchedFunc,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+          });
+          this.logger.log(`✓ Patched ${funcName} via defineProperty`);
+        } catch (e2) {
+          // If that also fails, we need to use a Proxy approach
+          this.logger.log(`Direct patching failed, using Proxy approach`);
+          this.patchViaProxy(obj, funcName, patchedFunc);
+          return;
+        }
+      }
 
       this.patched = true;
       this.logger.log(`✓ Successfully patched ${funcName}`);
       this.logger.showSuccess("Bio symbols patch applied");
     } catch (error) {
       this.logger.error(`Failed to patch function: ${error.message}`);
+    }
+  }
+
+  /**
+   * Patch using a Proxy wrapper (for read-only properties)
+   */
+  patchViaProxy(obj, funcName, patchedFunc) {
+    try {
+      // Store original object reference
+      this.originalUtils = obj;
+
+      // Create a Proxy that intercepts the replaceBioSymbols call
+      const proxyHandler = {
+        get: (target, prop) => {
+          if (prop === funcName) {
+            return patchedFunc;
+          }
+          return target[prop];
+        },
+      };
+
+      const proxiedUtils = new Proxy(obj, proxyHandler);
+
+      // Replace window.utils with the proxy
+      window.utils = proxiedUtils;
+
+      this.patched = true;
+      this.patchedViaProxy = true;
+      this.logger.log(`✓ Successfully patched ${funcName} via Proxy`);
+      this.logger.showSuccess("Bio symbols patch applied (Proxy mode)");
+    } catch (error) {
+      this.logger.error(`Failed to patch via Proxy: ${error.message}`);
     }
   }
 
@@ -224,9 +277,20 @@ class BioSymbolsPatchPlugin extends Plugin {
    */
   restoreOriginalFunction() {
     try {
-      if (window.utils?.replaceBioSymbols && this.originalFunction) {
-        window.utils.replaceBioSymbols = this.originalFunction;
-        this.logger.log("Restored original replaceBioSymbols");
+      if (this.patchedViaProxy && this.originalUtils) {
+        // Restore original utils object
+        window.utils = this.originalUtils;
+        this.logger.log("Restored original utils object (removed Proxy)");
+        this.patchedViaProxy = false;
+        this.originalUtils = null;
+      } else if (window.utils?.replaceBioSymbols && this.originalFunction) {
+        try {
+          window.utils.replaceBioSymbols = this.originalFunction;
+          this.logger.log("Restored original replaceBioSymbols");
+        } catch (e) {
+          // If can't restore, not a big deal - just log it
+          this.logger.warn("Could not restore (read-only), but patch is removed");
+        }
       }
 
       this.patched = false;
