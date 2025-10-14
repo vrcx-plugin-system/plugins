@@ -798,14 +798,20 @@ class PluginManagerUIPlugin extends Plugin {
 
     // Custom action buttons (if plugin defines them)
     let customActions = null;
-    if (plugin.getActionButtons && typeof plugin.getActionButtons === "function") {
+    if (
+      plugin.getActionButtons &&
+      typeof plugin.getActionButtons === "function"
+    ) {
       try {
         const customButtons = plugin.getActionButtons();
         if (customButtons && customButtons.length > 0) {
           customActions = this.createCustomActionButtons(plugin, customButtons);
         }
       } catch (error) {
-        this.logger.error(`Error getting action buttons for ${plugin.metadata.id}:`, error);
+        this.logger.error(
+          `Error getting action buttons for ${plugin.metadata.id}:`,
+          error
+        );
       }
     }
 
@@ -898,7 +904,7 @@ class PluginManagerUIPlugin extends Plugin {
     buttons.forEach((buttonDef) => {
       try {
         const button = document.createElement("button");
-        
+
         // Map color names to element plus button variants
         const colorClassMap = {
           primary: "el-button--primary",
@@ -908,7 +914,8 @@ class PluginManagerUIPlugin extends Plugin {
           info: "el-button--info",
         };
 
-        const colorClass = colorClassMap[buttonDef.color] || colorClassMap.primary;
+        const colorClass =
+          colorClassMap[buttonDef.color] || colorClassMap.primary;
         button.className = `el-button el-button--small ${colorClass}`;
         button.style.cssText = "flex: 1;";
 
@@ -943,7 +950,10 @@ class PluginManagerUIPlugin extends Plugin {
 
         container.appendChild(button);
       } catch (error) {
-        this.logger.error(`Error creating custom button for ${plugin.metadata.id}:`, error);
+        this.logger.error(
+          `Error creating custom button for ${plugin.metadata.id}:`,
+          error
+        );
       }
     });
 
