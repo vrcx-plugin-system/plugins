@@ -7,6 +7,7 @@ class BioUpdaterPlugin extends Plugin {
       author: "Bluscream",
       version: "3.1.0",
       build: "1728935100",
+      tags: ["Automation", "Social"],
       dependencies: [],
     });
 

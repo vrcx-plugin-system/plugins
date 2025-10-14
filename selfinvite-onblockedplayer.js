@@ -20,6 +20,7 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
       author: "Bluscream",
       version: "3.0.2",
       build: "1760363253",
+      tags: ["Automation", "Security"],
       dependencies: [],
     });
 

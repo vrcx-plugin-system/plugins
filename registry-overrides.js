@@ -7,6 +7,7 @@ class RegistryOverridesPlugin extends Plugin {
       author: "Bluscream",
       version: "3.2.0",
       build: "1760363253",
+      tags: ["Game", "Config", "Automation"],
       dependencies: [],
     });
 

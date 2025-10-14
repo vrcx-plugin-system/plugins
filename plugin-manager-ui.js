@@ -7,6 +7,7 @@ class PluginManagerUIPlugin extends Plugin {
       author: "Bluscream",
       version: "6.8.4",
       build: "1760444890",
+      tags: ["UI", "Core", "Settings"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/nav-menu-api.js",
       ],
@@ -14,8 +15,6 @@ class PluginManagerUIPlugin extends Plugin {
 
     this.settingsModal = null;
     this.searchValue = { value: "", filter: "all" }; // all, enabled, disabled, core, failed, new
-    this.visibleCount = 12;
-    this.pluginsPerPage = 12;
     this.togglingPlugins = new Set(); // Track plugins currently being toggled
   }
 
@@ -584,12 +583,10 @@ class PluginManagerUIPlugin extends Plugin {
         failedUrls
       );
 
-      this.visibleCount = Math.min(this.pluginsPerPage, filteredPlugins.length);
-
       // Create title
       const pluginsTitle = document.createElement("h5");
       pluginsTitle.style.cssText =
-        "margin: 0 0 16px 0; font-size: 16px; font-weight: 600;";
+        "margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #e0e0e0;";
       pluginsTitle.textContent = `Plugins (${filteredPlugins.length})`;
       gridContainer.appendChild(pluginsTitle);
 
@@ -601,39 +598,18 @@ class PluginManagerUIPlugin extends Plugin {
       if (filteredPlugins.length === 0) {
         const noResults = document.createElement("div");
         noResults.style.cssText =
-          "padding: 40px; text-align: center; color: #6c757d;";
+          "padding: 40px; text-align: center; color: #909090;";
         noResults.textContent = "No plugins meet the search criteria.";
         gridContainer.appendChild(noResults);
         return;
       }
 
-      // Show visible plugins
-      const visiblePlugins = filteredPlugins.slice(0, this.visibleCount);
-      visiblePlugins.forEach((plugin) => {
+      // Show all plugins at once (no pagination needed)
+      filteredPlugins.forEach((plugin) => {
         grid.appendChild(this.createPluginCard(plugin));
       });
 
       gridContainer.appendChild(grid);
-
-      // Load more button if needed
-      if (this.visibleCount < filteredPlugins.length) {
-        const loadMoreBtn = document.createElement("button");
-        loadMoreBtn.className = "el-button el-button--default";
-        loadMoreBtn.style.cssText = "width: 100%; margin-top: 16px;";
-        loadMoreBtn.textContent = `Load More (${
-          filteredPlugins.length - this.visibleCount
-        } remaining)`;
-
-        this.registerListener(loadMoreBtn, "click", () => {
-          this.visibleCount = Math.min(
-            this.visibleCount + this.pluginsPerPage,
-            filteredPlugins.length
-          );
-          this.refreshPluginGrid();
-        });
-
-        gridContainer.appendChild(loadMoreBtn);
-      }
     } catch (error) {
       this.logger.error("Error refreshing plugin grid:", error);
       console.error(error);
@@ -770,22 +746,18 @@ class PluginManagerUIPlugin extends Plugin {
     description.textContent =
       plugin.metadata?.description || "No description available";
 
-    // Status badges
+    // Tags as badges
     const badgesContainer = document.createElement("div");
     badgesContainer.style.cssText =
-      "display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px;";
+      "display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;";
 
-    if (plugin.loaded) {
-      const badge = this.createBadge("Loaded", "#28a745");
-      badgesContainer.appendChild(badge);
-    }
-    if (plugin.started) {
-      const badge = this.createBadge("Started", "#007bff");
-      badgesContainer.appendChild(badge);
-    }
-    if (plugin.enabled) {
-      const badge = this.createBadge("Enabled", "#6f42c1");
-      badgesContainer.appendChild(badge);
+    // Show plugin tags if available
+    if (plugin.metadata?.tags && plugin.metadata.tags.length > 0) {
+      plugin.metadata.tags.forEach((tag) => {
+        const color = this.getTagColor(tag);
+        const badge = this.createBadge(tag, color);
+        badgesContainer.appendChild(badge);
+      });
     }
 
     // Action buttons
@@ -868,6 +840,26 @@ class PluginManagerUIPlugin extends Plugin {
     `;
     badge.textContent = text;
     return badge;
+  }
+
+  getTagColor(tag) {
+    // Simple hash function to convert string to consistent number
+    let hash = 0;
+    for (let i = 0; i < tag.length; i++) {
+      hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+      hash = hash & hash; // Convert to 32bit integer
+    }
+
+    // Convert hash to hue (0-360 degrees)
+    const hue = Math.abs(hash % 360);
+
+    // Use HSL with consistent saturation and lightness for vibrant, readable colors
+    // Saturation: 65-75% for vibrant but not overpowering colors
+    // Lightness: 45-55% for good contrast on dark backgrounds
+    const saturation = 65 + (Math.abs(hash >> 8) % 11); // 65-75%
+    const lightness = 45 + (Math.abs(hash >> 16) % 11); // 45-55%
+
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
   }
 
   createFailedSection(failedUrls) {

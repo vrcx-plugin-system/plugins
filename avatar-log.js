@@ -7,6 +7,7 @@ class AvatarLogPlugin extends Plugin {
       author: "Bluscream",
       version: "3.1.0",
       build: "1728935100",
+      tags: ["Logger", "Database", "Integration"],
       dependencies: [],
     });
 
@@ -145,6 +146,7 @@ class AvatarLogPlugin extends Plugin {
     // Load processed avatars from storage
     this.loadProcessedAvatars();
 
+    this.loaded = true;
     this.logger.log("✅ Avatar Logger loaded");
   }
 
@@ -154,6 +156,7 @@ class AvatarLogPlugin extends Plugin {
     // Hook into avatar-related events and functions
     this.hookAvatarEvents();
 
+    this.started = true;
     this.logger.log("✅ Avatar Logger started and monitoring");
   }
 
