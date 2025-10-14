@@ -571,11 +571,22 @@ class PluginManagerUIPlugin extends Plugin {
 
       gridContainer.innerHTML = "";
 
-      // Get all plugins and apply filters
-      const allPlugins = window.customjs?.plugins || [];
+      // Get all plugins (loaded) and plugins from config (including disabled)
+      const loadedPlugins = window.customjs?.plugins || [];
       const coreModules = window.customjs?.core_modules || [];
       const failedUrls =
         window.customjs?.pluginManager?.failedUrls || new Set();
+
+      // Get plugin config to include disabled plugins
+      const pluginConfig = window.customjs?.configManager?.get("plugins") || {};
+
+      // Create plugin objects for disabled plugins that aren't loaded
+      const loadedUrls = new Set(loadedPlugins.map((p) => p.metadata.url));
+      const disabledPlugins = Object.entries(pluginConfig)
+        .filter(([url, enabled]) => !enabled && !loadedUrls.has(url))
+        .map(([url]) => this.createUnloadedPluginStub(url));
+
+      const allPlugins = [...loadedPlugins, ...disabledPlugins];
 
       const filteredPlugins = this.filterPlugins(
         allPlugins,
@@ -614,6 +625,34 @@ class PluginManagerUIPlugin extends Plugin {
       this.logger.error("Error refreshing plugin grid:", error);
       console.error(error);
     }
+  }
+
+  createUnloadedPluginStub(url) {
+    // Extract plugin name from URL
+    const urlParts = url.split("/");
+    const filename = urlParts[urlParts.length - 1];
+    const pluginId = filename.replace(/\.js$/, "");
+    const pluginName = pluginId
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    return {
+      metadata: {
+        id: pluginId,
+        name: pluginName,
+        description: "(Not loaded - enable to see details)",
+        author: "Unknown",
+        version: "0.0.0",
+        build: "0",
+        url: url,
+        tags: [],
+      },
+      enabled: false,
+      loaded: false,
+      started: false,
+      _isStub: true, // Mark as stub so we know it's not a real loaded plugin
+    };
   }
 
   filterPlugins(allPlugins, coreModules, failedUrls) {
