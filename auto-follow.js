@@ -349,9 +349,9 @@ class AutoFollowPlugin extends Plugin {
 
         this.lastRequestedFrom.set(user.id, location);
         this.logger.showSuccess(
-          `Sent invite to join ${userName} in ${worldName}`
+          `Sent self-invite to join ${userName} in ${worldName}`
         );
-        this.logger.log(`✓ Successfully sent self-invite to ${worldName}`);
+        this.logger.log(`✓ Successfully sent self-invite to ${userName}`);
 
         // this.logger.addNotificationLog({
         //   id: `autofollow_invite_${user.id}_${Date.now()}`,
