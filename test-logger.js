@@ -133,8 +133,7 @@ class TestLoggerPlugin extends Plugin {
             label: "$message.success()",
             color: "#67c23a",
             test: async () => {
-              const $message =
-                window.$app?.config?.globalProperties?.$message;
+              const $message = window.$app?.config?.globalProperties?.$message;
               if ($message?.success) {
                 $message.success(this.testMessage);
                 return { success: true };
@@ -146,8 +145,7 @@ class TestLoggerPlugin extends Plugin {
             label: "$message.warning()",
             color: "#e6a23c",
             test: async () => {
-              const $message =
-                window.$app?.config?.globalProperties?.$message;
+              const $message = window.$app?.config?.globalProperties?.$message;
               if ($message?.warning) {
                 $message.warning(this.testMessage);
                 return { success: true };
@@ -159,8 +157,7 @@ class TestLoggerPlugin extends Plugin {
             label: "$message.error()",
             color: "#f56c6c",
             test: async () => {
-              const $message =
-                window.$app?.config?.globalProperties?.$message;
+              const $message = window.$app?.config?.globalProperties?.$message;
               if ($message?.error) {
                 $message.error(this.testMessage);
                 return { success: true };
@@ -172,8 +169,7 @@ class TestLoggerPlugin extends Plugin {
             label: "$message.info()",
             color: "#409eff",
             test: async () => {
-              const $message =
-                window.$app?.config?.globalProperties?.$message;
+              const $message = window.$app?.config?.globalProperties?.$message;
               if ($message?.info) {
                 $message.info(this.testMessage);
                 return { success: true };
@@ -185,8 +181,7 @@ class TestLoggerPlugin extends Plugin {
             label: "$notify.success()",
             color: "#67c23a",
             test: async () => {
-              const $notify =
-                window.$app?.config?.globalProperties?.$notify;
+              const $notify = window.$app?.config?.globalProperties?.$notify;
               if ($notify?.success) {
                 $notify.success({
                   title: "Logger Test",
@@ -201,8 +196,7 @@ class TestLoggerPlugin extends Plugin {
             label: "$notify.warning()",
             color: "#e6a23c",
             test: async () => {
-              const $notify =
-                window.$app?.config?.globalProperties?.$notify;
+              const $notify = window.$app?.config?.globalProperties?.$notify;
               if ($notify?.warning) {
                 $notify.warning({
                   title: "Logger Test",
@@ -217,8 +211,7 @@ class TestLoggerPlugin extends Plugin {
             label: "$notify.error()",
             color: "#f56c6c",
             test: async () => {
-              const $notify =
-                window.$app?.config?.globalProperties?.$notify;
+              const $notify = window.$app?.config?.globalProperties?.$notify;
               if ($notify?.error) {
                 $notify.error({
                   title: "Logger Test",
@@ -233,8 +226,7 @@ class TestLoggerPlugin extends Plugin {
             label: "$notify.info()",
             color: "#409eff",
             test: async () => {
-              const $notify =
-                window.$app?.config?.globalProperties?.$notify;
+              const $notify = window.$app?.config?.globalProperties?.$notify;
               if ($notify?.info) {
                 $notify.info({
                   title: "Logger Test",
@@ -355,6 +347,81 @@ class TestLoggerPlugin extends Plugin {
                 return { success: true };
               }
               throw new Error("AppApi.OVRTNotification not available");
+            },
+          },
+        ],
+      },
+      {
+        title: "Noty Library (VRCX Login Messages)",
+        buttons: [
+          {
+            label: "Noty Success",
+            color: "#67c23a",
+            test: async () => {
+              if (typeof Noty !== "undefined") {
+                new Noty({
+                  type: "success",
+                  text: this.testMessage,
+                }).show();
+                return { success: true };
+              }
+              throw new Error("Noty library not available");
+            },
+          },
+          {
+            label: "Noty Info",
+            color: "#409eff",
+            test: async () => {
+              if (typeof Noty !== "undefined") {
+                new Noty({
+                  type: "info",
+                  text: this.testMessage,
+                }).show();
+                return { success: true };
+              }
+              throw new Error("Noty library not available");
+            },
+          },
+          {
+            label: "Noty Warning",
+            color: "#e6a23c",
+            test: async () => {
+              if (typeof Noty !== "undefined") {
+                new Noty({
+                  type: "warning",
+                  text: this.testMessage,
+                }).show();
+                return { success: true };
+              }
+              throw new Error("Noty library not available");
+            },
+          },
+          {
+            label: "Noty Error",
+            color: "#f56c6c",
+            test: async () => {
+              if (typeof Noty !== "undefined") {
+                new Noty({
+                  type: "error",
+                  text: this.testMessage,
+                }).show();
+                return { success: true };
+              }
+              throw new Error("Noty library not available");
+            },
+          },
+          {
+            label: "Noty Alert",
+            color: "#ff9800",
+            test: async () => {
+              if (typeof Noty !== "undefined") {
+                new Noty({
+                  type: "alert",
+                  text: this.testMessage,
+                }).show();
+                return { success: true };
+              }
+              throw new Error("Noty library not available");
             },
           },
         ],
@@ -624,6 +691,58 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
+        name: "Noty Success",
+        fn: async () => {
+          if (typeof Noty !== "undefined") {
+            new Noty({
+              type: "success",
+              text: this.testMessage,
+            }).show();
+          } else {
+            throw new Error("Noty not available");
+          }
+        },
+      },
+      {
+        name: "Noty Info",
+        fn: async () => {
+          if (typeof Noty !== "undefined") {
+            new Noty({
+              type: "info",
+              text: this.testMessage,
+            }).show();
+          } else {
+            throw new Error("Noty not available");
+          }
+        },
+      },
+      {
+        name: "Noty Warning",
+        fn: async () => {
+          if (typeof Noty !== "undefined") {
+            new Noty({
+              type: "warning",
+              text: this.testMessage,
+            }).show();
+          } else {
+            throw new Error("Noty not available");
+          }
+        },
+      },
+      {
+        name: "Noty Error",
+        fn: async () => {
+          if (typeof Noty !== "undefined") {
+            new Noty({
+              type: "error",
+              text: this.testMessage,
+            }).show();
+          } else {
+            throw new Error("Noty not available");
+          }
+        },
+      },
+      {
         name: "AppApi.DesktopNotification",
         fn: async () => {
           if (window.AppApi?.DesktopNotification) {
@@ -662,4 +781,3 @@ class TestLoggerPlugin extends Plugin {
 
 // Export plugin class for PluginManager
 window.customjs.__LAST_PLUGIN_CLASS__ = TestLoggerPlugin;
-
