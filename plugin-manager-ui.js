@@ -1123,9 +1123,9 @@ class PluginManagerUIPlugin extends Plugin {
     // Create modal container
     const modal = document.createElement("div");
     modal.style.cssText = `
-      background: white;
+      background: #2d2d2d;
       border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
       width: 90%;
       max-width: 700px;
       max-height: 80vh;
@@ -1138,7 +1138,7 @@ class PluginManagerUIPlugin extends Plugin {
     const header = document.createElement("div");
     header.style.cssText = `
       padding: 20px 25px;
-      border-bottom: 1px solid #e9ecef;
+      border-bottom: 1px solid #404040;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
     `;
@@ -1166,15 +1166,15 @@ class PluginManagerUIPlugin extends Plugin {
     const footer = document.createElement("div");
     footer.style.cssText = `
       padding: 15px 25px;
-      border-top: 1px solid #e9ecef;
+      border-top: 1px solid #404040;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #f8f9fa;
+      background: #252525;
     `;
 
     const infoText = document.createElement("span");
-    infoText.style.cssText = "font-size: 12px; color: #6c757d;";
+    infoText.style.cssText = "font-size: 12px; color: #b0b0b0;";
     infoText.textContent = "Settings are automatically saved";
 
     const buttonGroup = document.createElement("div");
@@ -1258,15 +1258,15 @@ class PluginManagerUIPlugin extends Plugin {
       if (Object.keys(visibleSettings).length === 0) {
         const noSettings = document.createElement("div");
         noSettings.style.cssText =
-          "text-align: center; padding: 20px; color: #6c757d;";
+          "text-align: center; padding: 20px; color: #909090;";
 
         const icon = document.createElement("i");
         icon.className = "ri-inbox-line";
         icon.style.cssText =
-          "font-size: 32px; opacity: 0.5; display: block; margin-bottom: 8px;";
+          "font-size: 32px; opacity: 0.5; display: block; margin-bottom: 8px; color: #909090;";
 
         const text = document.createElement("p");
-        text.style.cssText = "margin: 0; font-size: 13px;";
+        text.style.cssText = "margin: 0; font-size: 13px; color: #b0b0b0;";
         text.textContent = "This plugin has no configurable settings";
 
         noSettings.appendChild(icon);
@@ -1299,7 +1299,7 @@ class PluginManagerUIPlugin extends Plugin {
         categoryHeader.style.cssText = `
           margin-bottom: 12px;
           padding-bottom: 8px;
-          border-bottom: 2px solid #e9ecef;
+          border-bottom: 2px solid #404040;
         `;
 
         const categoryTitle = document.createElement("h4");
@@ -1307,7 +1307,7 @@ class PluginManagerUIPlugin extends Plugin {
           margin: 0;
           font-size: 15px;
           font-weight: 600;
-          color: #495057;
+          color: #e0e0e0;
         `;
         categoryTitle.textContent =
           categoryMeta[categoryKey]?.name ||
@@ -1321,7 +1321,7 @@ class PluginManagerUIPlugin extends Plugin {
           categoryDesc.style.cssText = `
             margin: 4px 0 0 0;
             font-size: 12px;
-            color: #6c757d;
+            color: #b0b0b0;
           `;
           categoryDesc.textContent = categoryMeta[categoryKey].description;
           categoryHeader.appendChild(categoryDesc);
@@ -1344,15 +1344,15 @@ class PluginManagerUIPlugin extends Plugin {
     // No settings found
     const noSettings = document.createElement("div");
     noSettings.style.cssText =
-      "text-align: center; padding: 20px; color: #6c757d;";
+      "text-align: center; padding: 20px; color: #909090;";
 
     const icon = document.createElement("i");
     icon.className = "ri-inbox-line";
     icon.style.cssText =
-      "font-size: 32px; opacity: 0.5; display: block; margin-bottom: 8px;";
+      "font-size: 32px; opacity: 0.5; display: block; margin-bottom: 8px; color: #909090;";
 
     const text = document.createElement("p");
-    text.style.cssText = "margin: 0; font-size: 13px;";
+    text.style.cssText = "margin: 0; font-size: 13px; color: #b0b0b0;";
     text.textContent = "This plugin has no configurable settings";
 
     noSettings.appendChild(icon);
@@ -1368,10 +1368,10 @@ class PluginManagerUIPlugin extends Plugin {
       align-items: center;
       justify-content: space-between;
       padding: 10px 12px;
-      background: #f8f9fa;
+      background: #353535;
       border-radius: 6px;
       margin-bottom: 8px;
-      border: 1px solid #dee2e6;
+      border: 1px solid #4a4a4a;
     `;
 
     // Label section
@@ -1380,12 +1380,12 @@ class PluginManagerUIPlugin extends Plugin {
 
     const label = document.createElement("div");
     label.style.cssText =
-      "font-size: 13px; font-weight: 500; color: #212529; margin-bottom: 2px;";
+      "font-size: 13px; font-weight: 500; color: #e8e8e8; margin-bottom: 2px;";
     label.textContent = settingDef.description || key;
 
     if (settingDef.placeholder) {
       const placeholder = document.createElement("div");
-      placeholder.style.cssText = "font-size: 11px; color: #6c757d;";
+      placeholder.style.cssText = "font-size: 11px; color: #b0b0b0;";
       placeholder.textContent = settingDef.placeholder;
       labelSection.appendChild(label);
       labelSection.appendChild(placeholder);
@@ -1526,7 +1526,7 @@ class PluginManagerUIPlugin extends Plugin {
     input.className = "el-input__inner";
     input.value = currentValue ?? "";
     input.style.cssText =
-      "width: 100%; padding: 6px 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px;";
+      "width: 100%; padding: 6px 10px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 13px; background: #1e1e1e; color: #e0e0e0;";
 
     this.registerListener(input, "change", (e) => {
       try {
@@ -1550,7 +1550,7 @@ class PluginManagerUIPlugin extends Plugin {
     input.value = currentValue || "";
     input.placeholder = placeholder || "";
     input.style.cssText =
-      "width: 100%; padding: 6px 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px;";
+      "width: 100%; padding: 6px 10px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 13px; background: #1e1e1e; color: #e0e0e0;";
 
     this.registerListener(input, "change", (e) => {
       try {
@@ -1568,7 +1568,7 @@ class PluginManagerUIPlugin extends Plugin {
     const select = document.createElement("select");
     select.className = "el-select";
     select.style.cssText =
-      "padding: 6px 28px 6px 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px; background: white; cursor: pointer;";
+      "padding: 6px 28px 6px 10px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 13px; background: #1e1e1e; color: #e0e0e0; cursor: pointer;";
 
     options.forEach((opt) => {
       const option = document.createElement("option");
@@ -1606,7 +1606,7 @@ class PluginManagerUIPlugin extends Plugin {
 
     const valueDisplay = document.createElement("div");
     valueDisplay.style.cssText =
-      "text-align: center; font-size: 12px; color: #606266; margin-top: 4px;";
+      "text-align: center; font-size: 12px; color: #b0b0b0; margin-top: 4px;";
     valueDisplay.textContent = slider.value;
 
     this.registerListener(slider, "input", (e) => {
