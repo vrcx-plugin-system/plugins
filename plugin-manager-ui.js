@@ -988,12 +988,52 @@ class PluginManagerUIPlugin extends Plugin {
 
     try {
       const plugin = window.customjs.pluginManager.getPlugin(pluginId);
+
       if (!plugin) {
-        this.logger.error(`Plugin not found: ${pluginId}`);
-        this.logger.showError(`Plugin not found: ${pluginId}`);
+        // Plugin not loaded - it's a disabled plugin stub
+        // Find the plugin URL from config
+        const config = window.customjs.pluginManager.getPluginConfig();
+        const pluginUrl = Object.keys(config).find((url) => {
+          const urlParts = url.split("/");
+          const filename = urlParts[urlParts.length - 1];
+          const id = filename.replace(/\.js$/, "");
+          return id === pluginId;
+        });
+
+        if (!pluginUrl) {
+          this.logger.error(`Plugin URL not found for: ${pluginId}`);
+          this.logger.showError(`Plugin URL not found: ${pluginId}`);
+          return;
+        }
+
+        // Enable in config and load the plugin
+        this.logger.log(
+          `Enabling disabled plugin ${pluginId} from ${pluginUrl}`
+        );
+        this.logger.showInfo(`Enabling plugin...`);
+
+        config[pluginUrl] = true;
+        window.customjs.pluginManager.savePluginConfig(config);
+
+        // Load the plugin
+        const loadResult = await window.customjs.pluginManager.reloadPlugin(
+          pluginUrl
+        );
+
+        if (loadResult.success) {
+          this.logger.log(`Plugin ${pluginId} enabled and loaded`);
+          this.logger.showSuccess(`Plugin enabled successfully`);
+        } else {
+          this.logger.error(`Failed to load plugin: ${loadResult.message}`);
+          this.logger.showError(`Failed to load plugin: ${loadResult.message}`);
+        }
+
+        // Refresh grid
+        setTimeout(() => this.refreshPluginGrid(), 500);
         return;
       }
 
+      // Plugin exists - toggle it normally
       await plugin.toggle();
       this.logger.log(
         `Toggled plugin ${pluginId}: ${plugin.enabled ? "enabled" : "disabled"}`
@@ -1032,6 +1072,15 @@ class PluginManagerUIPlugin extends Plugin {
     try {
       this.logger.log(`Reloading plugin from ${pluginUrl}`);
       this.logger.showInfo("Reloading plugin...");
+
+      // Check if plugin is disabled in config
+      const config = window.customjs.pluginManager.getPluginConfig();
+      if (config[pluginUrl] === false) {
+        // Enable it first
+        this.logger.log("Plugin is disabled, enabling before reload");
+        config[pluginUrl] = true;
+        window.customjs.pluginManager.savePluginConfig(config);
+      }
 
       const result = await window.customjs.pluginManager.reloadPlugin(
         pluginUrl
