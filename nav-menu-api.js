@@ -164,6 +164,21 @@ class NavMenuApiPlugin extends Plugin {
     const previousIndex = this.currentActiveIndex;
     this.currentActiveIndex = activeIndex;
 
+    // Check if active tab is a custom tab
+    const isCustomTab = this.customItems.has(activeIndex);
+
+    // If a custom tab is active, hide all VRCX native content containers
+    if (isCustomTab && this.contentParent) {
+      const vrcxContainers =
+        this.contentParent.querySelectorAll(".x-container");
+      vrcxContainers.forEach((container) => {
+        // Only hide if it's not a custom container
+        if (!container.id || !container.id.startsWith("custom-nav-content-")) {
+          container.style.display = "none";
+        }
+      });
+    }
+
     // Show/hide custom content containers based on active menu
     this.contentContainers.forEach((container, itemId) => {
       const isActive = activeIndex === itemId;
