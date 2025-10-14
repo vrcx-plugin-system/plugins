@@ -15,6 +15,12 @@ class StartGameButtonPlugin extends Plugin {
 
     this.navMenuApi = null;
     this.settings = this.defineSettings({
+      confirmBeforeLaunch: {
+        type: window.customjs.SettingType.BOOLEAN,
+        description: "Ask for confirmation before launching VRChat",
+        default: true,
+        category: "launch",
+      },
       desktopMode: {
         type: window.customjs.SettingType.BOOLEAN,
         description: "Launch in Desktop Mode (--no-vr)",
@@ -86,6 +92,19 @@ class StartGameButtonPlugin extends Plugin {
       }
 
       const argsString = args.join(" ");
+
+      // Ask for confirmation if enabled
+      if (this.settings.store.confirmBeforeLaunch) {
+        const mode = desktopMode ? "Desktop Mode" : "VR Mode";
+        const path = vrcLaunchPathOverride || "default location";
+        const argsText = argsString ? `\nArguments: ${argsString}` : "";
+        const message = `Launch VRChat in ${mode}?\n\nPath: ${path}${argsText}`;
+
+        if (!confirm(message)) {
+          this.logger.log("Launch cancelled by user");
+          return;
+        }
+      }
 
       if (this.settings.store.showNotifications) {
         this.logger.showInfo("Starting VRChat...");
