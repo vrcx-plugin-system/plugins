@@ -331,7 +331,75 @@ class TestLoggerPlugin extends Plugin {
         ],
       },
       {
-        title: "Pinia Notification Store",
+        title: "Plugin Logger - Pinia Notifications",
+        buttons: [
+          {
+            label: "logger.showPluginNoty()",
+            color: "#00bcd4",
+            test: async () => {
+              this.logger.showPluginNoty(this.testMessage, {
+                type: "Event",
+                displayName: "Logger Test Plugin",
+              });
+              return { success: true };
+            },
+          },
+          {
+            label: "logger.showEventNoty()",
+            color: "#ff9800",
+            test: async () => {
+              this.logger.showEventNoty(this.testMessage, "Test Plugin");
+              return { success: true };
+            },
+          },
+          {
+            label: "logger.showOnlineNoty()",
+            color: "#4caf50",
+            test: async () => {
+              this.logger.showOnlineNoty("Test User");
+              return { success: true };
+            },
+          },
+          {
+            label: "logger.showOfflineNoty()",
+            color: "#9e9e9e",
+            test: async () => {
+              this.logger.showOfflineNoty("Test User");
+              return { success: true };
+            },
+          },
+          {
+            label: "logger.showGPSNoty()",
+            color: "#03a9f4",
+            test: async () => {
+              this.logger.showGPSNoty(
+                "Test User",
+                "Test World",
+                "wrld_test:123456"
+              );
+              return { success: true };
+            },
+          },
+          {
+            label: "logger.showPlayerJoinedNoty()",
+            color: "#8bc34a",
+            test: async () => {
+              this.logger.showPlayerJoinedNoty("Test User");
+              return { success: true };
+            },
+          },
+          {
+            label: "logger.showPlayerLeftNoty()",
+            color: "#ff5722",
+            test: async () => {
+              this.logger.showPlayerLeftNoty("Test User");
+              return { success: true };
+            },
+          },
+        ],
+      },
+      {
+        title: "Pinia Notification Store (Direct)",
         buttons: [
           {
             label: "playNoty (GPS)",
@@ -779,6 +847,37 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
+        name: "logger.showPluginNoty()",
+        fn: async () => {
+          this.logger.showPluginNoty(this.testMessage, {
+            type: "Event",
+            displayName: "Logger Test Plugin",
+          });
+        },
+      },
+      {
+        name: "logger.showEventNoty()",
+        fn: async () => {
+          this.logger.showEventNoty(this.testMessage, "Test Plugin");
+        },
+      },
+      {
+        name: "logger.showOnlineNoty()",
+        fn: async () => {
+          this.logger.showOnlineNoty("Test User");
+        },
+      },
+      {
+        name: "logger.showGPSNoty()",
+        fn: async () => {
+          this.logger.showGPSNoty(
+            "Test User",
+            "Test World",
+            "wrld_test:123456"
+          );
+        },
+      },
+      {
         name: "$pinia.notification.playNoty (GPS)",
         fn: async () => {
           if (window.$pinia?.notification?.playNoty) {
@@ -787,7 +886,7 @@ class TestLoggerPlugin extends Plugin {
               created_at: new Date().toJSON(),
               displayName: "Test User",
               userId: "usr_test",
-              location: "wrld_test:12345",
+              location: "wrld_test:123456",
               worldName: "Test World",
               time: 0,
               isFriend: true,
