@@ -285,6 +285,15 @@ class AutoFollowPlugin extends Plugin {
 
     // Parse the location to get instance details
     const L = window.utils.parseLocation(location);
+
+    // Skip traveling state - wait for actual destination
+    if (L.isTraveling) {
+      this.logger.log(`${userName} is traveling, waiting for destination...`);
+      this.logger.log(`User object while traveling:`, user);
+      console.log(`User object while traveling:`, user);
+      return;
+    }
+
     if (!L.isRealInstance) {
       this.logger.warn(
         `Invalid instance location for ${userName}: ${location}`
@@ -294,9 +303,16 @@ class AutoFollowPlugin extends Plugin {
 
     let worldName = "Unknown World";
 
-    // Try to get world name
+    // Try to get world name from cache or API
     try {
-      worldName = await window.$app.getWorldName(L.worldId);
+      const worldResponse = await window.request.worldRequest.getCachedWorld({
+        worldId: L.worldId,
+      });
+      if (worldResponse?.ref?.name) {
+        worldName = worldResponse.ref.name;
+      } else if (worldResponse?.json?.name) {
+        worldName = worldResponse.json.name;
+      }
     } catch (error) {
       this.logger.warn(`Failed to get world name: ${error.message}`);
     }
@@ -336,20 +352,19 @@ class AutoFollowPlugin extends Plugin {
         );
         this.logger.log(`✓ Successfully sent self-invite to ${worldName}`);
 
-        // Add notification to VRCX notification feed
-        this.logger.addNotificationLog({
-          id: `autofollow_invite_${user.id}_${Date.now()}`,
-          displayName: user.displayName,
-          type: "invite",
-          created_at: new Date().toJSON(),
-          message: "Auto Follow: Sent self-invite",
-          senderUserId: user.id,
-          senderUsername: user.displayName,
-          details: {
-            worldId: L.worldId,
-            worldName: worldName,
-          },
-        });
+        // this.logger.addNotificationLog({
+        //   id: `autofollow_invite_${user.id}_${Date.now()}`,
+        //   displayName: user.displayName,
+        //   type: "invite",
+        //   created_at: new Date().toJSON(),
+        //   message: "Auto Follow: Sent self-invite",
+        //   senderUserId: user.id,
+        //   senderUsername: user.displayName,
+        //   details: {
+        //     worldId: L.worldId,
+        //     worldName: worldName,
+        //   },
+        // });
       } catch (error) {
         this.logger.error(
           `Failed to send self-invite to ${worldName}: ${error.message}`
