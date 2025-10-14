@@ -107,6 +107,13 @@ Oculus ID: {oculusId}`;
           "{last_activity}": "Time since last activity",
         },
       },
+      separator: {
+        type: SettingType.STRING,
+        description: "Separator between custom bio and auto-generated content",
+        category: "template",
+        placeholder: "\n-\n",
+        default: "\n-\n",
+      },
     });
 
     this.logger.log(
@@ -186,7 +193,11 @@ Oculus ID: {oculusId}`;
       });
 
       // Split bio to preserve custom text before separator
-      const oldBio = currentUser.bio.split("\n-\n")[0];
+      const separator = this.settings.store.separator || "\n-\n";
+      const bioParts = currentUser.bio
+        ? currentUser.bio.split(separator)
+        : [""];
+      const oldBio = bioParts.length > 0 ? bioParts[0] : "";
 
       // Get Steam playtime if configured
       const steamId = this.settings.store.steamId;
@@ -264,15 +275,15 @@ Oculus ID: {oculusId}`;
         .replace("{viveId}", currentUser.viveId)
         .replace("{rank}", currentUser.$trustLevel);
 
-      let bio = oldBio + newBio;
+      // Combine old bio with new bio using separator
+      const bioSeparator = oldBio.trim() ? separator : ""; // Only add separator if there's custom bio
+      let bio = oldBio + bioSeparator + newBio;
 
       // Ensure bio doesn't exceed 512 characters
       if (bio.length > 512) {
         bio = bio.substring(0, 499) + "...";
         this.logger.warn(
-          `Bio truncated to 499 chars + "..." (was ${
-            oldBio.length + newBio.length
-          } chars)`
+          `Bio truncated to 499 chars + "..." (was ${bio.length} chars before truncation)`
         );
       }
 
