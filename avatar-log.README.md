@@ -79,7 +79,7 @@ Edit `%LOCALAPPDATA%\VRChat\VRChat\config.json`:
 {
   "customjs": {
     "plugins": {
-      "https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/avatar-log.js": true
+      "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/avatar-log.js": true
     }
   }
 }
@@ -90,7 +90,7 @@ Edit `%LOCALAPPDATA%\VRChat\VRChat\config.json`:
 ```javascript
 const config = customjs.configManager.getPluginConfig();
 config[
-  "https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/avatar-log.js"
+  "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/avatar-log.js"
 ] = true;
 customjs.configManager.setPluginConfig(config);
 await customjs.configManager.save();

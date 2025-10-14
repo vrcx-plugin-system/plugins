@@ -12,7 +12,7 @@ class TemplatePlugin extends Plugin {
       dependencies: [
         // Always include plugin.js as first dependency
         // List URLs of other plugins this depends on (optional)
-        // "https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/utils.js",
+        // "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/utils.js",
       ],
     });
 

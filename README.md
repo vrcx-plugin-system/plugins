@@ -34,7 +34,6 @@ window.customjs.pluginManager.getPlugin("plugin-manager-ui");
 | **[Context Menu API](#context-menu-api)**       | Custom context menu management for VRCX dialogs      | ✅ Yes       | None         |
 | **[Navigation Menu API](#navigation-menu-api)** | API for adding custom navigation menu items          | ✅ Yes       | None         |
 | **[Invite Message API](#invite-message-api)**   | API for managing and rotating custom invite messages | ✅ Yes       | None         |
-| **[Config Proxy](#config-proxy)**               | Configuration management proxy for plugins           | ✅ Yes       | None         |
 
 ### User Interface Plugins
 
@@ -181,24 +180,6 @@ const message = inviteApi.getNextMessage({
   worldName: "My World",
 });
 ```
-
----
-
-#### Config Proxy
-
-**File**: `config-proxy.js`  
-**Auto-Enabled**: Yes  
-**Dependencies**: None
-
-Configuration management proxy for plugins. Provides a centralized way to manage plugin configurations with validation and change tracking.
-
-**Features**:
-
-- Configuration validation
-- Change event notifications
-- Default value management
-- Type checking
-- Nested configuration support
 
 ---
 
@@ -665,14 +646,14 @@ See the [API Reference](https://github.com/vrcx-plugin-system/vrcx-plugin-system
 All plugins are loaded from this repository via GitHub raw URLs:
 
 ```
-https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/{plugin-name}.js
+https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/{plugin-name}.js
 ```
 
 ### Example URLs
 
-- Context Menu API: `https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/context-menu-api.js`
-- Plugin Manager UI: `https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/plugin-manager-ui.js`
-- Auto Invite: `https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/auto-invite.js`
+- Context Menu API: `https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/context-menu-api.js`
+- Plugin Manager UI: `https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/plugin-manager-ui.js`
+- Auto Invite: `https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/auto-invite.js`
 
 ---
 
@@ -694,12 +675,12 @@ const config = window.customjs.configManager.getPluginConfig();
 
 // Enable a plugin
 config[
-  "https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/my-plugin.js"
+  "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/my-plugin.js"
 ] = true;
 
 // Disable a plugin
 config[
-  "https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/my-plugin.js"
+  "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/my-plugin.js"
 ] = false;
 
 // Save config

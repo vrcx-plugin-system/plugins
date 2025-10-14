@@ -33,7 +33,7 @@ class AutoFollowPlugin extends Plugin {
       version: "3.0.0",
       build: "1728847200",
       dependencies: [
-        "https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/context-menu-api.js",
+        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/context-menu-api.js",
       ],
     });
 

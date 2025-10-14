@@ -8,7 +8,7 @@ class ProtocolLinksPlugin extends Plugin {
       version: "{VERSION}",
       build: "{BUILD}",
       dependencies: [
-        "https://raw.githubusercontent.com/vrcx-plugin-system/plugins/main/context-menu-api.js",
+        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/context-menu-api.js",
       ],
     });
   }
