@@ -137,19 +137,12 @@ class PluginManagerUIPlugin extends Plugin {
 
   createStatsSection() {
     const section = document.createElement("div");
-    section.style.cssText = "margin-bottom: 20px;";
-
-    // Title
-    const title = document.createElement("h2");
-    title.style.cssText =
-      "margin: 0 0 16px 0; font-size: 24px; font-weight: 600;";
-    title.textContent = "🔌 Plugin Management";
-    section.appendChild(title);
+    section.style.cssText = "margin-bottom: 16px;";
 
     // Stats container
     const statsContainer = document.createElement("div");
     statsContainer.style.cssText =
-      "display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;";
+      "display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;";
 
     // Get plugin data
     const allPlugins = window.customjs?.plugins || [];
@@ -181,23 +174,20 @@ class PluginManagerUIPlugin extends Plugin {
     const card = document.createElement("div");
     card.style.cssText = `
       text-align: center;
-      padding: 16px;
-      background: linear-gradient(135deg, ${color} 0%, ${window.customjs.utils.darkenColor(
-      color,
-      20
-    )} 100%);
-      border-radius: 8px;
+      padding: 8px 10px;
+      background: ${color};
+      border-radius: 4px;
       color: white;
-      box-shadow: 0 2px 8px ${window.customjs.utils.hexToRgba(color, 0.3)};
-      transition: transform 0.2s;
+      box-shadow: 0 1px 3px ${window.customjs.utils.hexToRgba(color, 0.3)};
+      transition: transform 0.15s, box-shadow 0.15s;
     `;
 
     const valueEl = document.createElement("div");
-    valueEl.style.cssText = "font-size: 28px; font-weight: bold;";
+    valueEl.style.cssText = "font-size: 18px; font-weight: 600;";
     valueEl.textContent = value;
 
     const labelEl = document.createElement("div");
-    labelEl.style.cssText = "font-size: 12px; opacity: 0.9; margin-top: 4px;";
+    labelEl.style.cssText = "font-size: 10px; opacity: 0.85; margin-top: 2px;";
     labelEl.textContent = label;
 
     card.appendChild(valueEl);
@@ -205,10 +195,18 @@ class PluginManagerUIPlugin extends Plugin {
 
     // Hover effect
     this.registerListener(card, "mouseenter", () => {
-      card.style.transform = "translateY(-2px)";
+      card.style.transform = "translateY(-1px)";
+      card.style.boxShadow = `0 2px 6px ${window.customjs.utils.hexToRgba(
+        color,
+        0.4
+      )}`;
     });
     this.registerListener(card, "mouseleave", () => {
       card.style.transform = "translateY(0)";
+      card.style.boxShadow = `0 1px 3px ${window.customjs.utils.hexToRgba(
+        color,
+        0.3
+      )}`;
     });
 
     return card;
