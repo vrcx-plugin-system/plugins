@@ -12,12 +12,10 @@ class PluginManagerUIPlugin extends Plugin {
       ],
     });
 
-    this.contentContainer = null;
     this.settingsModal = null;
     this.searchValue = { value: "", filter: "all" }; // all, enabled, disabled, core, failed, new
     this.visibleCount = 12;
     this.pluginsPerPage = 12;
-    this.contentRendered = false;
   }
 
   async load() {
@@ -48,10 +46,6 @@ class PluginManagerUIPlugin extends Plugin {
     this.logger.log("🎯 Setting up nav menu item...");
     this.setupNavMenuItem();
     this.logger.log("✅ Nav menu item setup complete");
-
-    this.logger.log("👀 Setting up menu watcher...");
-    this.setupMenuWatcher();
-    this.logger.log("✅ Menu watcher setup complete");
 
     this.enabled = true;
     this.started = true;
@@ -89,78 +83,40 @@ class PluginManagerUIPlugin extends Plugin {
       icon: "ri-plug-line",
       content: () => this.createPanelContent(),
       before: "settings",
+      onShow: () => this.onPluginsTabShown(),
+      onHide: () => this.onPluginsTabHidden(),
     });
 
-    this.logger.log("Navigation menu item added");
+    this.logger.log("Navigation menu item added with lifecycle callbacks");
   }
 
-  setupMenuWatcher() {
-    this.logger.log("🔍 Setting up menu watcher...");
+  onPluginsTabShown() {
+    this.logger.log("🎯 Plugins tab shown!");
 
-    // Log initial Pinia state
-    this.logger.log("🔍 Initial Pinia UI state:", window.$pinia?.ui);
-    this.logger.log(
-      "🔍 Initial menuActiveIndex:",
-      window.$pinia?.ui?.menuActiveIndex
-    );
-
-    // Subscribe immediately without delay
-    const unsubscribe = this.subscribe("UI", (data) => {
-      this.logger.log(`📱 Menu changed, data received:`, data);
-      this.logger.log(
-        `📱 menuActiveIndex from data: "${data?.menuActiveIndex}"`
-      );
-      this.logger.log(`📱 Available keys in data:`, Object.keys(data || {}));
-
-      // Also check the Pinia store directly
-      const piniaMenuIndex = window.$pinia?.ui?.menuActiveIndex;
-      this.logger.log(
-        `📱 menuActiveIndex from Pinia directly: "${piniaMenuIndex}"`
-      );
-
-      const menuActiveIndex = data?.menuActiveIndex || piniaMenuIndex;
-      this.logger.log(`📱 Using menuActiveIndex: "${menuActiveIndex}"`);
-
-      if (menuActiveIndex === "plugins") {
-        this.logger.log(
-          `🎯 Plugins tab activated! contentRendered=${
-            this.contentRendered
-          }, hasContainer=${!!this.contentContainer}`
-        );
-
-        // Ensure content is rendered when tab becomes active
-        if (!this.contentRendered && this.contentContainer) {
-          this.logger.log("🎨 Rendering content now...");
-          try {
-            this.renderContent(this.contentContainer);
-            this.contentRendered = true;
-            this.logger.log("✅ Content rendered successfully!");
-          } catch (error) {
-            this.logger.error("❌ Error rendering content:", error);
-          }
-        } else if (this.contentRendered) {
-          this.logger.log("⏭️ Content already rendered, skipping");
-        } else {
-          this.logger.warn("⚠️ No container available to render content!");
-        }
-
-        // Also refresh grid when switching to this tab
-        setTimeout(() => {
-          this.logger.log("🔄 Refreshing plugin grid after delay...");
-          this.refreshPluginGrid();
-        }, 100);
+    // Ensure content is rendered when tab becomes active
+    if (!this.contentRendered && this.contentContainer) {
+      this.logger.log("🎨 Rendering content now...");
+      try {
+        this.renderContent(this.contentContainer);
+        this.contentRendered = true;
+        this.logger.log("✅ Content rendered successfully!");
+      } catch (error) {
+        this.logger.error("❌ Error rendering content:", error);
       }
-    });
-
-    if (unsubscribe) {
-      this.logger.log("✅ Menu watcher subscription successful");
+    } else if (this.contentRendered) {
+      this.logger.log("⏭️ Content already rendered, refreshing grid...");
+      // Refresh grid when switching back to this tab
+      setTimeout(() => {
+        this.refreshPluginGrid();
+      }, 100);
     } else {
-      this.logger.warn(
-        "⚠️ Menu watcher subscription returned null - will retry"
-      );
+      this.logger.warn("⚠️ No container available to render content!");
     }
+  }
 
-    this.logger.log("✅ Menu watcher setup complete");
+  onPluginsTabHidden() {
+    this.logger.log("👋 Plugins tab hidden");
+    // Could pause any active operations here if needed
   }
 
   createPanelContent() {

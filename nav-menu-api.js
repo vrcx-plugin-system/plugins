@@ -20,6 +20,9 @@ class NavMenuApiPlugin extends Plugin {
 
     // Content parent element
     this.contentParent = null;
+
+    // Track current active menu index for lifecycle callbacks
+    this.currentActiveIndex = null;
   }
 
   async load() {
@@ -120,23 +123,58 @@ class NavMenuApiPlugin extends Plugin {
   }
 
   watchMenuChanges() {
-    // Subscribe to UI store changes
-    this.subscribe("UI", ({ menuActiveIndex }) => {
-      this.updateContentVisibility(menuActiveIndex);
+    // Subscribe to UI store changes with fallback
+    this.subscribe("UI", (data) => {
+      const menuActiveIndex =
+        data?.menuActiveIndex || window.$pinia?.ui?.menuActiveIndex;
+      if (menuActiveIndex) {
+        this.updateContentVisibility(menuActiveIndex);
+      }
     });
 
     // Call immediately with current value if available
-    if (window.$pinia?.ui?.menuActiveIndex) {
-      this.updateContentVisibility(window.$pinia.ui.menuActiveIndex);
+    const currentIndex = window.$pinia?.ui?.menuActiveIndex;
+    if (currentIndex) {
+      this.updateContentVisibility(currentIndex);
     }
 
     this.logger.log("Menu watcher setup complete");
   }
 
   updateContentVisibility(activeIndex) {
+    // Track previous active index to determine what changed
+    const previousIndex = this.currentActiveIndex;
+    this.currentActiveIndex = activeIndex;
+
     // Show/hide custom content containers based on active menu
     this.contentContainers.forEach((container, itemId) => {
-      container.style.display = activeIndex === itemId ? "block" : "none";
+      const isActive = activeIndex === itemId;
+      const wasActive = previousIndex === itemId;
+
+      container.style.display = isActive ? "block" : "none";
+
+      // Fire lifecycle callbacks
+      if (isActive && !wasActive) {
+        // Tab just became visible
+        const item = this.customItems.get(itemId);
+        if (item?.onShow) {
+          try {
+            item.onShow();
+          } catch (error) {
+            this.logger.error(`Error in onShow callback for ${itemId}:`, error);
+          }
+        }
+      } else if (!isActive && wasActive) {
+        // Tab just became hidden
+        const item = this.customItems.get(itemId);
+        if (item?.onHide) {
+          try {
+            item.onHide();
+          } catch (error) {
+            this.logger.error(`Error in onHide callback for ${itemId}:`, error);
+          }
+        }
+      }
     });
 
     // Update active state on menu items
@@ -162,6 +200,8 @@ class NavMenuApiPlugin extends Plugin {
    * @param {string} config.icon - Remix icon class (e.g., 'ri-plugin-line')
    * @param {function} config.onClick - Click handler (optional if using content)
    * @param {HTMLElement|function|string} config.content - Content element, function, or HTML string
+   * @param {function} config.onShow - Called when this tab becomes visible (optional)
+   * @param {function} config.onHide - Called when this tab becomes hidden (optional)
    * @param {string} config.before - Insert before this item index (optional)
    * @param {string} config.after - Insert after this item index (optional)
    * @param {boolean} config.enabled - Whether the item is enabled (default: true)
@@ -173,6 +213,8 @@ class NavMenuApiPlugin extends Plugin {
       icon: config.icon || "ri-plugin-line",
       onClick: config.onClick || null,
       content: config.content || null,
+      onShow: config.onShow || null,
+      onHide: config.onHide || null,
       before: config.before || null,
       after: config.after || null,
       enabled: config.enabled !== false,
@@ -367,22 +409,33 @@ class NavMenuApiPlugin extends Plugin {
       e.preventDefault();
       e.stopPropagation();
 
-      // Remove active class from all custom menu items
-      this.customItems.forEach((_, itemId) => {
-        const el = this.navMenu?.querySelector(
-          `[data-custom-nav-item="${itemId}"]`
-        );
-        if (el) {
-          el.classList.remove("is-active");
+      // If item has content, treat as tab - manage active state and switch content
+      if (item.content) {
+        // Remove active class from all custom menu items
+        this.customItems.forEach((_, itemId) => {
+          const el = this.navMenu?.querySelector(
+            `[data-custom-nav-item="${itemId}"]`
+          );
+          if (el) {
+            el.classList.remove("is-active");
+          }
+        });
+
+        // Add active class to clicked item immediately
+        menuItem.classList.add("is-active");
+
+        // Use VRCX's selectMenu to switch tabs
+        if (window.$pinia?.ui?.selectMenu) {
+          window.$pinia.ui.selectMenu(item.id);
         }
-      });
-
-      // Add active class to clicked item immediately
-      menuItem.classList.add("is-active");
-
-      // If item has content, use VRCX's selectMenu to switch tabs
-      if (item.content && window.$pinia?.ui?.selectMenu) {
-        window.$pinia.ui.selectMenu(item.id);
+      }
+      // If no content, treat as button - don't manage active state or switch tabs
+      else {
+        // Just flash the item to show it was clicked
+        menuItem.classList.add("is-active");
+        setTimeout(() => {
+          menuItem.classList.remove("is-active");
+        }, 200);
       }
 
       // Call custom onClick if provided
