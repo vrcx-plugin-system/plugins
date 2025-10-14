@@ -409,6 +409,12 @@ class NavMenuApiPlugin extends Plugin {
       e.preventDefault();
       e.stopPropagation();
 
+      this.logger.log(
+        `Nav item clicked: "${item.id}" (label: "${
+          item.label
+        }", hasContent: ${!!item.content})`
+      );
+
       // If item has content, treat as tab - manage active state and switch content
       if (item.content) {
         // Remove active class from all custom menu items
