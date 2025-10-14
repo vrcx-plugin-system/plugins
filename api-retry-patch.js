@@ -21,7 +21,7 @@ class ApiRetryPatchPlugin extends Plugin {
       description:
         "Automatically retries failed API requests for transient network errors",
       author: "Bluscream",
-      version: "1.0.0",
+      version: "1.1.0",
       build: "1729018400",
       tags: ["Network", "API", "Utility"],
       dependencies: [],
@@ -284,40 +284,40 @@ class ApiRetryPatchPlugin extends Plugin {
         { obj: apiRequests.authRequest, name: "verifyTOTP" },
         { obj: apiRequests.authRequest, name: "verifyEmailOTP" },
         { obj: apiRequests.authRequest, name: "getConfig" },
-        
+
         // User methods
         { obj: apiRequests.userRequest, name: "getUser" },
         { obj: apiRequests.userRequest, name: "getCachedUser" },
         { obj: apiRequests.userRequest, name: "getUsers" },
         { obj: apiRequests.userRequest, name: "saveCurrentUser" },
         { obj: apiRequests.userRequest, name: "getCurrentUser" },
-        
+
         // World methods
         { obj: apiRequests.worldRequest, name: "getWorld" },
         { obj: apiRequests.worldRequest, name: "getCachedWorld" },
         { obj: apiRequests.worldRequest, name: "saveWorld" },
-        
+
         // Instance methods
         { obj: apiRequests.instanceRequest, name: "getInstance" },
         { obj: apiRequests.instanceRequest, name: "getCachedInstance" },
         { obj: apiRequests.instanceRequest, name: "selfInvite" },
         { obj: apiRequests.instanceRequest, name: "createInstance" },
-        
+
         // Friend methods
         { obj: apiRequests.friendRequest, name: "getFriends" },
         { obj: apiRequests.friendRequest, name: "sendFriendRequest" },
         { obj: apiRequests.friendRequest, name: "deleteFriend" },
-        
+
         // Notification methods
         { obj: apiRequests.notificationRequest, name: "sendInvite" },
         { obj: apiRequests.notificationRequest, name: "sendRequestInvite" },
         { obj: apiRequests.notificationRequest, name: "getNotifications" },
         { obj: apiRequests.notificationRequest, name: "getNotificationsV2" },
-        
+
         // Avatar methods
         { obj: apiRequests.avatarRequest, name: "getAvatar" },
         { obj: apiRequests.avatarRequest, name: "saveAvatar" },
-        
+
         // Group methods
         { obj: apiRequests.groupRequest, name: "getGroup" },
         { obj: apiRequests.groupRequest, name: "getGroupMember" },
