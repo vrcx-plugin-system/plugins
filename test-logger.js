@@ -240,63 +240,6 @@ class TestLoggerPlugin extends Plugin {
         ],
       },
       {
-        title: "Plugin Logger Methods",
-        buttons: [
-          {
-            label: "logger.showSuccess()",
-            color: "#67c23a",
-            test: async () => {
-              this.logger.showSuccess(this.testMessage);
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showInfo()",
-            color: "#409eff",
-            test: async () => {
-              this.logger.showInfo(this.testMessage);
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showWarn()",
-            color: "#e6a23c",
-            test: async () => {
-              this.logger.showWarn(this.testMessage);
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showError()",
-            color: "#f56c6c",
-            test: async () => {
-              this.logger.showError(this.testMessage);
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showMessage('success')",
-            color: "#67c23a",
-            test: async () => {
-              this.logger.showMessage(this.testMessage, "success");
-              return { success: true };
-            },
-          },
-          {
-            label: "logger.showNotification()",
-            color: "#409eff",
-            test: async () => {
-              this.logger.showNotification(
-                "Logger Test",
-                this.testMessage,
-                "info"
-              );
-              return { success: true };
-            },
-          },
-        ],
-      },
-      {
         title: "AppApi Notifications",
         buttons: [
           {
@@ -427,6 +370,32 @@ class TestLoggerPlugin extends Plugin {
         ],
       },
       {
+        title: "Browser Native",
+        buttons: [
+          {
+            label: "alert()",
+            color: "#607d8b",
+            test: async () => {
+              alert(this.testMessage);
+              return { success: true, details: "Alert shown" };
+            },
+          },
+          {
+            label: "confirm()",
+            color: "#795548",
+            test: async () => {
+              const result = confirm(
+                this.testMessage + "\n\nClick OK or Cancel"
+              );
+              return {
+                success: true,
+                details: result ? "User clicked OK" : "User clicked Cancel",
+              };
+            },
+          },
+        ],
+      },
+      {
         title: "Console Logging",
         buttons: [
           {
@@ -549,8 +518,7 @@ class TestLoggerPlugin extends Plugin {
       font-weight: 600;
       cursor: pointer;
     `;
-    testAllBtn.innerHTML =
-      '<i class="ri-play-circle-line"></i> Test All Methods (2s delay)';
+    testAllBtn.innerHTML = '<i class="ri-play-circle-line"></i> Test All';
 
     testAllBtn.addEventListener("click", async () => {
       await this.runAllTests(logResult, clearResults);
@@ -667,30 +635,6 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "logger.showSuccess()",
-        fn: async () => {
-          this.logger.showSuccess(this.testMessage);
-        },
-      },
-      {
-        name: "logger.showInfo()",
-        fn: async () => {
-          this.logger.showInfo(this.testMessage);
-        },
-      },
-      {
-        name: "logger.showWarn()",
-        fn: async () => {
-          this.logger.showWarn(this.testMessage);
-        },
-      },
-      {
-        name: "logger.showError()",
-        fn: async () => {
-          this.logger.showError(this.testMessage);
-        },
-      },
-      {
         name: "Noty Success",
         fn: async () => {
           if (typeof Noty !== "undefined") {
@@ -755,6 +699,12 @@ class TestLoggerPlugin extends Plugin {
           }
         },
       },
+      {
+        name: "alert() [Browser]",
+        fn: async () => {
+          alert(this.testMessage + " - Browser Alert");
+        },
+      },
     ];
 
     for (const test of tests) {
@@ -764,7 +714,6 @@ class TestLoggerPlugin extends Plugin {
       } catch (error) {
         logResult(test.name, false, error.message);
       }
-      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
     logResult("All tests complete!", true, "");
