@@ -97,9 +97,29 @@ class PluginManagerUIPlugin extends Plugin {
   setupMenuWatcher() {
     this.logger.log("🔍 Setting up menu watcher...");
 
+    // Log initial Pinia state
+    this.logger.log("🔍 Initial Pinia UI state:", window.$pinia?.ui);
+    this.logger.log(
+      "🔍 Initial menuActiveIndex:",
+      window.$pinia?.ui?.menuActiveIndex
+    );
+
     // Subscribe immediately without delay
-    const unsubscribe = this.subscribe("UI", ({ menuActiveIndex }) => {
-      this.logger.log(`📱 Menu changed to: "${menuActiveIndex}"`);
+    const unsubscribe = this.subscribe("UI", (data) => {
+      this.logger.log(`📱 Menu changed, data received:`, data);
+      this.logger.log(
+        `📱 menuActiveIndex from data: "${data?.menuActiveIndex}"`
+      );
+      this.logger.log(`📱 Available keys in data:`, Object.keys(data || {}));
+
+      // Also check the Pinia store directly
+      const piniaMenuIndex = window.$pinia?.ui?.menuActiveIndex;
+      this.logger.log(
+        `📱 menuActiveIndex from Pinia directly: "${piniaMenuIndex}"`
+      );
+
+      const menuActiveIndex = data?.menuActiveIndex || piniaMenuIndex;
+      this.logger.log(`📱 Using menuActiveIndex: "${menuActiveIndex}"`);
 
       if (menuActiveIndex === "plugins") {
         this.logger.log(
