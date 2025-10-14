@@ -277,16 +277,50 @@ class ApiRetryPatchPlugin extends Plugin {
         return;
       }
 
-      // Methods to patch in userRequest
+      // Methods to patch - comprehensive list of API methods
       const methodsToPatch = [
+        // Auth methods
+        { obj: apiRequests.authRequest, name: "verifyOTP" },
+        { obj: apiRequests.authRequest, name: "verifyTOTP" },
+        { obj: apiRequests.authRequest, name: "verifyEmailOTP" },
+        { obj: apiRequests.authRequest, name: "getConfig" },
+        
+        // User methods
         { obj: apiRequests.userRequest, name: "getUser" },
+        { obj: apiRequests.userRequest, name: "getCachedUser" },
         { obj: apiRequests.userRequest, name: "getUsers" },
+        { obj: apiRequests.userRequest, name: "saveCurrentUser" },
+        { obj: apiRequests.userRequest, name: "getCurrentUser" },
+        
+        // World methods
         { obj: apiRequests.worldRequest, name: "getWorld" },
+        { obj: apiRequests.worldRequest, name: "getCachedWorld" },
+        { obj: apiRequests.worldRequest, name: "saveWorld" },
+        
+        // Instance methods
         { obj: apiRequests.instanceRequest, name: "getInstance" },
+        { obj: apiRequests.instanceRequest, name: "getCachedInstance" },
         { obj: apiRequests.instanceRequest, name: "selfInvite" },
+        { obj: apiRequests.instanceRequest, name: "createInstance" },
+        
+        // Friend methods
+        { obj: apiRequests.friendRequest, name: "getFriends" },
+        { obj: apiRequests.friendRequest, name: "sendFriendRequest" },
+        { obj: apiRequests.friendRequest, name: "deleteFriend" },
+        
+        // Notification methods
         { obj: apiRequests.notificationRequest, name: "sendInvite" },
         { obj: apiRequests.notificationRequest, name: "sendRequestInvite" },
-        { obj: apiRequests.friendRequest, name: "getFriends" },
+        { obj: apiRequests.notificationRequest, name: "getNotifications" },
+        { obj: apiRequests.notificationRequest, name: "getNotificationsV2" },
+        
+        // Avatar methods
+        { obj: apiRequests.avatarRequest, name: "getAvatar" },
+        { obj: apiRequests.avatarRequest, name: "saveAvatar" },
+        
+        // Group methods
+        { obj: apiRequests.groupRequest, name: "getGroup" },
+        { obj: apiRequests.groupRequest, name: "getGroupMember" },
       ];
 
       let patchedCount = 0;
@@ -324,11 +358,14 @@ class ApiRetryPatchPlugin extends Plugin {
 
         // Find the object and restore the method
         const candidates = [
+          apiRequests.authRequest,
           apiRequests.userRequest,
           apiRequests.worldRequest,
           apiRequests.instanceRequest,
           apiRequests.notificationRequest,
           apiRequests.friendRequest,
+          apiRequests.avatarRequest,
+          apiRequests.groupRequest,
         ];
 
         for (const obj of candidates) {
