@@ -32,6 +32,23 @@ class TagManagerPlugin extends Plugin {
           this.logger.showSuccess(`Loaded ${count} tags successfully!`);
         },
       },
+      {
+        label: "Find Tagged Users",
+        color: "primary",
+        icon: "ri-search-line",
+        title: "Search all stores for tagged users and print to console",
+        callback: async () => {
+          this.logger.showInfo("Searching for tagged users...");
+          const result = this.findTaggedUsers(true);
+          const total = Object.values(result).reduce(
+            (sum, store) => sum + Object.keys(store).length,
+            0
+          );
+          this.logger.showSuccess(
+            `Found ${total} tagged users (see console for details)`
+          );
+        },
+      },
     ];
   }
 
@@ -284,49 +301,189 @@ class TagManagerPlugin extends Plugin {
     this.checkFriendsAndBlockedForTags();
   }
 
-  checkFriendsAndBlockedForTags() {
+  /**
+   * Find all tagged users across all VRCX stores
+   * @param {boolean} print - Whether to print findings to console (default: false)
+   * @returns {Object} Dictionary of tagged users by store type
+   */
+  findTaggedUsers(print = false) {
     try {
-      const friends = window.$pinia?.user?.currentUser?.friends || [];
-      let taggedFriendsCount = 0;
+      const result = {
+        friends: {},
+        blocked: {},
+        muted: {},
+        hideAvatar: {},
+        interactOff: {},
+        showAvatar: {},
+        interactOn: {},
+        cachedUsers: {},
+        gameLog: {},
+        feed: {},
+        friendLog: {},
+        notificationLog: {},
+      };
 
+      let totalCount = 0;
+
+      // Helper to add tagged user
+      const addTaggedUser = (store, userId, displayName, tag) => {
+        if (!result[store]) result[store] = {};
+        result[store][userId] = tag.tag;
+        totalCount++;
+
+        if (print) {
+          this.logger.log(`[${store}] ${displayName || userId} - ${tag.tag}`);
+        }
+      };
+
+      // 1. Check friends
+      const friends = window.$pinia?.user?.currentUser?.friends || [];
       for (const friendId of friends) {
-        const friendTag = this.getUserTag(friendId);
-        if (friendTag) {
-          taggedFriendsCount++;
-          const friendName = this.getFriendName(friendId);
-          this.logger.log(
-            `👥 Friend: ${friendName} (${friendId}) - Tag: ${friendTag.tag}`
-          );
+        const tag = this.getUserTag(friendId);
+        if (tag) {
+          const name = this.getFriendName(friendId);
+          addTaggedUser("friends", friendId, name, tag);
         }
       }
 
-      // Check moderated players
+      // 2. Check moderated players (blocked, muted, etc.)
       const moderations = Array.from(
         window.$pinia?.moderation?.cachedPlayerModerations?.values() || []
       );
-
-      let taggedBlockedCount = 0;
-      for (const moderated of moderations) {
-        const moderatedTag = this.getUserTag(moderated.targetUserId);
-        if (moderatedTag) {
-          taggedBlockedCount++;
-          this.logger.log(
-            `🚫 Moderated: ${moderated.targetDisplayName} (${moderated.targetUserId}) - Tag: ${moderatedTag.tag}`
+      for (const mod of moderations) {
+        const tag = this.getUserTag(mod.targetUserId);
+        if (tag) {
+          const storeName = this.getModerationStoreName(mod.type);
+          addTaggedUser(
+            storeName,
+            mod.targetUserId,
+            mod.targetDisplayName,
+            tag
           );
         }
       }
 
-      // Summary
-      const totalTagged = taggedFriendsCount + taggedBlockedCount;
-      this.logger.log(
-        `${totalTagged} Tagged Users > Friends: ${taggedFriendsCount}/${friends.length} | Moderated: ${taggedBlockedCount}/${moderations.length}`
-      );
+      // 3. Check cached users
+      const cachedUsers = window.$pinia?.user?.cachedUsers || new Map();
+      for (const [userId, user] of cachedUsers) {
+        if (userId.startsWith("usr_")) {
+          const tag = this.getUserTag(userId);
+          if (tag && !result.friends[userId]) {
+            // Don't duplicate friends
+            addTaggedUser("cachedUsers", userId, user.displayName, tag);
+          }
+        }
+      }
+
+      // 4. Check game log
+      const gameLogData = window.$pinia?.gameLog?.gameLogTable || [];
+      const seenInGameLog = new Set();
+      for (const entry of gameLogData) {
+        const userId = entry.user_id || entry.userId;
+        if (userId && userId.startsWith("usr_") && !seenInGameLog.has(userId)) {
+          const tag = this.getUserTag(userId);
+          if (tag) {
+            seenInGameLog.add(userId);
+            const name = entry.display_name || entry.displayName;
+            addTaggedUser("gameLog", userId, name, tag);
+          }
+        }
+      }
+
+      // 5. Check feed
+      const feedData = window.$pinia?.feed?.sharedFeed || [];
+      const seenInFeed = new Set();
+      for (const entry of feedData) {
+        const userId = entry.user_id || entry.userId;
+        if (userId && userId.startsWith("usr_") && !seenInFeed.has(userId)) {
+          const tag = this.getUserTag(userId);
+          if (tag) {
+            seenInFeed.add(userId);
+            const name = entry.display_name || entry.displayName;
+            addTaggedUser("feed", userId, name, tag);
+          }
+        }
+      }
+
+      // 6. Check friend log
+      const friendLogData = window.$pinia?.friend?.friendLog || [];
+      const seenInFriendLog = new Set();
+      for (const entry of friendLogData) {
+        const userId = entry.user_id || entry.userId;
+        if (
+          userId &&
+          userId.startsWith("usr_") &&
+          !seenInFriendLog.has(userId)
+        ) {
+          const tag = this.getUserTag(userId);
+          if (tag) {
+            seenInFriendLog.add(userId);
+            const name = entry.display_name || entry.displayName;
+            addTaggedUser("friendLog", userId, name, tag);
+          }
+        }
+      }
+
+      // 7. Check notification log
+      const notificationLogData =
+        window.$pinia?.notification?.notificationTable || [];
+      const seenInNotificationLog = new Set();
+      for (const entry of notificationLogData) {
+        const userId = entry.sender_user_id || entry.senderUserId;
+        if (
+          userId &&
+          userId.startsWith("usr_") &&
+          !seenInNotificationLog.has(userId)
+        ) {
+          const tag = this.getUserTag(userId);
+          if (tag) {
+            seenInNotificationLog.add(userId);
+            const name = entry.sender_username || entry.senderUsername;
+            addTaggedUser("notificationLog", userId, name, tag);
+          }
+        }
+      }
+
+      // Print summary
+      if (print) {
+        const summary = Object.entries(result)
+          .filter(([_, users]) => Object.keys(users).length > 0)
+          .map(([store, users]) => `${store}: ${Object.keys(users).length}`)
+          .join(" | ");
+
+        this.logger.log(`\n📊 Tagged Users Summary (${totalCount} total)`);
+        this.logger.log(summary);
+      }
+
+      return result;
     } catch (error) {
-      this.logger.error(
-        "Error checking friends and moderated players for tags:",
-        error
-      );
+      this.logger.error("Error finding tagged users:", error);
+      return {};
     }
+  }
+
+  /**
+   * Get store name from moderation type
+   * @param {string} type - Moderation type
+   * @returns {string} Store name
+   */
+  getModerationStoreName(type) {
+    const typeMap = {
+      block: "blocked",
+      mute: "muted",
+      hideAvatar: "hideAvatar",
+      interactOff: "interactOff",
+      showAvatar: "showAvatar",
+      interactOn: "interactOn",
+    };
+    return typeMap[type] || "blocked";
+  }
+
+  /**
+   * Legacy method for backwards compatibility
+   */
+  checkFriendsAndBlockedForTags() {
+    this.findTaggedUsers(true);
   }
 
   startPeriodicUpdates() {
