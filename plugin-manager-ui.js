@@ -138,12 +138,12 @@ class PluginManagerUIPlugin extends Plugin {
 
   createStatsSection() {
     const section = document.createElement("div");
-    section.style.cssText = "margin-bottom: 16px;";
+    section.style.cssText = "margin-bottom: 12px;";
 
     // Stats container
     const statsContainer = document.createElement("div");
     statsContainer.style.cssText =
-      "display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;";
+      "display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 6px; margin-bottom: 10px;";
 
     // Get plugin data
     const allPlugins = window.customjs?.plugins || [];
@@ -175,20 +175,20 @@ class PluginManagerUIPlugin extends Plugin {
     const card = document.createElement("div");
     card.style.cssText = `
       text-align: center;
-      padding: 8px 10px;
+      padding: 6px 8px;
       background: ${color};
-      border-radius: 4px;
+      border-radius: 3px;
       color: white;
-      box-shadow: 0 1px 3px ${window.customjs.utils.hexToRgba(color, 0.3)};
+      box-shadow: 0 1px 2px ${window.customjs.utils.hexToRgba(color, 0.3)};
       transition: transform 0.15s, box-shadow 0.15s;
     `;
 
     const valueEl = document.createElement("div");
-    valueEl.style.cssText = "font-size: 18px; font-weight: 600;";
+    valueEl.style.cssText = "font-size: 16px; font-weight: 600;";
     valueEl.textContent = value;
 
     const labelEl = document.createElement("div");
-    labelEl.style.cssText = "font-size: 10px; opacity: 0.85; margin-top: 2px;";
+    labelEl.style.cssText = "font-size: 9px; opacity: 0.85; margin-top: 1px;";
     labelEl.textContent = label;
 
     card.appendChild(valueEl);
@@ -408,7 +408,7 @@ class PluginManagerUIPlugin extends Plugin {
     searchInput.placeholder = "Search for a plugin...";
     searchInput.className = "el-input__inner";
     searchInput.style.cssText =
-      "flex: 1; padding: 8px 12px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 14px;";
+      "flex: 2; padding: 8px 12px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 14px;";
     searchInput.value = this.searchValue.value;
 
     this.registerListener(searchInput, "input", (e) => {
@@ -420,7 +420,7 @@ class PluginManagerUIPlugin extends Plugin {
     const filterSelect = document.createElement("select");
     filterSelect.className = "el-select";
     filterSelect.style.cssText =
-      "padding: 8px 32px 8px 12px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 14px; min-width: 150px; background: white; cursor: pointer;";
+      "padding: 8px 24px 8px 12px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 14px; width: 140px; background: #2d2d2d; color: #e0e0e0; cursor: pointer;";
 
     const filters = [
       { value: "all", label: "Show All" },
@@ -455,21 +455,21 @@ class PluginManagerUIPlugin extends Plugin {
   createLoadPluginSection() {
     const section = document.createElement("div");
     section.style.cssText = `
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border: 2px dashed #dee2e6;
-      border-radius: 12px;
-      padding: 20px;
+      background: #2d2d2d;
+      border: 2px dashed #4a4a4a;
+      border-radius: 8px;
+      padding: 16px;
       margin-bottom: 20px;
     `;
 
     // Title with icon
     const titleContainer = document.createElement("h3");
     titleContainer.style.cssText =
-      "margin: 0 0 15px 0; font-size: 18px; font-weight: 600; display: flex; align-items: center;";
+      "margin: 0 0 12px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; color: #e0e0e0;";
 
     const icon = document.createElement("i");
     icon.className = "ri-download-cloud-line";
-    icon.style.cssText = "color: #007bff; margin-right: 8px; font-size: 20px;";
+    icon.style.cssText = "color: #61afef; margin-right: 8px; font-size: 18px;";
 
     const titleText = document.createTextNode("Load Plugin from URL");
 
@@ -489,12 +489,12 @@ class PluginManagerUIPlugin extends Plugin {
       "https://github.com/USER/REPO/raw/refs/heads/main/js/plugins/my-plugin.js";
     urlInput.className = "el-input__inner";
     urlInput.style.cssText =
-      "flex: 1; padding: 10px 15px; border: 2px solid #ced4da; border-radius: 6px; font-size: 14px; font-family: 'Consolas', monospace;";
+      "flex: 1; padding: 8px 12px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 13px; font-family: 'Consolas', monospace; background: #1e1e1e; color: #e0e0e0;";
 
     const loadButton = document.createElement("button");
     loadButton.id = "load-plugin-btn";
     loadButton.className = "el-button el-button--primary";
-    loadButton.style.cssText = "padding: 10px 20px;";
+    loadButton.style.cssText = "padding: 8px 16px;";
     loadButton.innerHTML = '<i class="ri-download-line"></i> Load';
 
     inputContainer.appendChild(urlInput);
@@ -505,51 +505,8 @@ class PluginManagerUIPlugin extends Plugin {
     const statusDiv = document.createElement("div");
     statusDiv.id = "load-plugin-status";
     statusDiv.style.cssText =
-      "margin-top: 10px; font-size: 13px; color: #6c757d;";
+      "margin-top: 8px; font-size: 12px; color: #a0a0a0;";
     section.appendChild(statusDiv);
-
-    // Quick access info
-    const infoDiv = document.createElement("div");
-    infoDiv.style.cssText =
-      "margin-top: 15px; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #dee2e6;";
-
-    const infoContent = document.createElement("div");
-    infoContent.style.cssText =
-      "font-size: 12px; color: #666; line-height: 1.6;";
-
-    const createCodeTag = (text) => {
-      const code = document.createElement("code");
-      code.style.cssText =
-        "background: #f8f9fa; padding: 2px 6px; border-radius: 3px;";
-      code.textContent = text;
-      return code;
-    };
-
-    const infoTitle = document.createElement("strong");
-    infoTitle.textContent = "Quick Access:";
-    infoContent.appendChild(infoTitle);
-    infoContent.appendChild(document.createElement("br"));
-
-    const quickAccessItems = [
-      "customjs.core_modules - Core module URLs",
-      "customjs.plugins - Plugin instances",
-      "customjs.subscriptions - Pinia subscriptions",
-      "customjs.config - Configuration",
-      "customjs.pluginManager - Plugin manager",
-      "customjs.configManager - Config manager",
-    ];
-
-    quickAccessItems.forEach((item, idx) => {
-      const parts = item.split(" - ");
-      infoContent.appendChild(createCodeTag(parts[0]));
-      infoContent.appendChild(document.createTextNode(" - " + parts[1]));
-      if (idx < quickAccessItems.length - 1) {
-        infoContent.appendChild(document.createElement("br"));
-      }
-    });
-
-    infoDiv.appendChild(infoContent);
-    section.appendChild(infoDiv);
 
     setTimeout(() => {
       const input = section.querySelector("#plugin-url-input");
@@ -720,11 +677,11 @@ class PluginManagerUIPlugin extends Plugin {
     const card = document.createElement("div");
     card.className = "vc-plugin-card";
     card.style.cssText = `
-      background: white;
-      border: 2px solid ${plugin.enabled ? "#28a745" : "#6c757d"};
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: #2d2d2d;
+      border: 2px solid ${plugin.enabled ? "#28a745" : "#5a5a5a"};
+      border-radius: 6px;
+      padding: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
       transition: all 0.2s;
       display: flex;
       flex-direction: column;
@@ -741,12 +698,12 @@ class PluginManagerUIPlugin extends Plugin {
 
     const name = document.createElement("div");
     name.style.cssText =
-      "font-size: 16px; font-weight: 600; color: #212529; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+      "font-size: 16px; font-weight: 600; color: #e8e8e8; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
     name.textContent = plugin.metadata?.name || "Unknown Plugin";
 
     const meta = document.createElement("div");
     meta.style.cssText =
-      "font-size: 11px; color: #6c757d; font-family: monospace;";
+      "font-size: 11px; color: #909090; font-family: monospace;";
     const version = `v${plugin.metadata?.version || "0.0.0"}`;
     const author = plugin.metadata?.author
       ? ` • by ${plugin.metadata.author}`
@@ -809,7 +766,7 @@ class PluginManagerUIPlugin extends Plugin {
     // Description
     const description = document.createElement("div");
     description.style.cssText =
-      "font-size: 13px; color: #666; line-height: 1.4; margin-bottom: 12px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;";
+      "font-size: 13px; color: #b0b0b0; line-height: 1.4; margin-bottom: 12px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;";
     description.textContent =
       plugin.metadata?.description || "No description available";
 
@@ -834,7 +791,7 @@ class PluginManagerUIPlugin extends Plugin {
     // Action buttons
     const actions = document.createElement("div");
     actions.style.cssText =
-      "display: flex; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e9ecef;";
+      "display: flex; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid #404040;";
 
     const reloadBtn = document.createElement("button");
     reloadBtn.className = "el-button el-button--small el-button--info";
@@ -887,12 +844,12 @@ class PluginManagerUIPlugin extends Plugin {
 
     // Hover effects
     this.registerListener(card, "mouseenter", () => {
-      card.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+      card.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5)";
       card.style.transform = "translateY(-2px)";
     });
 
     this.registerListener(card, "mouseleave", () => {
-      card.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+      card.style.boxShadow = "0 2px 4px rgba(0,0,0,0.3)";
       card.style.transform = "translateY(0)";
     });
 
