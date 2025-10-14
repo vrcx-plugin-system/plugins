@@ -289,7 +289,9 @@ class BioSymbolsPatchPlugin extends Plugin {
           this.logger.log("Restored original replaceBioSymbols");
         } catch (e) {
           // If can't restore, not a big deal - just log it
-          this.logger.warn("Could not restore (read-only), but patch is removed");
+          this.logger.warn(
+            "Could not restore (read-only), but patch is removed"
+          );
         }
       }
 
