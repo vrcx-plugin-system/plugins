@@ -667,41 +667,6 @@ class TestLoggerPlugin extends Plugin {
     // Add results display
     container.appendChild(results);
 
-    // Info section
-    const infoSection = document.createElement("div");
-    infoSection.style.cssText = `
-      margin-top: 30px;
-      padding: 15px;
-      background: #2a2a2a;
-      border-left: 3px solid #409eff;
-      border-radius: 4px;
-    `;
-
-    const infoTitle = document.createElement("h4");
-    infoTitle.style.cssText = "color: #409eff; margin: 0 0 10px 0;";
-    infoTitle.textContent = "Available Methods";
-
-    const infoList = document.createElement("ul");
-    infoList.style.cssText =
-      "color: #b0b0b0; margin: 0; padding-left: 20px; line-height: 1.6;";
-    infoList.innerHTML = `
-      <li><strong>Plugin Logger API (Simplified):</strong></li>
-      <li style="margin-left: 20px;"><code>logger.show*()</code> - Toast messages ($message → $notify → console)</li>
-      <li style="margin-left: 20px;"><code>logger.notify*()</code> - Notifications ($notify → $message → console)</li>
-      <li style="margin-left: 20px;"><code>logger.notifyAll()</code> - Everything (console, UI, desktop, VR, logs)</li>
-      <li style="margin-left: 20px;"><code>logger.addGameLog()</code> - Add to Game Log tab</li>
-      <li style="margin-left: 20px;"><code>logger.addNotificationLog()</code> - Add to Notifications tab</li>
-      <li style="margin-left: 20px;"><code>logger.alert()</code> - Browser alert dialog</li>
-      <li style="margin-top: 10px;"><strong>VRCX Native Methods:</strong></li>
-      <li style="margin-left: 20px;"><code>$message.*</code> - Toast messages ✓ Works</li>
-      <li style="margin-left: 20px;"><code>$notify.*</code> - Notifications ✓ Works</li>
-      <li style="margin-left: 20px;"><code>Noty</code> - Login-style notifications ✓ Works</li>
-    `;
-
-    infoSection.appendChild(infoTitle);
-    infoSection.appendChild(infoList);
-    container.appendChild(infoSection);
-
     return container;
   }
 
