@@ -56,7 +56,7 @@ class StartGameButtonPlugin extends Plugin {
       label: "Start Game",
       icon: "ri-play-circle-line",
       onClick: () => this.handleStartGame(),
-      before: "feed", // Insert at the top (before the first menu item)
+      position: 0, // Insert at the top (first position)
       // No content = button only, not a tab
     });
 

@@ -74,8 +74,16 @@ class NavMenuApiPlugin extends Plugin {
         this.navMenu = document.querySelector(".el-menu");
 
         if (this.navMenu) {
-          this.logger.log("Navigation menu found");
-          resolve();
+          // Wait for VRCX menu items to be rendered
+          const navItems = this.navMenu.querySelectorAll(
+            ".el-menu-item[index]"
+          );
+          if (navItems.length > 0) {
+            this.logger.log("Navigation menu found with items");
+            resolve();
+          } else {
+            setTimeout(checkNav, 100);
+          }
         } else {
           setTimeout(checkNav, 500);
         }
@@ -203,6 +211,7 @@ class NavMenuApiPlugin extends Plugin {
    * @param {HTMLElement|function|string} config.content - Content element, function, or HTML string
    * @param {function} config.onShow - Called when this tab becomes visible (optional)
    * @param {function} config.onHide - Called when this tab becomes hidden (optional)
+   * @param {number} config.position - Absolute position index (0 = first, takes precedence over before/after)
    * @param {string} config.before - Insert before this item index (optional)
    * @param {string} config.after - Insert after this item index (optional)
    * @param {boolean} config.enabled - Whether the item is enabled (default: true)
@@ -216,6 +225,7 @@ class NavMenuApiPlugin extends Plugin {
       content: config.content || null,
       onShow: config.onShow || null,
       onHide: config.onHide || null,
+      position: config.position !== undefined ? config.position : null,
       before: config.before || null,
       after: config.after || null,
       enabled: config.enabled !== false,
@@ -379,6 +389,16 @@ class NavMenuApiPlugin extends Plugin {
     );
     if (existing) return;
 
+    // If item has positioning requirements, ensure VRCX items are loaded
+    if (item.position !== null || item.before || item.after) {
+      const navItems = this.navMenu.querySelectorAll(".el-menu-item[index]");
+      if (navItems.length === 0) {
+        // VRCX items not ready yet, retry later
+        setTimeout(() => this.renderItem(item), 100);
+        return;
+      }
+    }
+
     // Create the menu item element
     const menuItem = document.createElement("li");
     menuItem.className = "el-menu-item";
@@ -463,7 +483,20 @@ class NavMenuApiPlugin extends Plugin {
     // Determine insertion position
     let referenceNode = null;
 
-    if (item.before) {
+    // Position takes precedence (absolute index)
+    if (item.position !== null) {
+      const allItems = this.navMenu.querySelectorAll(".el-menu-item");
+      if (item.position >= 0 && item.position < allItems.length) {
+        referenceNode = allItems[item.position];
+      } else if (item.position < 0) {
+        // Negative position: count from end
+        const idx = allItems.length + item.position;
+        if (idx >= 0) {
+          referenceNode = allItems[idx];
+        }
+      }
+      // If position is >= length, referenceNode stays null and item appends to end
+    } else if (item.before) {
       // Insert before a specific item
       const allItems = this.navMenu.querySelectorAll(".el-menu-item");
       for (const existingItem of allItems) {
