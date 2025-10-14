@@ -42,6 +42,41 @@ class AvatarLogPlugin extends Plugin {
     this.logger.log("🎭 Avatar Logger initialized");
   }
 
+  /**
+   * Define custom action buttons for the plugin manager UI
+   * @returns {Array} Array of button definitions
+   */
+  getActionButtons() {
+    return [
+      {
+        label: "Scan Stores",
+        color: "primary",
+        icon: "ri-search-line",
+        title: "Manually scan avatar stores for new avatars",
+        callback: async () => {
+          this.logger.showInfo("Scanning avatar stores...");
+          await this.manualScan();
+        },
+      },
+      {
+        label: "Clear Cache",
+        color: "danger",
+        icon: "ri-delete-bin-line",
+        title: "Clear all processed avatars and reset stats",
+        callback: async () => {
+          if (
+            confirm(
+              "Clear all processed avatars and reset stats?\n\nThis cannot be undone!"
+            )
+          ) {
+            this.clearProcessedAvatars();
+            this.logger.showSuccess("Cache cleared successfully!");
+          }
+        },
+      },
+    ];
+  }
+
   async load() {
     this.logger.log("📦 Loading Avatar Logger...");
 

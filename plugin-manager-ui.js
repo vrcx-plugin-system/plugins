@@ -796,7 +796,20 @@ class PluginManagerUIPlugin extends Plugin {
       });
     }
 
-    // Action buttons
+    // Custom action buttons (if plugin defines them)
+    let customActions = null;
+    if (plugin.getActionButtons && typeof plugin.getActionButtons === "function") {
+      try {
+        const customButtons = plugin.getActionButtons();
+        if (customButtons && customButtons.length > 0) {
+          customActions = this.createCustomActionButtons(plugin, customButtons);
+        }
+      } catch (error) {
+        this.logger.error(`Error getting action buttons for ${plugin.metadata.id}:`, error);
+      }
+    }
+
+    // Standard action buttons
     const actions = document.createElement("div");
     actions.style.cssText =
       "display: flex; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid #404040;";
@@ -858,6 +871,9 @@ class PluginManagerUIPlugin extends Plugin {
     if (badgesContainer.children.length > 0) {
       card.appendChild(badgesContainer);
     }
+    if (customActions) {
+      card.appendChild(customActions);
+    }
     card.appendChild(actions);
 
     // Hover effects
@@ -872,6 +888,66 @@ class PluginManagerUIPlugin extends Plugin {
     });
 
     return card;
+  }
+
+  createCustomActionButtons(plugin, buttons) {
+    const container = document.createElement("div");
+    container.style.cssText =
+      "display: flex; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #404040; flex-wrap: wrap;";
+
+    buttons.forEach((buttonDef) => {
+      try {
+        const button = document.createElement("button");
+        
+        // Map color names to element plus button variants
+        const colorClassMap = {
+          primary: "el-button--primary",
+          success: "el-button--success",
+          warning: "el-button--warning",
+          danger: "el-button--danger",
+          info: "el-button--info",
+        };
+
+        const colorClass = colorClassMap[buttonDef.color] || colorClassMap.primary;
+        button.className = `el-button el-button--small ${colorClass}`;
+        button.style.cssText = "flex: 1;";
+
+        // Build button content with icon if provided
+        let innerHTML = "";
+        if (buttonDef.icon) {
+          innerHTML += `<i class="${buttonDef.icon}"></i> `;
+        }
+        innerHTML += buttonDef.label || "Action";
+        button.innerHTML = innerHTML;
+
+        // Set title/tooltip if provided
+        if (buttonDef.title) {
+          button.title = buttonDef.title;
+        }
+
+        // Register click handler
+        if (buttonDef.callback && typeof buttonDef.callback === "function") {
+          this.registerListener(button, "click", async (e) => {
+            e.stopPropagation();
+            try {
+              await buttonDef.callback();
+            } catch (error) {
+              this.logger.error(
+                `Error executing custom button callback for ${plugin.metadata.id}:`,
+                error
+              );
+              this.logger.showError(`Button action failed: ${error.message}`);
+            }
+          });
+        }
+
+        container.appendChild(button);
+      } catch (error) {
+        this.logger.error(`Error creating custom button for ${plugin.metadata.id}:`, error);
+      }
+    });
+
+    return container;
   }
 
   createBadge(text, color) {

@@ -14,6 +14,27 @@ class TagManagerPlugin extends Plugin {
     this.loadedTags = new Map();
   }
 
+  /**
+   * Define custom action buttons for the plugin manager UI
+   * @returns {Array} Array of button definitions
+   */
+  getActionButtons() {
+    return [
+      {
+        label: "Refresh Tags",
+        color: "success",
+        icon: "ri-refresh-line",
+        title: "Reload tags from all configured URLs",
+        callback: async () => {
+          this.logger.showInfo("Refreshing tags from URLs...");
+          await this.refreshTags();
+          const count = this.getLoadedTagsCount();
+          this.logger.showSuccess(`Loaded ${count} tags successfully!`);
+        },
+      },
+    ];
+  }
+
   async load() {
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.SettingType;

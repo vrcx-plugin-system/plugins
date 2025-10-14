@@ -44,6 +44,31 @@ class AutoFollowPlugin extends Plugin {
     this.checkInterval = 10000; // Check every 10 seconds
   }
 
+  /**
+   * Define custom action buttons for the plugin manager UI
+   * @returns {Array} Array of button definitions
+   */
+  getActionButtons() {
+    return [
+      {
+        label: "Clear All",
+        color: "warning",
+        icon: "ri-user-unfollow-line",
+        title: "Clear all auto-follow users from the list",
+        callback: async () => {
+          const count = this.autoFollowUsers.size;
+          if (count === 0) {
+            this.logger.showInfo("Auto Follow list is already empty");
+            return;
+          }
+          if (confirm(`Remove all ${count} user(s) from Auto Follow list?`)) {
+            this.clearAllAutoFollows();
+          }
+        },
+      },
+    ];
+  }
+
   async load() {
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.SettingType;

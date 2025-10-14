@@ -14,6 +14,24 @@ class BioUpdaterPlugin extends Plugin {
     this.updateTimerId = null;
   }
 
+  /**
+   * Define custom action buttons for the plugin manager UI
+   * @returns {Array} Array of button definitions
+   */
+  getActionButtons() {
+    return [
+      {
+        label: "Update Bio Now",
+        color: "success",
+        icon: "ri-refresh-line",
+        title: "Manually trigger bio update",
+        callback: async () => {
+          await this.triggerUpdate();
+        },
+      },
+    ];
+  }
+
   async load() {
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.SettingType;
@@ -306,7 +324,9 @@ Oculus ID: {oculusId}`;
    */
   async triggerUpdate() {
     this.logger.log("Manual bio update triggered");
+    this.logger.showInfo("Updating bio...");
     await this.updateBio();
+    this.logger.showSuccess("Bio updated successfully!");
   }
 
   /**

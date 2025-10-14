@@ -28,6 +28,27 @@ class YoinkerDetectorPlugin extends Plugin {
     this.logger.log("🔍 Yoinker Detector initialized");
   }
 
+  /**
+   * Define custom action buttons for the plugin manager UI
+   * @returns {Array} Array of button definitions
+   */
+  getActionButtons() {
+    return [
+      {
+        label: "Clear Cache",
+        color: "danger",
+        icon: "ri-delete-bin-line",
+        title: "Clear all processed users, cache, and reset stats",
+        callback: async () => {
+          if (confirm("Clear all processed users, cache, and stats?\n\nThis cannot be undone!")) {
+            this.clearCache();
+            this.logger.showSuccess("Cache cleared successfully!");
+          }
+        },
+      },
+    ];
+  }
+
   async load() {
     this.logger.log("📦 Loading Yoinker Detector...");
 

@@ -23,6 +23,31 @@ class AutoInvitePlugin extends Plugin {
     this.gameLogHookRetries = 0;
   }
 
+  /**
+   * Define custom action buttons for the plugin manager UI
+   * @returns {Array} Array of button definitions
+   */
+  getActionButtons() {
+    return [
+      {
+        label: "Clear All",
+        color: "warning",
+        icon: "ri-mail-forbid-line",
+        title: "Clear all auto-invite users from the list",
+        callback: async () => {
+          const count = this.autoInviteUsers.size;
+          if (count === 0) {
+            this.logger.showInfo("Auto Invite list is already empty");
+            return;
+          }
+          if (confirm(`Remove all ${count} user(s) from Auto Invite list?`)) {
+            this.clearAllAutoInvites();
+          }
+        },
+      },
+    ];
+  }
+
   async load() {
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.SettingType;
