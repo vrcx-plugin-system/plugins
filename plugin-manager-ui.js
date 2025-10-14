@@ -1480,7 +1480,7 @@ class PluginManagerUIPlugin extends Plugin {
     //   labelSection.appendChild(label);
     //   labelSection.appendChild(placeholder);
     // } else {
-    //   labelSection.appendChild(label);
+    labelSection.appendChild(label);
     // }
 
     // Input section
