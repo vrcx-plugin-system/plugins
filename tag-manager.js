@@ -307,36 +307,41 @@ class TagManagerPlugin extends Plugin {
    * @returns {Object} Dictionary of tagged users by store type
    */
   findTaggedUsers(print = false) {
-    try {
-      const result = {
-        friends: {},
-        blocked: {},
-        muted: {},
-        hideAvatar: {},
-        interactOff: {},
-        showAvatar: {},
-        interactOn: {},
-        cachedUsers: {},
-        gameLog: {},
-        feed: {},
-        friendLog: {},
-        notificationLog: {},
-      };
+    const result = {
+      friends: {},
+      blocked: {},
+      muted: {},
+      hideAvatar: {},
+      interactOff: {},
+      showAvatar: {},
+      interactOn: {},
+      cachedUsers: {},
+      gameLog: {},
+      feed: {},
+      friendLog: {},
+      notificationLog: {},
+    };
 
-      let totalCount = 0;
+    let totalCount = 0;
 
-      // Helper to add tagged user
-      const addTaggedUser = (store, userId, displayName, tag) => {
+    // Helper to add tagged user
+    const addTaggedUser = (store, userId, displayName, tag) => {
+      try {
         if (!result[store]) result[store] = {};
-        result[store][userId] = tag.tag;
+        const tagText = tag?.tag || tag?.Tag || "Unknown Tag";
+        result[store][userId] = tagText;
         totalCount++;
 
         if (print) {
-          this.logger.log(`[${store}] ${displayName || userId} - ${tag.tag}`);
+          this.logger.log(`[${store}] ${displayName || userId} - ${tagText}`);
         }
-      };
+      } catch (err) {
+        // Silent fail for individual entries
+      }
+    };
 
-      // 1. Check friends
+    // 1. Check friends
+    try {
       const friends = window.$pinia?.user?.currentUser?.friends || [];
       for (const friendId of friends) {
         const tag = this.getUserTag(friendId);
@@ -345,8 +350,12 @@ class TagManagerPlugin extends Plugin {
           addTaggedUser("friends", friendId, name, tag);
         }
       }
+    } catch (error) {
+      this.logger.logError("Error checking friends:", error?.message);
+    }
 
-      // 2. Check moderated players (blocked, muted, etc.)
+    // 2. Check moderated players (blocked, muted, etc.)
+    try {
       const moderations = Array.from(
         window.$pinia?.moderation?.cachedPlayerModerations?.values() || []
       );
@@ -362,20 +371,27 @@ class TagManagerPlugin extends Plugin {
           );
         }
       }
+    } catch (error) {
+      this.logger.logError("Error checking moderations:", error?.message);
+    }
 
-      // 3. Check cached users
+    // 3. Check cached users
+    try {
       const cachedUsers = window.$pinia?.user?.cachedUsers || new Map();
       for (const [userId, user] of cachedUsers) {
-        if (userId.startsWith("usr_")) {
+        if (userId && userId.startsWith && userId.startsWith("usr_")) {
           const tag = this.getUserTag(userId);
           if (tag && !result.friends[userId]) {
-            // Don't duplicate friends
-            addTaggedUser("cachedUsers", userId, user.displayName, tag);
+            addTaggedUser("cachedUsers", userId, user?.displayName, tag);
           }
         }
       }
+    } catch (error) {
+      this.logger.logError("Error checking cached users:", error?.message);
+    }
 
-      // 4. Check game log
+    // 4. Check game log
+    try {
       const gameLogData = window.$pinia?.gameLog?.gameLogTable || [];
       const seenInGameLog = new Set();
       for (const entry of gameLogData) {
@@ -389,8 +405,12 @@ class TagManagerPlugin extends Plugin {
           }
         }
       }
+    } catch (error) {
+      this.logger.logError("Error checking game log:", error?.message);
+    }
 
-      // 5. Check feed
+    // 5. Check feed
+    try {
       const feedData = window.$pinia?.feed?.sharedFeed || [];
       const seenInFeed = new Set();
       for (const entry of feedData) {
@@ -404,8 +424,12 @@ class TagManagerPlugin extends Plugin {
           }
         }
       }
+    } catch (error) {
+      this.logger.logError("Error checking feed:", error?.message);
+    }
 
-      // 6. Check friend log
+    // 6. Check friend log
+    try {
       const friendLogData = window.$pinia?.friend?.friendLog || [];
       const seenInFriendLog = new Set();
       for (const entry of friendLogData) {
@@ -423,8 +447,12 @@ class TagManagerPlugin extends Plugin {
           }
         }
       }
+    } catch (error) {
+      this.logger.logError("Error checking friend log:", error?.message);
+    }
 
-      // 7. Check notification log
+    // 7. Check notification log
+    try {
       const notificationLogData =
         window.$pinia?.notification?.notificationTable || [];
       const seenInNotificationLog = new Set();
@@ -443,8 +471,12 @@ class TagManagerPlugin extends Plugin {
           }
         }
       }
+    } catch (error) {
+      this.logger.logError("Error checking notification log:", error?.message);
+    }
 
-      // Print summary
+    // Print summary
+    try {
       if (print) {
         const summary = Object.entries(result)
           .filter(([_, users]) => Object.keys(users).length > 0)
@@ -454,12 +486,11 @@ class TagManagerPlugin extends Plugin {
         this.logger.log(`\n📊 Tagged Users Summary (${totalCount} total)`);
         this.logger.log(summary);
       }
-
-      return result;
     } catch (error) {
-      this.logger.error("Error finding tagged users:", error);
-      return {};
+      this.logger.logError("Error printing summary:", error?.message);
     }
+
+    return result;
   }
 
   /**
