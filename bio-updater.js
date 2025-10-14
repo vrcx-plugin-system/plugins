@@ -88,7 +88,6 @@ Oculus ID: {oculusId}`;
         type: SettingType.STRING,
         description: "Bio template with placeholders (multiline text)",
         category: "template",
-        placeholder: defaultTemplate,
         default: defaultTemplate,
         variables: {
           "{partners}": "Relationship partners count",

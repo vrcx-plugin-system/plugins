@@ -1473,15 +1473,15 @@ class PluginManagerUIPlugin extends Plugin {
       "font-size: 13px; font-weight: 500; color: #e8e8e8; margin-bottom: 2px;";
     label.textContent = settingDef.description || key;
 
-    if (settingDef.placeholder) {
-      const placeholder = document.createElement("div");
-      placeholder.style.cssText = "font-size: 11px; color: #b0b0b0;";
-      placeholder.textContent = settingDef.placeholder;
-      labelSection.appendChild(label);
-      labelSection.appendChild(placeholder);
-    } else {
-      labelSection.appendChild(label);
-    }
+    // if (settingDef.placeholder) {
+    //   const placeholder = document.createElement("div");
+    //   placeholder.style.cssText = "font-size: 11px; color: #b0b0b0;";
+    //   placeholder.textContent = settingDef.placeholder;
+    //   labelSection.appendChild(label);
+    //   labelSection.appendChild(placeholder);
+    // } else {
+    //   labelSection.appendChild(label);
+    // }
 
     // Input section
     const inputSection = document.createElement("div");
