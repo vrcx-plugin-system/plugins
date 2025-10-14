@@ -251,9 +251,45 @@ class TestLoggerPlugin extends Plugin {
                   "Logger Test",
                   this.testMessage
                 );
-                return { success: true };
+                return {
+                  success: true,
+                  details:
+                    "Called (may not show in Electron build or if Windows notifications disabled)",
+                };
               }
               throw new Error("AppApi.DesktopNotification not available");
+            },
+          },
+          {
+            label: "Browser Notification API",
+            color: "#673ab7",
+            test: async () => {
+              if ("Notification" in window) {
+                if (Notification.permission === "granted") {
+                  new Notification("Logger Test", {
+                    body: this.testMessage,
+                  });
+                  return {
+                    success: true,
+                    details: "Browser notification sent",
+                  };
+                } else if (Notification.permission !== "denied") {
+                  const permission = await Notification.requestPermission();
+                  if (permission === "granted") {
+                    new Notification("Logger Test", {
+                      body: this.testMessage,
+                    });
+                    return {
+                      success: true,
+                      details: "Permission granted, notification sent",
+                    };
+                  }
+                  throw new Error("Permission denied by user");
+                } else {
+                  throw new Error("Notification permission denied");
+                }
+              }
+              throw new Error("Browser Notification API not available");
             },
           },
           {
@@ -290,6 +326,107 @@ class TestLoggerPlugin extends Plugin {
                 return { success: true };
               }
               throw new Error("AppApi.OVRTNotification not available");
+            },
+          },
+        ],
+      },
+      {
+        title: "Pinia Notification Store",
+        buttons: [
+          {
+            label: "playNoty (GPS)",
+            color: "#00bcd4",
+            test: async () => {
+              if (window.$pinia?.notification?.playNoty) {
+                window.$pinia.notification.playNoty({
+                  type: "GPS",
+                  created_at: new Date().toJSON(),
+                  displayName: "Test User",
+                  userId: "usr_test",
+                  location: "wrld_test:12345",
+                  worldName: "Test World",
+                  time: 0,
+                  isFriend: true,
+                  isFavorite: false,
+                });
+                return { success: true };
+              }
+              throw new Error("$pinia.notification.playNoty not available");
+            },
+          },
+          {
+            label: "playNoty (Online)",
+            color: "#4caf50",
+            test: async () => {
+              if (window.$pinia?.notification?.playNoty) {
+                window.$pinia.notification.playNoty({
+                  type: "Online",
+                  created_at: new Date().toJSON(),
+                  displayName: "Test User",
+                  userId: "usr_test",
+                  isFriend: true,
+                  isFavorite: false,
+                });
+                return { success: true };
+              }
+              throw new Error("$pinia.notification.playNoty not available");
+            },
+          },
+          {
+            label: "playNoty (OnPlayerJoined)",
+            color: "#8bc34a",
+            test: async () => {
+              if (window.$pinia?.notification?.playNoty) {
+                window.$pinia.notification.playNoty({
+                  type: "OnPlayerJoined",
+                  created_at: new Date().toJSON(),
+                  displayName: "Test User",
+                  userId: "usr_test",
+                  isFriend: true,
+                  isFavorite: false,
+                });
+                return { success: true };
+              }
+              throw new Error("$pinia.notification.playNoty not available");
+            },
+          },
+          {
+            label: "queueGameLogNoty",
+            color: "#ff9800",
+            test: async () => {
+              if (window.$pinia?.notification?.queueGameLogNoty) {
+                window.$pinia.notification.queueGameLogNoty({
+                  type: "Event",
+                  created_at: new Date().toJSON(),
+                  data: this.testMessage,
+                });
+                return { success: true };
+              }
+              throw new Error(
+                "$pinia.notification.queueGameLogNoty not available"
+              );
+            },
+          },
+          {
+            label: "queueFeedNoty",
+            color: "#03a9f4",
+            test: async () => {
+              if (window.$pinia?.notification?.queueFeedNoty) {
+                window.$pinia.notification.queueFeedNoty({
+                  type: "GPS",
+                  created_at: new Date().toJSON(),
+                  displayName: "Test User",
+                  userId: "usr_test",
+                  location: "wrld_test:12345",
+                  worldName: "Test World",
+                  isFriend: true,
+                  isFavorite: false,
+                });
+                return { success: true };
+              }
+              throw new Error(
+                "$pinia.notification.queueFeedNoty not available"
+              );
             },
           },
         ],
@@ -545,12 +682,19 @@ class TestLoggerPlugin extends Plugin {
     infoTitle.textContent = "Available Methods";
 
     const infoList = document.createElement("ul");
-    infoList.style.cssText = "color: #b0b0b0; margin: 0; padding-left: 20px;";
+    infoList.style.cssText =
+      "color: #b0b0b0; margin: 0; padding-left: 20px; line-height: 1.6;";
     infoList.innerHTML = `
-      <li><code>$message</code> - Toast messages (brief, top-center)</li>
-      <li><code>$notify</code> - Notifications (persistent, top-right corner)</li>
-      <li><code>logger.show*()</code> - Plugin logger convenience methods</li>
-      <li><code>AppApi.*</code> - System notifications (desktop, VR)</li>
+      <li><code>$message.*</code> - Toast messages (brief, top-center) ✓ Works</li>
+      <li><code>$notify.*</code> - Notifications (persistent, top-right corner) ✓ Works</li>
+      <li><code>$pinia.notification.playNoty</code> - VRCX game event notifications (VR overlay) ✓ Works</li>
+      <li><code>$pinia.notification.queue*Noty</code> - Queue notifications with filters ✓ Works</li>
+      <li><code>Noty</code> - VRCX login-style notifications ✓ Works</li>
+      <li><code>AppApi.DesktopNotification</code> - Windows toasts (may not work in Electron)</li>
+      <li><code>AppApi.XSNotification</code> - XSOverlay VR notifications</li>
+      <li><code>AppApi.OVRTNotification</code> - OVRToolkit VR notifications</li>
+      <li><code>alert()</code> - Browser native alert dialog ✓ Works</li>
+      <li><code>Notification API</code> - Browser notification API (needs permission)</li>
     `;
 
     infoSection.appendChild(infoTitle);
@@ -635,6 +779,43 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
+        name: "$pinia.notification.playNoty (GPS)",
+        fn: async () => {
+          if (window.$pinia?.notification?.playNoty) {
+            window.$pinia.notification.playNoty({
+              type: "GPS",
+              created_at: new Date().toJSON(),
+              displayName: "Test User",
+              userId: "usr_test",
+              location: "wrld_test:12345",
+              worldName: "Test World",
+              time: 0,
+              isFriend: true,
+              isFavorite: false,
+            });
+          } else {
+            throw new Error("playNoty not available");
+          }
+        },
+      },
+      {
+        name: "$pinia.notification.playNoty (Online)",
+        fn: async () => {
+          if (window.$pinia?.notification?.playNoty) {
+            window.$pinia.notification.playNoty({
+              type: "Online",
+              created_at: new Date().toJSON(),
+              displayName: "Test User",
+              userId: "usr_test",
+              isFriend: true,
+              isFavorite: false,
+            });
+          } else {
+            throw new Error("playNoty not available");
+          }
+        },
+      },
+      {
         name: "Noty Success",
         fn: async () => {
           if (typeof Noty !== "undefined") {
@@ -700,9 +881,20 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "alert() [Browser]",
+        name: "Browser Notification API",
         fn: async () => {
-          alert(this.testMessage + " - Browser Alert");
+          if (
+            "Notification" in window &&
+            Notification.permission === "granted"
+          ) {
+            new Notification("Logger Test", {
+              body: this.testMessage,
+            });
+          } else {
+            throw new Error(
+              "Browser notifications not available or permission denied"
+            );
+          }
         },
       },
     ];
