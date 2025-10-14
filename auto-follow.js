@@ -26,7 +26,7 @@
 class AutoFollowPlugin extends Plugin {
   constructor() {
     super({
-      name: "Auto Follow Manager",
+      name: "Auto Follow",
       description:
         "Automatic location tracking system that follows selected users",
       author: "Bluscream",

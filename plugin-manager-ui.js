@@ -822,6 +822,15 @@ class PluginManagerUIPlugin extends Plugin {
       await this.handleShowPluginSettings(plugin);
     });
 
+    const analyzeBtn = document.createElement("button");
+    analyzeBtn.className = "el-button el-button--small el-button--success";
+    analyzeBtn.innerHTML = '<i class="ri-search-eye-line"></i>';
+    analyzeBtn.title = "Fetch Plugin Details";
+    this.registerListener(analyzeBtn, "click", async (e) => {
+      e.stopPropagation();
+      await this.handleAnalyzePlugin(plugin.metadata.url);
+    });
+
     const infoBtn = document.createElement("button");
     infoBtn.className = "el-button el-button--small";
     infoBtn.innerHTML = '<i class="ri-information-line"></i>';
@@ -842,6 +851,7 @@ class PluginManagerUIPlugin extends Plugin {
 
     actions.appendChild(reloadBtn);
     actions.appendChild(settingsBtn);
+    actions.appendChild(analyzeBtn);
     actions.appendChild(infoBtn);
     actions.appendChild(removeBtn);
 
@@ -1098,6 +1108,269 @@ class PluginManagerUIPlugin extends Plugin {
       this.logger.error("Error reloading plugin:", error);
       this.logger.showError(`Error: ${error.message}`);
     }
+  }
+
+  async handleAnalyzePlugin(pluginUrl) {
+    if (!pluginUrl) {
+      this.logger.warn("No URL available for analysis");
+      this.logger.showWarn("Plugin URL not available");
+      return;
+    }
+
+    try {
+      this.logger.log(`Analyzing plugin: ${pluginUrl}`);
+      this.logger.showInfo("Analyzing plugin code...");
+
+      // Access PluginLoader through pluginManager
+      const loader = window.customjs?.pluginManager?.loader;
+      if (!loader || !loader.extractPluginMetadata) {
+        this.logger.error("PluginLoader.extractPluginMetadata not available");
+        this.logger.showError("Analysis feature not available");
+        return;
+      }
+
+      const metadata = await loader.extractPluginMetadata(pluginUrl, true);
+
+      if (metadata) {
+        this.logger.log("Plugin analysis complete", metadata);
+        this.showAnalysisDialog(metadata);
+      } else {
+        this.logger.error("Failed to extract metadata");
+        this.logger.showError("Failed to analyze plugin");
+      }
+    } catch (error) {
+      this.logger.error("Error analyzing plugin:", error);
+      this.logger.showError(`Analysis error: ${error.message}`);
+    }
+  }
+
+  showAnalysisDialog(metadata) {
+    const dialog = document.createElement("div");
+    dialog.className = "el-overlay";
+    dialog.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    `;
+
+    const content = document.createElement("div");
+    content.style.cssText = `
+      background: #2d2d2d;
+      border-radius: 8px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    `;
+
+    const header = document.createElement("div");
+    header.style.cssText = `
+      padding: 20px;
+      border-bottom: 1px solid #404040;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    `;
+
+    const title = document.createElement("h3");
+    title.style.cssText = "margin: 0; color: #e0e0e0; font-size: 18px;";
+    title.textContent = `Plugin Analysis: ${metadata.name || "Unknown"}`;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "el-button el-button--small";
+    closeBtn.innerHTML = '<i class="ri-close-line"></i>';
+    closeBtn.style.cssText = "cursor: pointer;";
+    this.registerListener(closeBtn, "click", () => {
+      dialog.remove();
+    });
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+
+    const body = document.createElement("div");
+    body.style.cssText = "padding: 20px;";
+
+    // Create sections
+    const sections = [
+      {
+        title: "Basic Information",
+        data: {
+          Name: metadata.name,
+          Description: metadata.description,
+          Author: metadata.author,
+          Version: metadata.version,
+          Build: metadata.build,
+          "Class Name": metadata.className,
+          URL: metadata.url,
+        },
+      },
+      {
+        title: "Code Metrics",
+        data: {
+          Size: metadata.sizeFormatted,
+          "Line Count": metadata.lineCount,
+          "Function Count": metadata.functionCount,
+          "Event Handlers": metadata.eventHandlerCount,
+        },
+      },
+      {
+        title: "Settings",
+        data: {
+          "Settings Count": metadata.settingsCount,
+          "Categories Count": metadata.categoriesCount,
+        },
+      },
+      {
+        title: "Resource Registrations",
+        data: {
+          Observers: metadata.observerCount,
+          Listeners: metadata.listenerCount,
+          Subscriptions: metadata.subscriptionCount,
+          Hooks: metadata.hookCount,
+          Timers: metadata.timerCount,
+        },
+      },
+      {
+        title: "Lifecycle Methods",
+        data: {
+          "Has load()": metadata.lifecycle?.hasLoad ? "✓" : "✗",
+          "Has start()": metadata.lifecycle?.hasStart ? "✓" : "✗",
+          "Has stop()": metadata.lifecycle?.hasStop ? "✓" : "✗",
+          "Has onLogin()": metadata.lifecycle?.hasOnLogin ? "✓" : "✗",
+        },
+      },
+      {
+        title: "External APIs",
+        data: {
+          AppApi: metadata.externalApis?.usesAppApi ? "✓" : "✗",
+          Pinia: metadata.externalApis?.usesPinia ? "✓" : "✗",
+          "Vue Router": metadata.externalApis?.usesVueRouter ? "✓" : "✗",
+          "VRCX API": metadata.externalApis?.usesVRCXAPI ? "✓" : "✗",
+          "Web API": metadata.externalApis?.usesWebAPI ? "✓" : "✗",
+        },
+      },
+      {
+        title: "Resource Usage",
+        data: {
+          "Creates DOM": metadata.resourceUsage?.createsDomElements ? "✓" : "✗",
+          "Modifies DOM": metadata.resourceUsage?.modifiesDom ? "✓" : "✗",
+          localStorage: metadata.resourceUsage?.usesLocalStorage ? "✓" : "✗",
+          sessionStorage: metadata.resourceUsage?.usesSessionStorage
+            ? "✓"
+            : "✗",
+          WebSocket: metadata.resourceUsage?.usesWebSocket ? "✓" : "✗",
+        },
+      },
+    ];
+
+    if (metadata.tags && metadata.tags.length > 0) {
+      sections.push({
+        title: "Tags",
+        data: { Tags: metadata.tags.join(", ") },
+      });
+    }
+
+    if (metadata.dependencies && metadata.dependencies.length > 0) {
+      sections.push({
+        title: "Dependencies",
+        data: { Count: metadata.dependencies.length },
+      });
+    }
+
+    sections.forEach((section) => {
+      const sectionEl = this.createAnalysisSection(section.title, section.data);
+      body.appendChild(sectionEl);
+    });
+
+    // Source code section
+    if (metadata.sourceCode) {
+      const sourceSection = document.createElement("div");
+      sourceSection.style.cssText = "margin-top: 20px;";
+
+      const sourceHeader = document.createElement("h4");
+      sourceHeader.style.cssText =
+        "margin: 0 0 10px 0; color: #409eff; font-size: 14px; text-transform: uppercase;";
+      sourceHeader.textContent = "Source Code";
+
+      const sourceCode = document.createElement("pre");
+      sourceCode.style.cssText = `
+        background: #1e1e1e;
+        padding: 15px;
+        border-radius: 4px;
+        overflow-x: auto;
+        max-height: 400px;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 12px;
+        color: #d4d4d4;
+        line-height: 1.5;
+      `;
+      sourceCode.textContent = metadata.sourceCode;
+
+      sourceSection.appendChild(sourceHeader);
+      sourceSection.appendChild(sourceCode);
+      body.appendChild(sourceSection);
+    }
+
+    content.appendChild(header);
+    content.appendChild(body);
+    dialog.appendChild(content);
+
+    // Close on background click
+    this.registerListener(dialog, "click", (e) => {
+      if (e.target === dialog) {
+        dialog.remove();
+      }
+    });
+
+    document.body.appendChild(dialog);
+    this.logger.showSuccess("Analysis complete");
+  }
+
+  createAnalysisSection(title, data) {
+    const section = document.createElement("div");
+    section.style.cssText = "margin-bottom: 15px;";
+
+    const header = document.createElement("h4");
+    header.style.cssText =
+      "margin: 0 0 8px 0; color: #409eff; font-size: 14px; text-transform: uppercase;";
+    header.textContent = title;
+
+    const grid = document.createElement("div");
+    grid.style.cssText = `
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 8px;
+      font-size: 13px;
+    `;
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+
+      const keyEl = document.createElement("div");
+      keyEl.style.cssText = "color: #909090; font-weight: 500;";
+      keyEl.textContent = key + ":";
+
+      const valueEl = document.createElement("div");
+      valueEl.style.cssText = "color: #e0e0e0;";
+      valueEl.textContent = String(value);
+
+      grid.appendChild(keyEl);
+      grid.appendChild(valueEl);
+    });
+
+    section.appendChild(header);
+    section.appendChild(grid);
+
+    return section;
   }
 
   handleShowDetails(plugin) {
