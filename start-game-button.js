@@ -5,8 +5,8 @@ class StartGameButtonPlugin extends Plugin {
       description:
         "Adds a button to the navigation menu to start VRChat with VRCX settings",
       author: "Bluscream",
-      version: "1.0.0",
-      build: "0",
+      version: "1.1.0",
+      build: "1729018400",
       tags: ["Utility", "Game"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/nav-menu-api.js",
@@ -97,10 +97,14 @@ class StartGameButtonPlugin extends Plugin {
       if (this.settings.store.confirmBeforeLaunch) {
         const mode = desktopMode ? "Desktop Mode" : "VR Mode";
         const path = vrcLaunchPathOverride || "default location";
-        const argsText = argsString ? `\nArguments: ${argsString}` : "";
-        const message = `Launch VRChat in ${mode}?\n\nPath: ${path}${argsText}`;
+        const argsText = argsString ? `Arguments: ${argsString}` : "";
 
-        if (!confirm(message)) {
+        const confirmed = await this.showConfirmDialog(
+          `Launch VRChat in ${mode}?`,
+          `Path: ${path}${argsText ? "\n" + argsText : ""}`
+        );
+
+        if (!confirmed) {
           this.logger.log("Launch cancelled by user");
           return;
         }
@@ -133,6 +137,44 @@ class StartGameButtonPlugin extends Plugin {
       }
     } catch (error) {
       this.logger.showError(`Error starting game: ${error.message}`);
+    }
+  }
+
+  /**
+   * Show confirmation dialog using Element Plus or fallback to native confirm
+   * @param {string} title - Dialog title
+   * @param {string} message - Dialog message
+   * @returns {Promise<boolean>} True if confirmed, false if cancelled
+   */
+  async showConfirmDialog(title, message) {
+    try {
+      // Try Element Plus $confirm (Vue global properties)
+      const $confirm = window.$app?.config?.globalProperties?.$confirm;
+      if ($confirm) {
+        try {
+          await $confirm(message, title, {
+            confirmButtonText: "Launch",
+            cancelButtonText: "Cancel",
+            type: "info",
+          });
+          return true; // User confirmed
+        } catch (error) {
+          // User cancelled or closed dialog
+          return false;
+        }
+      }
+
+      // Fallback to native browser confirm
+      this.logger.log(
+        "Using native confirm dialog (Element Plus not available)"
+      );
+      const fullMessage = `${title}\n\n${message}`;
+      return confirm(fullMessage);
+    } catch (error) {
+      this.logger.warn(`Error showing confirm dialog: ${error.message}`);
+      // Fallback to native confirm on any error
+      const fullMessage = `${title}\n\n${message}`;
+      return confirm(fullMessage);
     }
   }
 
