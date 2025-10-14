@@ -343,7 +343,7 @@ class TestLoggerPlugin extends Plugin {
                   created_at: new Date().toJSON(),
                   displayName: "Test User",
                   userId: "usr_test",
-                  location: "wrld_test:12345",
+                  location: "wrld_test:123456",
                   worldName: "Test World",
                   time: 0,
                   isFriend: true,
