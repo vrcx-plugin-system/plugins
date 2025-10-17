@@ -5,7 +5,6 @@ class DebugPlugin extends Plugin {
       description:
         "Debug utilities, IPC logging, global scope search, and console commands for development",
       author: "Bluscream",
-      version: "1.0",
       build: "1760411348",
       dependencies: [],
     });

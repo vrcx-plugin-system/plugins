@@ -7,7 +7,6 @@ class TemplatePlugin extends Plugin {
       description:
         "Example plugin demonstrating all available features and lifecycle events",
       author: "Bluscream",
-      version: "3.0.0",
       build: "1728847200",
       dependencies: [
         // Always include plugin.js as first dependency

@@ -12,7 +12,6 @@ class BioSymbolsPatchPlugin extends Plugin {
       description:
         "Patches replaceBioSymbols function to handle non-string inputs safely",
       author: "Bluscream",
-      version: "1.0.0",
       build: "1729018400",
       tags: ["Bugfix", "Utility", "Patch", "Fix"],
       dependencies: [],

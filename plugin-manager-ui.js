@@ -5,7 +5,6 @@ class PluginManagerUIPlugin extends Plugin {
       description:
         "Visual UI for managing VRCX custom plugins - Equicord inspired",
       author: "Bluscream",
-      version: "6.8.4",
       build: "1760444890",
       tags: ["UI", "Core", "Settings"],
       dependencies: [
@@ -1115,7 +1114,6 @@ class PluginManagerUIPlugin extends Plugin {
         name: pluginName,
         description: "(Not loaded - enable to see details)",
         author: "Unknown",
-        version: "0.0.0",
         build: "0",
         url: url,
         tags: [],
@@ -1211,9 +1209,8 @@ class PluginManagerUIPlugin extends Plugin {
     const meta = document.createElement("div");
     meta.style.cssText =
       "font-size: 11px; color: #909090; font-family: monospace;";
-    const version = `v${plugin.metadata?.version || "0.0.0"}`;
     const author = plugin.metadata?.author
-      ? ` • by ${plugin.metadata.author}`
+      ? `by ${plugin.metadata.author}`
       : "";
     const buildDate = plugin.metadata?.build
       ? ` • ${this.formatBuildDate(plugin.metadata.build)}`
@@ -1231,7 +1228,7 @@ class PluginManagerUIPlugin extends Plugin {
       }
     }
 
-    meta.textContent = version + author + buildDate + repoSource;
+    meta.textContent = author + buildDate + repoSource;
 
     nameSection.appendChild(name);
     nameSection.appendChild(meta);
@@ -1846,7 +1843,6 @@ class PluginManagerUIPlugin extends Plugin {
           Name: metadata.name,
           Description: metadata.description,
           Author: metadata.author,
-          Version: metadata.version,
           Build: metadata.build,
           "Class Name": metadata.className,
           URL: metadata.url,

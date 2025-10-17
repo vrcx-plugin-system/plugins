@@ -5,7 +5,6 @@ class NavMenuTestPlugin extends Plugin {
       description:
         "Test plugin to verify nav-menu-api functionality with extensive debug logging",
       author: "Bluscream",
-      version: "1.0.0",
       build: "0",
       tags: ["Debug", "Experimental"],
       dependencies: [

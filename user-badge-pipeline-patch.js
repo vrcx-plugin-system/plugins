@@ -12,7 +12,6 @@ class UserBadgePipelinePatchPlugin extends Plugin {
       description:
         "Adds support for user-badge-assigned pipeline events and displays badge notifications",
       author: "Bluscream",
-      version: "1.0.0",
       build: "1729018400",
       tags: ["Bugfix", "Notifications", "Patch", "Fix"],
       dependencies: [],

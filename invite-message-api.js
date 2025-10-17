@@ -50,7 +50,6 @@ class InviteMessageApiPlugin extends Plugin {
       description:
         "API for managing and rotating custom invite messages with cooldown tracking",
       author: "Bluscream",
-      version: "1.0",
       build: "1760411348",
       tags: ["API", "Social", "Library"],
       dependencies: [],

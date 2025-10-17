@@ -5,7 +5,6 @@ class YoinkerDetectorPlugin extends Plugin {
       description:
         "Automatically checks users against yoinker detection database and applies tags + notifications",
       author: "Bluscream",
-      version: "3.1.0",
       build: "1728935100",
       tags: ["Security", "Social", "Integration"],
       dependencies: [],

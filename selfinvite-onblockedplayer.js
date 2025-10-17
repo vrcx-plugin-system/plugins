@@ -18,7 +18,6 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
       description:
         "Automatically creates a self-invite to a new instance when a blocked player joins your current instance",
       author: "Bluscream",
-      version: "3.0.2",
       build: "1760363253",
       tags: ["Automation", "Security"],
       dependencies: [],

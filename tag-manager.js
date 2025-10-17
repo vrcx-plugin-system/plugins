@@ -4,7 +4,6 @@ class TagManagerPlugin extends Plugin {
       name: "Tag Manager",
       description: "Custom user tags management with URL-based loading",
       author: "Bluscream",
-      version: "3.2.0",
       build: "1760363253",
       tags: ["Social", "Enhancement"],
       dependencies: [],

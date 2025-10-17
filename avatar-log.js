@@ -5,7 +5,6 @@ class AvatarLogPlugin extends Plugin {
       description:
         "Logs and submits avatar IDs to various avatar database providers (avtrDB, NSVR, PAW, VRCDB, VRCWB)",
       author: "Bluscream",
-      version: "3.1.0",
       build: "1728935100",
       tags: ["Logger", "Database", "Integration"],
       dependencies: [],

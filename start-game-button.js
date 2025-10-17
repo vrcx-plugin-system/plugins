@@ -5,7 +5,6 @@ class StartGameButtonPlugin extends Plugin {
       description:
         "Adds a button to the navigation menu to start VRChat with VRCX settings",
       author: "Bluscream",
-      version: "1.1.0",
       build: "1729018400",
       tags: ["Utility", "Game", "Button"],
       dependencies: [

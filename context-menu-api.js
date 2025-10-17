@@ -4,7 +4,6 @@ class ContextMenuApiPlugin extends Plugin {
       name: "Context Menu API",
       description: "Custom context menu management for VRCX dialogs",
       author: "Bluscream",
-      version: "1.0",
       build: "1760411348",
       tags: ["API", "Core", "Context", "Library"],
       dependencies: [],

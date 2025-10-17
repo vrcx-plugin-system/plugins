@@ -35,7 +35,6 @@ class AutoFollowPlugin extends Plugin {
       description:
         "Automatically sends you invites when followed users join worlds (or requests invites for private instances)",
       author: "Bluscream",
-      version: "3.1.0",
       build: "1729018400",
       tags: ["Automation", "Social"],
       dependencies: [

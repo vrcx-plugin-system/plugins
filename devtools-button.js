@@ -5,7 +5,6 @@ class DevToolsButtonPlugin extends Plugin {
       description:
         "Adds a button to the navigation menu to open browser DevTools",
       author: "Bluscream",
-      version: "1.0.0",
       build: "1760450000",
       tags: ["Utility", "Developer", "Button"],
       dependencies: [

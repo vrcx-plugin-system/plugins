@@ -5,7 +5,6 @@ class AutoInvitePlugin extends Plugin {
       description:
         "Automatic user invitation system with location tracking and custom messages",
       author: "Bluscream",
-      version: "3.0.0",
       build: "1728847200",
       tags: ["Automation", "Social"],
       dependencies: [

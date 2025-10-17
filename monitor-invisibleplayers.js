@@ -17,7 +17,6 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
       description:
         "Detects and notifies when potentially invisible players are in your instance",
       author: "Bluscream",
-      version: "3.1.0",
       build: "1728935100",
       tags: ["Monitor", "Security"],
       dependencies: [],

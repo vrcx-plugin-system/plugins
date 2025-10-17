@@ -4,7 +4,6 @@ class TestLoggerPlugin extends Plugin {
       name: "Logger Tester",
       description: "Test different VRCX notification and logging methods",
       author: "Bluscream",
-      version: "1.0.0",
       build: "0",
       tags: ["Debug", "Utility"],
       dependencies: [

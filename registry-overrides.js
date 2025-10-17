@@ -5,7 +5,6 @@ class RegistryOverridesPlugin extends Plugin {
       description:
         "VRChat registry settings management with event-based triggers (disabled by default)",
       author: "Bluscream",
-      version: "3.2.0",
       build: "1760363253",
       tags: ["Game", "Config", "Automation"],
       dependencies: [],
