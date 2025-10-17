@@ -8,6 +8,14 @@ Plugins extend VRCX functionality without core modifications. They're plain Java
 
 ## Plugin List
 
+### 🐛 Bugfix Patches
+
+| Plugin                        | Description                                    |
+| ----------------------------- | ---------------------------------------------- |
+| **bio-symbols-patch**         | Fix bio symbols parsing for non-string inputs  |
+| **api-retry-patch**           | Add automatic retry logic for failed API calls |
+| **user-badge-pipeline-patch** | Handle badge assignment events & notifications |
+
 ### 🔧 Core APIs
 
 | Plugin                 | Description                                       |
@@ -221,8 +229,8 @@ this.registerVoidHook("annoyingFunc", () => {
 // Replace-hook (custom implementation)
 this.registerReplaceHook("func", (original, ...args) => {
   return original(...args) + " modified";
-   });
-   ```
+});
+```
 
 ## Plugin URLs
 
