@@ -6,7 +6,7 @@ class ContextMenuApiPlugin extends Plugin {
       author: "Bluscream",
       version: "1.0",
       build: "1760411348",
-      tags: ["API", "Core", "Context"],
+      tags: ["API", "Core", "Context", "Library"],
       dependencies: [],
     });
 

@@ -6,7 +6,7 @@ class NavMenuApiPlugin extends Plugin {
       author: "Bluscream",
       version: "1.0.0",
       build: "1760363253",
-      tags: ["API", "Core", "Navigation"],
+      tags: ["API", "Core", "Navigation", "Library"],
       dependencies: [],
     });
 

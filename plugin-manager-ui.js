@@ -14,7 +14,7 @@ class PluginManagerUIPlugin extends Plugin {
     });
 
     this.settingsModal = null;
-    this.searchValue = { value: "", filter: "all" }; // all, enabled, disabled, core, failed, new
+    this.searchValue = { value: "", filter: "all" }; // all, enabled, disabled, core, failed, available
     this.togglingPlugins = new Set(); // Track plugins currently being toggled
   }
 
@@ -850,15 +850,15 @@ class PluginManagerUIPlugin extends Plugin {
     const filterSelect = document.createElement("select");
     filterSelect.className = "el-select";
     filterSelect.style.cssText =
-      "padding: 8px 24px 8px 12px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 14px; width: 140px; background: #2d2d2d; color: #e0e0e0; cursor: pointer;";
+      "padding: 8px 24px 8px 12px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 14px; width: 180px; background: #2d2d2d; color: #e0e0e0; cursor: pointer;";
 
     const filters = [
       { value: "all", label: "Show All" },
-      { value: "enabled", label: "Show Enabled" },
-      { value: "disabled", label: "Show Disabled" },
-      { value: "core", label: "Show Core" },
-      { value: "failed", label: "Show Failed" },
-      { value: "available", label: "Show Available (Not Installed)" },
+      { value: "enabled", label: "Enabled" },
+      { value: "disabled", label: "Disabled" },
+      { value: "available", label: "Available (Not Installed)" },
+      { value: "core", label: "Core" },
+      { value: "failed", label: "Failed" },
     ];
 
     filters.forEach((filter) => {
@@ -1008,17 +1008,58 @@ class PluginManagerUIPlugin extends Plugin {
       const coreModules = window.customjs?.core_modules || [];
       const failedUrls =
         window.customjs?.pluginManager?.failedUrls || new Set();
+      const repoManager = window.customjs?.repoManager;
 
       // Get plugin config to include disabled plugins
       const pluginConfig = window.customjs?.configManager?.get("plugins") || {};
 
-      // Create plugin objects for disabled plugins that aren't loaded
-      const loadedUrls = new Set(loadedPlugins.map((p) => p.metadata.url));
-      const disabledPlugins = Object.entries(pluginConfig)
-        .filter(([url, enabled]) => !enabled && !loadedUrls.has(url))
-        .map(([url]) => this.createUnloadedPluginStub(url));
+      // Start with plugins from repositories (this gives us rich metadata)
+      let allPlugins = [];
 
-      const allPlugins = [...loadedPlugins, ...disabledPlugins];
+      if (repoManager) {
+        const repoPlugins = repoManager.getAllPlugins();
+
+        // Create plugin objects from repo data
+        allPlugins = repoPlugins.map((repoPlugin) => {
+          // Check if this plugin is actually loaded
+          const loadedPlugin = loadedPlugins.find(
+            (p) => p.metadata.url === repoPlugin.url
+          );
+
+          if (loadedPlugin) {
+            // Plugin is loaded - use loaded data but enrich with repo metadata
+            return {
+              ...loadedPlugin,
+              metadata: {
+                ...repoPlugin, // Start with repo metadata (better descriptions, tags)
+                ...loadedPlugin.metadata, // Override with actual loaded metadata
+              },
+            };
+          } else {
+            // Plugin not loaded - use repo data
+            const isEnabled =
+              pluginConfig[repoPlugin.url] !== undefined
+                ? pluginConfig[repoPlugin.url]
+                : false;
+
+            return {
+              metadata: repoPlugin,
+              enabled: isEnabled,
+              loaded: false,
+              started: false,
+              _isStub: true,
+            };
+          }
+        });
+      } else {
+        // Fallback to old behavior if no repo manager
+        const loadedUrls = new Set(loadedPlugins.map((p) => p.metadata.url));
+        const disabledPlugins = Object.entries(pluginConfig)
+          .filter(([url, enabled]) => !enabled && !loadedUrls.has(url))
+          .map(([url]) => this.createUnloadedPluginStub(url));
+
+        allPlugins = [...loadedPlugins, ...disabledPlugins];
+      }
 
       const filteredPlugins = this.filterPlugins(
         allPlugins,
@@ -1128,7 +1169,8 @@ class PluginManagerUIPlugin extends Plugin {
         (p) =>
           p.metadata.name.toLowerCase().includes(search) ||
           p.metadata.description.toLowerCase().includes(search) ||
-          p.metadata.id.toLowerCase().includes(search)
+          p.metadata.id.toLowerCase().includes(search) ||
+          p.metadata.tags?.some((tag) => tag.toLowerCase().includes(search))
       );
     }
 
@@ -1267,6 +1309,15 @@ class PluginManagerUIPlugin extends Plugin {
     const badgesContainer = document.createElement("div");
     badgesContainer.style.cssText =
       "display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;";
+
+    // Show installation status badge
+    if (plugin._isStub) {
+      const notInstalledBadge = this.createBadge("Not Installed", "#6c757d");
+      badgesContainer.appendChild(notInstalledBadge);
+    } else if (plugin.loaded) {
+      const installedBadge = this.createBadge("Installed", "#28a745");
+      badgesContainer.appendChild(installedBadge);
+    }
 
     // Show plugin tags if available
     if (plugin.metadata?.tags && plugin.metadata.tags.length > 0) {

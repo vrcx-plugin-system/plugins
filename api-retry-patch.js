@@ -23,7 +23,7 @@ class ApiRetryPatchPlugin extends Plugin {
       author: "Bluscream",
       version: "1.1.0",
       build: "1729018400",
-      tags: ["Network", "API", "Utility"],
+      tags: ["Network", "API", "Utility", "Patch", "Fix"],
       dependencies: [],
     });
 

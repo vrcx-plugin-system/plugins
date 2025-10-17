@@ -14,7 +14,7 @@ class UserBadgePipelinePatchPlugin extends Plugin {
       author: "Bluscream",
       version: "1.0.0",
       build: "1729018400",
-      tags: ["Bugfix", "Notifications"],
+      tags: ["Bugfix", "Notifications", "Patch", "Fix"],
       dependencies: [],
     });
 

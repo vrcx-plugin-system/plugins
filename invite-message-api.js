@@ -52,7 +52,7 @@ class InviteMessageApiPlugin extends Plugin {
       author: "Bluscream",
       version: "1.0",
       build: "1760411348",
-      tags: ["API", "Social"],
+      tags: ["API", "Social", "Library"],
       dependencies: [],
     });
 
