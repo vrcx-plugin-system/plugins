@@ -156,7 +156,15 @@ class PluginManagerUIPlugin extends Plugin {
     const startedCount = allPlugins.filter((p) => p.started).length;
 
     // Create stat cards
-    const stats = [];
+    const stats = [
+      {
+        label: "Repos",
+        value: `${enabledRepoCount}/${repoCount}`,
+        color: "#9c27b0",
+      },
+      { label: "Plugins", value: allPlugins.length, color: "#28a745" },
+      { label: "Core Modules", value: coreModules.length, color: "#28a745" },
+    ];
 
     stats.forEach((stat) => {
       const card = this.createStatCard(stat.label, stat.value, stat.color);

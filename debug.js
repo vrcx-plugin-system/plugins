@@ -118,7 +118,7 @@ class DebugPlugin extends Plugin {
     // List all plugins
     window.customjs.plugins.forEach((plugin) => {
       this.logger.log(
-        `  - ${plugin.metadata.name} v${plugin.metadata.version} (${
+        `  - ${plugin.metadata.name} (build: ${plugin.metadata.build}) (${
           plugin.enabled ? "enabled" : "disabled"
         }, ${plugin.loaded ? "loaded" : "not loaded"}, ${
           plugin.started ? "started" : "not started"
@@ -134,7 +134,7 @@ class DebugPlugin extends Plugin {
     return window.customjs.plugins.map((p) => ({
       id: p.metadata.id,
       name: p.metadata.name,
-      version: p.metadata.version,
+      build: p.metadata.build,
       enabled: p.enabled,
       loaded: p.loaded,
       started: p.started,
