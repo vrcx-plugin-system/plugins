@@ -1307,15 +1307,6 @@ class PluginManagerUIPlugin extends Plugin {
     badgesContainer.style.cssText =
       "display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;";
 
-    // Show installation status badge
-    if (plugin._isStub) {
-      const notInstalledBadge = this.createBadge("Not Installed", "#6c757d");
-      badgesContainer.appendChild(notInstalledBadge);
-    } else if (plugin.loaded) {
-      const installedBadge = this.createBadge("Installed", "#28a745");
-      badgesContainer.appendChild(installedBadge);
-    }
-
     // Show plugin tags if available
     if (plugin.metadata?.tags && plugin.metadata.tags.length > 0) {
       plugin.metadata.tags.forEach((tag) => {
