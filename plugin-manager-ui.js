@@ -97,6 +97,7 @@ class PluginManagerUIPlugin extends Plugin {
     try {
       // Build all content immediately - nav-menu-api handles visibility
       container.appendChild(this.createStatsSection());
+      container.appendChild(this.createRepoManagementSection());
       container.appendChild(this.createConfigSyncSection());
       container.appendChild(this.createLoadPluginSection());
       container.appendChild(this.createFilterSection());
@@ -148,12 +149,20 @@ class PluginManagerUIPlugin extends Plugin {
     const allPlugins = window.customjs?.plugins || [];
     const coreModules = window.customjs?.core_modules || [];
     const failedUrls = window.customjs?.pluginManager?.failedUrls || new Set();
+    const repoManager = window.customjs?.repoManager;
+    const repoCount = repoManager?.getAllRepositories()?.length || 0;
+    const enabledRepoCount = repoManager?.getEnabledRepositories()?.length || 0;
 
     const enabledCount = allPlugins.filter((p) => p.enabled).length;
     const startedCount = allPlugins.filter((p) => p.started).length;
 
     // Create stat cards
     const stats = [
+      {
+        label: "Repositories",
+        value: `${enabledRepoCount}/${repoCount}`,
+        color: "#9c27b0",
+      },
       { label: "Core Modules", value: coreModules.length, color: "#17a2b8" },
       { label: "Total Plugins", value: allPlugins.length, color: "#28a745" },
       { label: "Enabled", value: enabledCount, color: "#007bff" },
@@ -210,6 +219,430 @@ class PluginManagerUIPlugin extends Plugin {
     });
 
     return card;
+  }
+
+  createRepoManagementSection() {
+    const section = document.createElement("div");
+    section.style.cssText = "margin-bottom: 20px;";
+
+    // Title
+    const title = document.createElement("h5");
+    title.style.cssText =
+      "margin: 0 0 12px 0; font-size: 16px; font-weight: 600;";
+    title.textContent = "📦 Plugin Repositories";
+    section.appendChild(title);
+
+    // Description
+    const description = document.createElement("p");
+    description.style.cssText =
+      "margin: 0 0 12px 0; font-size: 14px; color: #6c757d;";
+    description.textContent =
+      "Manage plugin repositories to install and update plugins";
+    section.appendChild(description);
+
+    // Repository list container
+    const repoListContainer = document.createElement("div");
+    repoListContainer.id = "repo-list-container";
+    repoListContainer.style.cssText = "margin-bottom: 12px;";
+    section.appendChild(repoListContainer);
+
+    // Add repository form
+    const addRepoForm = document.createElement("div");
+    addRepoForm.style.cssText =
+      "display: flex; gap: 10px; margin-bottom: 10px;";
+
+    const repoUrlInput = document.createElement("input");
+    repoUrlInput.type = "text";
+    repoUrlInput.placeholder = "https://example.com/repo.json";
+    repoUrlInput.className = "el-input__inner";
+    repoUrlInput.style.cssText =
+      "flex: 1; padding: 8px 12px; border: 1px solid #5a5a5a; border-radius: 4px; font-size: 13px; font-family: 'Consolas', monospace; background: #1e1e1e; color: #e0e0e0;";
+
+    const addRepoBtn = document.createElement("button");
+    addRepoBtn.className = "el-button el-button--primary";
+    addRepoBtn.innerHTML = '<i class="ri-add-line"></i> Add Repository';
+    this.registerListener(addRepoBtn, "click", async () => {
+      await this.handleAddRepository(repoUrlInput);
+    });
+
+    const refreshReposBtn = document.createElement("button");
+    refreshReposBtn.className = "el-button el-button--success";
+    refreshReposBtn.innerHTML = '<i class="ri-refresh-line"></i> Refresh All';
+    refreshReposBtn.title = "Refresh all repositories";
+    this.registerListener(refreshReposBtn, "click", async () => {
+      await this.handleRefreshRepositories(refreshReposBtn);
+    });
+
+    addRepoForm.appendChild(repoUrlInput);
+    addRepoForm.appendChild(addRepoBtn);
+    addRepoForm.appendChild(refreshReposBtn);
+    section.appendChild(addRepoForm);
+
+    // Render existing repositories
+    this.renderRepositoryList(repoListContainer);
+
+    return section;
+  }
+
+  renderRepositoryList(container) {
+    container.innerHTML = "";
+
+    const repoManager = window.customjs?.repoManager;
+    if (!repoManager) {
+      const noRepoManager = document.createElement("div");
+      noRepoManager.style.cssText = "padding: 10px; color: #dc3545;";
+      noRepoManager.textContent = "⚠️ Repository manager not available";
+      container.appendChild(noRepoManager);
+      return;
+    }
+
+    const repositories = repoManager.getAllRepositories();
+
+    if (repositories.length === 0) {
+      const noRepos = document.createElement("div");
+      noRepos.style.cssText = "padding: 10px; color: #6c757d;";
+      noRepos.textContent = "No repositories configured";
+      container.appendChild(noRepos);
+      return;
+    }
+
+    repositories.forEach((repo) => {
+      const repoCard = this.createRepositoryCard(repo);
+      container.appendChild(repoCard);
+    });
+  }
+
+  createRepositoryCard(repo) {
+    const card = document.createElement("div");
+    card.style.cssText = `
+      background: ${repo.enabled ? "#2d2d2d" : "#1e1e1e"};
+      border: 1px solid ${repo.enabled ? "#4a4a4a" : "#333"};
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: ${repo.enabled ? "1" : "0.6"};
+      transition: all 0.2s;
+    `;
+
+    // Left side - repo info
+    const infoSection = document.createElement("div");
+    infoSection.style.cssText = "flex: 1; min-width: 0;";
+
+    const repoName = document.createElement("div");
+    repoName.style.cssText =
+      "font-size: 14px; font-weight: 600; color: #e8e8e8; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+    repoName.textContent = repo.data?.name || "Loading...";
+
+    const repoUrl = document.createElement("div");
+    repoUrl.style.cssText =
+      "font-size: 11px; color: #909090; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+    repoUrl.textContent = repo.url;
+    repoUrl.title = repo.url;
+
+    const repoStats = document.createElement("div");
+    repoStats.style.cssText =
+      "font-size: 11px; color: #6c757d; margin-top: 4px;";
+    const pluginCount = repo.data?.plugins?.length || 0;
+    repoStats.textContent = `${pluginCount} plugins • ${
+      repo.loaded ? "✓ Loaded" : "⏳ Loading..."
+    }`;
+
+    infoSection.appendChild(repoName);
+    infoSection.appendChild(repoUrl);
+    infoSection.appendChild(repoStats);
+
+    // Right side - actions
+    const actionsSection = document.createElement("div");
+    actionsSection.style.cssText =
+      "display: flex; gap: 8px; align-items: center;";
+
+    // Toggle switch
+    const switchContainer = document.createElement("label");
+    switchContainer.className = "el-switch";
+    switchContainer.style.cssText =
+      "cursor: pointer; display: flex; align-items: center;";
+    switchContainer.title = repo.enabled
+      ? "Disable repository"
+      : "Enable repository";
+
+    const switchInput = document.createElement("input");
+    switchInput.type = "checkbox";
+    switchInput.checked = repo.enabled;
+    switchInput.style.display = "none";
+
+    const switchCore = document.createElement("span");
+    switchCore.style.cssText = `
+      display: inline-block;
+      position: relative;
+      width: 40px;
+      height: 20px;
+      border-radius: 10px;
+      background: ${repo.enabled ? "#409eff" : "#dcdfe6"};
+      transition: background-color 0.3s;
+      cursor: pointer;
+    `;
+
+    const switchAction = document.createElement("span");
+    switchAction.style.cssText = `
+      position: absolute;
+      top: 1px;
+      left: ${repo.enabled ? "21px" : "1px"};
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      transition: all 0.3s;
+    `;
+
+    switchCore.appendChild(switchAction);
+    switchContainer.appendChild(switchInput);
+    switchContainer.appendChild(switchCore);
+
+    this.registerListener(switchContainer, "click", async (e) => {
+      e.stopPropagation();
+      await this.handleToggleRepository(repo.url, !repo.enabled);
+    });
+
+    // Refresh button
+    const refreshBtn = document.createElement("button");
+    refreshBtn.className = "el-button el-button--small el-button--info";
+    refreshBtn.innerHTML = '<i class="ri-refresh-line"></i>';
+    refreshBtn.title = "Refresh repository";
+    this.registerListener(refreshBtn, "click", async (e) => {
+      e.stopPropagation();
+      await this.handleRefreshRepository(repo.url, refreshBtn);
+    });
+
+    // Remove button
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "el-button el-button--small el-button--danger";
+    removeBtn.innerHTML = '<i class="ri-delete-bin-line"></i>';
+    removeBtn.title = "Remove repository";
+    this.registerListener(removeBtn, "click", async (e) => {
+      e.stopPropagation();
+      await this.handleRemoveRepository(repo.url);
+    });
+
+    actionsSection.appendChild(switchContainer);
+    actionsSection.appendChild(refreshBtn);
+    actionsSection.appendChild(removeBtn);
+
+    card.appendChild(infoSection);
+    card.appendChild(actionsSection);
+
+    return card;
+  }
+
+  async handleAddRepository(input) {
+    const url = input.value.trim();
+
+    if (!url) {
+      this.logger.showWarn("Please enter a repository URL");
+      return;
+    }
+
+    if (!url.endsWith(".json")) {
+      this.logger.showWarn("Repository URL must end with .json");
+      return;
+    }
+
+    const repoManager = window.customjs?.repoManager;
+    if (!repoManager) {
+      this.logger.showError("Repository manager not available");
+      return;
+    }
+
+    try {
+      this.logger.showInfo("Adding repository...");
+      const result = await repoManager.addRepository(url);
+
+      if (result.success) {
+        this.logger.showSuccess(
+          `Repository added: ${result.repo?.data?.name || url}`
+        );
+        input.value = "";
+
+        // Refresh the repository list
+        const repoListContainer = document.getElementById(
+          "repo-list-container"
+        );
+        if (repoListContainer) {
+          this.renderRepositoryList(repoListContainer);
+        }
+
+        // Refresh plugin grid to show new available plugins
+        this.refreshPluginGrid();
+      } else {
+        this.logger.showError(`Failed to add repository: ${result.message}`);
+      }
+    } catch (error) {
+      this.logger.error("Error adding repository:", error);
+      this.logger.showError(`Error: ${error.message}`);
+    }
+  }
+
+  async handleToggleRepository(url, enabled) {
+    const repoManager = window.customjs?.repoManager;
+    if (!repoManager) {
+      this.logger.showError("Repository manager not available");
+      return;
+    }
+
+    try {
+      const success = repoManager.setRepositoryEnabled(url, enabled);
+
+      if (success) {
+        this.logger.showSuccess(
+          `Repository ${enabled ? "enabled" : "disabled"}`
+        );
+
+        // Refresh the repository list
+        const repoListContainer = document.getElementById(
+          "repo-list-container"
+        );
+        if (repoListContainer) {
+          this.renderRepositoryList(repoListContainer);
+        }
+
+        // Refresh plugin grid
+        this.refreshPluginGrid();
+      } else {
+        this.logger.showError("Failed to toggle repository");
+      }
+    } catch (error) {
+      this.logger.error("Error toggling repository:", error);
+      this.logger.showError(`Error: ${error.message}`);
+    }
+  }
+
+  async handleRefreshRepository(url, button) {
+    const repoManager = window.customjs?.repoManager;
+    if (!repoManager) {
+      this.logger.showError("Repository manager not available");
+      return;
+    }
+
+    const originalHTML = button.innerHTML;
+    try {
+      button.disabled = true;
+      button.innerHTML = '<i class="ri-loader-4-line ri-spin"></i>';
+
+      const success = await repoManager.refreshRepository(url);
+
+      if (success) {
+        button.innerHTML = '<i class="ri-check-line"></i>';
+        this.logger.showSuccess("Repository refreshed");
+
+        // Refresh the repository list
+        const repoListContainer = document.getElementById(
+          "repo-list-container"
+        );
+        if (repoListContainer) {
+          this.renderRepositoryList(repoListContainer);
+        }
+
+        // Refresh plugin grid
+        this.refreshPluginGrid();
+
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.disabled = false;
+        }, 1000);
+      } else {
+        button.innerHTML = '<i class="ri-error-warning-line"></i>';
+        this.logger.showError("Failed to refresh repository");
+
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.disabled = false;
+        }, 2000);
+      }
+    } catch (error) {
+      this.logger.error("Error refreshing repository:", error);
+      this.logger.showError(`Error: ${error.message}`);
+      button.innerHTML = originalHTML;
+      button.disabled = false;
+    }
+  }
+
+  async handleRefreshRepositories(button) {
+    const repoManager = window.customjs?.repoManager;
+    if (!repoManager) {
+      this.logger.showError("Repository manager not available");
+      return;
+    }
+
+    const originalHTML = button.innerHTML;
+    try {
+      button.disabled = true;
+      button.innerHTML =
+        '<i class="ri-loader-4-line ri-spin"></i> Refreshing...';
+
+      await repoManager.refreshAllRepositories();
+
+      button.innerHTML = '<i class="ri-check-line"></i> Refreshed!';
+      this.logger.showSuccess("All repositories refreshed");
+
+      // Refresh the repository list
+      const repoListContainer = document.getElementById("repo-list-container");
+      if (repoListContainer) {
+        this.renderRepositoryList(repoListContainer);
+      }
+
+      // Refresh plugin grid
+      this.refreshPluginGrid();
+
+      setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+      }, 2000);
+    } catch (error) {
+      this.logger.error("Error refreshing repositories:", error);
+      this.logger.showError(`Error: ${error.message}`);
+      button.innerHTML = originalHTML;
+      button.disabled = false;
+    }
+  }
+
+  async handleRemoveRepository(url) {
+    if (
+      !confirm(`Are you sure you want to remove this repository?\n\n${url}`)
+    ) {
+      return;
+    }
+
+    const repoManager = window.customjs?.repoManager;
+    if (!repoManager) {
+      this.logger.showError("Repository manager not available");
+      return;
+    }
+
+    try {
+      const success = repoManager.removeRepository(url);
+
+      if (success) {
+        this.logger.showSuccess("Repository removed");
+
+        // Refresh the repository list
+        const repoListContainer = document.getElementById(
+          "repo-list-container"
+        );
+        if (repoListContainer) {
+          this.renderRepositoryList(repoListContainer);
+        }
+
+        // Refresh plugin grid
+        this.refreshPluginGrid();
+      } else {
+        this.logger.showError("Failed to remove repository");
+      }
+    } catch (error) {
+      this.logger.error("Error removing repository:", error);
+      this.logger.showError(`Error: ${error.message}`);
+    }
   }
 
   createConfigSyncSection() {
@@ -425,6 +858,7 @@ class PluginManagerUIPlugin extends Plugin {
       { value: "disabled", label: "Show Disabled" },
       { value: "core", label: "Show Core" },
       { value: "failed", label: "Show Failed" },
+      { value: "available", label: "Show Available (Not Installed)" },
     ];
 
     filters.forEach((filter) => {
@@ -667,6 +1101,25 @@ class PluginManagerUIPlugin extends Plugin {
       plugins = [];
     } else if (filter === "failed") {
       plugins = [];
+    } else if (filter === "available") {
+      // Show plugins from repos that aren't installed
+      const repoManager = window.customjs?.repoManager;
+      if (repoManager) {
+        const installedUrls = new Set(allPlugins.map((p) => p.metadata.url));
+        const availablePlugins = repoManager
+          .getAllPlugins()
+          .filter((repoPlugin) => !installedUrls.has(repoPlugin.url))
+          .map((repoPlugin) => ({
+            metadata: repoPlugin,
+            enabled: false,
+            loaded: false,
+            started: false,
+            _isAvailable: true, // Mark as available plugin
+          }));
+        plugins = availablePlugins;
+      } else {
+        plugins = [];
+      }
     }
 
     // Apply search
@@ -723,57 +1176,85 @@ class PluginManagerUIPlugin extends Plugin {
     const buildDate = plugin.metadata?.build
       ? ` • ${this.formatBuildDate(plugin.metadata.build)}`
       : "";
-    meta.textContent = version + author + buildDate;
+
+    // Show repository source if available
+    let repoSource = "";
+    if (plugin.metadata?.url) {
+      const repoManager = window.customjs?.repoManager;
+      if (repoManager) {
+        const result = repoManager.findPluginByUrl(plugin.metadata.url);
+        if (result) {
+          repoSource = ` • 📦 ${result.repo.data?.name || "Repository"}`;
+        }
+      }
+    }
+
+    meta.textContent = version + author + buildDate + repoSource;
 
     nameSection.appendChild(name);
     nameSection.appendChild(meta);
 
-    // Toggle switch
-    const switchContainer = document.createElement("label");
-    switchContainer.className = "el-switch";
-    switchContainer.style.cssText =
-      "cursor: pointer; display: flex; align-items: center;";
+    // Toggle switch or Install button
+    if (plugin._isAvailable) {
+      // Available plugin - show Install button
+      const installBtn = document.createElement("button");
+      installBtn.className = "el-button el-button--small el-button--success";
+      installBtn.innerHTML = '<i class="ri-download-line"></i> Install';
+      installBtn.title = "Install this plugin";
+      this.registerListener(installBtn, "click", async (e) => {
+        e.stopPropagation();
+        await this.handleInstallPlugin(plugin.metadata.url, installBtn);
+      });
+      header.appendChild(nameSection);
+      header.appendChild(installBtn);
+    } else {
+      // Installed plugin - show toggle switch
+      const switchContainer = document.createElement("label");
+      switchContainer.className = "el-switch";
+      switchContainer.style.cssText =
+        "cursor: pointer; display: flex; align-items: center;";
 
-    const switchInput = document.createElement("input");
-    switchInput.type = "checkbox";
-    switchInput.checked = plugin.enabled;
-    switchInput.style.display = "none";
+      const switchInput = document.createElement("input");
+      switchInput.type = "checkbox";
+      switchInput.checked = plugin.enabled;
+      switchInput.style.display = "none";
 
-    const switchCore = document.createElement("span");
-    switchCore.style.cssText = `
-      display: inline-block;
-      position: relative;
-      width: 40px;
-      height: 20px;
-      border-radius: 10px;
-      background: ${plugin.enabled ? "#409eff" : "#dcdfe6"};
-      transition: background-color 0.3s;
-      cursor: pointer;
-    `;
+      const switchCore = document.createElement("span");
+      switchCore.style.cssText = `
+        display: inline-block;
+        position: relative;
+        width: 40px;
+        height: 20px;
+        border-radius: 10px;
+        background: ${plugin.enabled ? "#409eff" : "#dcdfe6"};
+        transition: background-color 0.3s;
+        cursor: pointer;
+      `;
 
-    const switchAction = document.createElement("span");
-    switchAction.style.cssText = `
-      position: absolute;
-      top: 1px;
-      left: ${plugin.enabled ? "21px" : "1px"};
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: white;
-      transition: all 0.3s;
-    `;
+      const switchAction = document.createElement("span");
+      switchAction.style.cssText = `
+        position: absolute;
+        top: 1px;
+        left: ${plugin.enabled ? "21px" : "1px"};
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        transition: all 0.3s;
+      `;
 
-    switchCore.appendChild(switchAction);
-    switchContainer.appendChild(switchInput);
-    switchContainer.appendChild(switchCore);
+      switchCore.appendChild(switchAction);
+      switchContainer.appendChild(switchInput);
+      switchContainer.appendChild(switchCore);
 
-    this.registerListener(switchContainer, "click", async (e) => {
-      e.stopPropagation();
-      await this.handleTogglePlugin(plugin.metadata.id);
-    });
+      this.registerListener(switchContainer, "click", async (e) => {
+        e.stopPropagation();
+        await this.handleTogglePlugin(plugin.metadata.id);
+      });
 
-    header.appendChild(nameSection);
-    header.appendChild(switchContainer);
+      header.appendChild(nameSection);
+      header.appendChild(switchContainer);
+    }
 
     // Description
     const description = document.createElement("div");
@@ -820,56 +1301,80 @@ class PluginManagerUIPlugin extends Plugin {
     actions.style.cssText =
       "display: flex; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid #404040;";
 
-    const reloadBtn = document.createElement("button");
-    reloadBtn.className = "el-button el-button--small el-button--info";
-    reloadBtn.style.cssText = "flex: 1;";
-    reloadBtn.innerHTML = '<i class="ri-restart-line"></i> Reload';
-    this.registerListener(reloadBtn, "click", async (e) => {
-      e.stopPropagation();
-      await this.handleReloadPlugin(plugin.metadata.url);
-    });
+    if (plugin._isAvailable) {
+      // Available plugin - only show analyze button
+      const analyzeBtn = document.createElement("button");
+      analyzeBtn.className = "el-button el-button--small el-button--success";
+      analyzeBtn.style.cssText = "flex: 1;";
+      analyzeBtn.innerHTML =
+        '<i class="ri-search-eye-line"></i> Plugin Details';
+      analyzeBtn.title = "Fetch Plugin Details";
+      this.registerListener(analyzeBtn, "click", async (e) => {
+        e.stopPropagation();
+        await this.handleAnalyzePlugin(plugin.metadata.url);
+      });
+      actions.appendChild(analyzeBtn);
+    } else {
+      // Installed plugin - show all buttons
+      const reloadBtn = document.createElement("button");
+      reloadBtn.className = "el-button el-button--small el-button--info";
+      reloadBtn.style.cssText = "flex: 1;";
+      reloadBtn.innerHTML = '<i class="ri-restart-line"></i> Reload';
+      this.registerListener(reloadBtn, "click", async (e) => {
+        e.stopPropagation();
+        await this.handleReloadPlugin(plugin.metadata.url);
+      });
 
-    const settingsBtn = document.createElement("button");
-    settingsBtn.className = "el-button el-button--small el-button--primary";
-    settingsBtn.innerHTML = '<i class="ri-settings-3-line"></i>';
-    settingsBtn.title = "Plugin Settings";
-    this.registerListener(settingsBtn, "click", async (e) => {
-      e.stopPropagation();
-      await this.handleShowPluginSettings(plugin);
-    });
+      // Check if plugin has settings before showing settings button
+      const hasSettings =
+        plugin.settings?.def && Object.keys(plugin.settings.def).length > 0;
 
-    const analyzeBtn = document.createElement("button");
-    analyzeBtn.className = "el-button el-button--small el-button--success";
-    analyzeBtn.innerHTML = '<i class="ri-search-eye-line"></i>';
-    analyzeBtn.title = "Fetch Plugin Details";
-    this.registerListener(analyzeBtn, "click", async (e) => {
-      e.stopPropagation();
-      await this.handleAnalyzePlugin(plugin.metadata.url);
-    });
+      const analyzeBtn = document.createElement("button");
+      analyzeBtn.className = "el-button el-button--small el-button--success";
+      analyzeBtn.innerHTML = '<i class="ri-search-eye-line"></i>';
+      analyzeBtn.title = "Fetch Plugin Details";
+      this.registerListener(analyzeBtn, "click", async (e) => {
+        e.stopPropagation();
+        await this.handleAnalyzePlugin(plugin.metadata.url);
+      });
 
-    const infoBtn = document.createElement("button");
-    infoBtn.className = "el-button el-button--small";
-    infoBtn.innerHTML = '<i class="ri-information-line"></i>';
-    infoBtn.title = "Plugin Details";
-    this.registerListener(infoBtn, "click", (e) => {
-      e.stopPropagation();
-      this.handleShowDetails(plugin);
-    });
+      const infoBtn = document.createElement("button");
+      infoBtn.className = "el-button el-button--small";
+      infoBtn.innerHTML = '<i class="ri-information-line"></i>';
+      infoBtn.title = "Plugin Details";
+      this.registerListener(infoBtn, "click", (e) => {
+        e.stopPropagation();
+        this.handleShowDetails(plugin);
+      });
 
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "el-button el-button--small el-button--danger";
-    removeBtn.innerHTML = '<i class="ri-delete-bin-line"></i>';
-    removeBtn.title = "Remove Plugin";
-    this.registerListener(removeBtn, "click", async (e) => {
-      e.stopPropagation();
-      await this.handleRemovePlugin(plugin.metadata.url);
-    });
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "el-button el-button--small el-button--danger";
+      removeBtn.innerHTML = '<i class="ri-delete-bin-line"></i>';
+      removeBtn.title = "Remove Plugin";
+      this.registerListener(removeBtn, "click", async (e) => {
+        e.stopPropagation();
+        await this.handleRemovePlugin(plugin.metadata.url);
+      });
 
-    actions.appendChild(reloadBtn);
-    actions.appendChild(settingsBtn);
-    actions.appendChild(analyzeBtn);
-    actions.appendChild(infoBtn);
-    actions.appendChild(removeBtn);
+      actions.appendChild(reloadBtn);
+
+      // Only show settings button if plugin has settings
+      if (hasSettings) {
+        const settingsBtn = document.createElement("button");
+        settingsBtn.className = "el-button el-button--small el-button--primary";
+        settingsBtn.innerHTML = '<i class="ri-settings-3-line"></i>';
+        settingsBtn.title = "Plugin Settings";
+        this.registerListener(settingsBtn, "click", async (e) => {
+          e.stopPropagation();
+          await this.handleShowPluginSettings(plugin);
+        });
+        actions.appendChild(settingsBtn);
+      }
+
+      actions.appendChild(analyzeBtn);
+      actions.appendChild(infoBtn);
+      actions.appendChild(removeBtn);
+    }
 
     // Assemble card
     card.appendChild(header);
@@ -1515,6 +2020,49 @@ class PluginManagerUIPlugin extends Plugin {
     } catch (error) {
       this.logger.error("Error removing plugin:", error);
       this.logger.showError(`Error: ${error.message}`);
+    }
+  }
+
+  async handleInstallPlugin(pluginUrl, button) {
+    if (!pluginUrl) {
+      this.logger.showWarn("No URL available for installation");
+      return;
+    }
+
+    const originalHTML = button.innerHTML;
+    try {
+      button.disabled = true;
+      button.innerHTML =
+        '<i class="ri-loader-4-line ri-spin"></i> Installing...';
+
+      this.logger.log(`Installing plugin from ${pluginUrl}`);
+      const result = await window.customjs.pluginManager.addPlugin(pluginUrl);
+
+      if (result.success) {
+        button.innerHTML = '<i class="ri-check-line"></i> Installed!';
+        button.className = "el-button el-button--small el-button--success";
+        this.logger.showSuccess("Plugin installed successfully");
+
+        setTimeout(() => {
+          this.refreshPluginGrid();
+        }, 1000);
+      } else {
+        button.innerHTML = '<i class="ri-error-warning-line"></i> Failed';
+        button.className = "el-button el-button--small el-button--danger";
+        this.logger.showError(`Installation failed: ${result.message}`);
+
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.className = "el-button el-button--small el-button--success";
+          button.disabled = false;
+        }, 2000);
+      }
+    } catch (error) {
+      this.logger.error("Error installing plugin:", error);
+      this.logger.showError(`Error: ${error.message}`);
+      button.innerHTML = originalHTML;
+      button.className = "el-button el-button--small el-button--success";
+      button.disabled = false;
     }
   }
 

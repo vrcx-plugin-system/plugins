@@ -20,11 +20,6 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
 
     // Define settings
     this.settings = this.defineSettings({
-      enabled: {
-        type: SettingType.BOOLEAN,
-        description: "Enable automatic disabling of untrusted URLs",
-        default: true,
-      },
       triggerOnVRCXStart: {
         type: SettingType.BOOLEAN,
         description: "Disable untrusted URLs when VRCX starts",
@@ -52,11 +47,6 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
   }
 
   async start() {
-    if (!this.settings.store.enabled) {
-      this.logger.log("Plugin disabled in settings");
-      return;
-    }
-
     // Apply on VRCX startup
     if (this.settings.store.triggerOnVRCXStart) {
       await this.setUntrustedURLs(0, "VRCX_START"); // Disable on startup

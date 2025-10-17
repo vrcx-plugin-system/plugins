@@ -47,12 +47,6 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
     });
 
     this.settings = this.defineSettings({
-      enabled: {
-        type: SettingType.BOOLEAN,
-        description: "Enable invisible player detection",
-        category: "general",
-        default: true,
-      },
       modifyInstanceName: {
         type: SettingType.BOOLEAN,
         description: "Add invisible player count to instance display name",
@@ -75,7 +69,7 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
     });
 
     this.logger.log(
-      `⚙️ Enabled: ${this.settings.store.enabled}, Modify instance name: ${this.settings.store.modifyInstanceName}`
+      `⚙️ Modify instance name: ${this.settings.store.modifyInstanceName}`
     );
 
     this.logger.log("Invisible Players Monitor plugin ready");
@@ -136,11 +130,6 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
 
   handleInstanceData(instanceArgs) {
     try {
-      // Check if monitoring is enabled
-      if (!this.settings.store.enabled) {
-        return;
-      }
-
       const users = instanceArgs.json.userCount;
       const realUsers = instanceArgs.json.n_users - instanceArgs.json.queueSize;
       const invisiblePlayers = realUsers - users;

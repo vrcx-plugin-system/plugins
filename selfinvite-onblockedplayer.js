@@ -34,11 +34,6 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
     const SettingType = window.customjs.SettingType;
 
     this.settings = this.defineSettings({
-      enabled: {
-        type: SettingType.BOOLEAN,
-        description: "Enable automatic self-invite when blocked player joins",
-        default: true,
-      },
       delayMs: {
         type: SettingType.NUMBER,
         description: "Delay before creating self-invite (milliseconds)",
@@ -63,7 +58,7 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
     });
 
     this.logger.log(
-      `⚙️ Enabled: ${this.settings.store.enabled}, Cooldown: ${this.settings.store.cooldownMs}ms`
+      `⚙️ Cooldown: ${this.settings.store.cooldownMs}ms`
     );
 
     this.logger.log("Self Invite on Blocked Player plugin ready");
@@ -121,11 +116,6 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
 
   async handlePlayerJoin(entry) {
     try {
-      // Check if feature is enabled
-      if (!this.settings.store.enabled) {
-        return;
-      }
-
       // Handle both raw gameLog format and database entry format
       const userId = entry.userId || entry.user_id;
       const displayName = entry.displayName || entry.display_name;
@@ -320,7 +310,6 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
     return {
       lastBlockedPlayerJoin: this.lastBlockedPlayerJoin,
       inviteCreated: this.inviteCreated,
-      enabled: this.settings.store.enabled,
       cooldown: this.settings.store.cooldownMs,
     };
   }

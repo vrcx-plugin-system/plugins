@@ -23,11 +23,6 @@ class RegistryOverridesPlugin extends Plugin {
     const defaultOverrides = {};
 
     this.settings = this.defineSettings({
-      enabled: {
-        type: SettingType.BOOLEAN,
-        description: "Enable the registry overrides plugin",
-        default: false,
-      },
       overrides: {
         type: SettingType.CUSTOM,
         description:
@@ -50,11 +45,6 @@ class RegistryOverridesPlugin extends Plugin {
   }
 
   async start() {
-    if (!this.settings.store.enabled) {
-      this.logger.log("Registry Overrides plugin disabled in settings");
-      return;
-    }
-
     // Apply registry settings on startup
     await this.applyRegistrySettings("VRCX_START");
 
@@ -64,9 +54,7 @@ class RegistryOverridesPlugin extends Plugin {
     // Periodic application for keys that need constant enforcement
     const intervalId = this.registerTimer(
       setInterval(async () => {
-        if (this.settings.store.enabled) {
-          await this.applyRegistrySettings("PERIODIC");
-        }
+        await this.applyRegistrySettings("PERIODIC");
       }, 2500)
     );
 

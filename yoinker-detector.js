@@ -84,12 +84,6 @@ class YoinkerDetectorPlugin extends Plugin {
     });
 
     this.settings = this.defineSettings({
-      enabled: {
-        type: SettingType.BOOLEAN,
-        description: "Enable or disable yoinker detection",
-        category: "general",
-        default: true,
-      },
       logToConsole: {
         type: SettingType.BOOLEAN,
         description: "Log detection results to browser console",
@@ -201,7 +195,6 @@ class YoinkerDetectorPlugin extends Plugin {
       },
     });
 
-    this.logger.log(`⚙️ Enabled: ${this.settings.store.enabled}`);
     this.logger.log(`⚙️ Endpoint: ${this.settings.store.endpoint}`);
 
     // Run one-time migration from localStorage
@@ -262,9 +255,6 @@ class YoinkerDetectorPlugin extends Plugin {
   // Process a single user ID
   processUserId(userId, source = "unknown") {
     if (!userId || typeof userId !== "string") return;
-
-    // Check if detection is enabled
-    if (!this.settings.store.enabled) return;
 
     // Validate user ID format (usr_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
     if (

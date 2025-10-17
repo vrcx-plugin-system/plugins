@@ -70,12 +70,6 @@ class TemplatePlugin extends Plugin {
     });
 
     this.settings = this.defineSettings({
-      enableFeature: {
-        type: SettingType.BOOLEAN,
-        description: "Enable the main feature of this plugin",
-        category: "general",
-        default: true,
-      },
       updateInterval: {
         type: SettingType.NUMBER,
         description: "How often to update in milliseconds",
@@ -145,7 +139,6 @@ class TemplatePlugin extends Plugin {
     });
 
     // Access settings (reactive)
-    this.logger.log(`⚙️ Feature enabled: ${this.settings.store.enableFeature}`);
     this.logger.log(
       `⚙️ Update interval: ${this.settings.store.updateInterval}ms`
     );
@@ -154,11 +147,6 @@ class TemplatePlugin extends Plugin {
     this.logger.log(`⚙️ Mode: ${this.settings.store.mode}`);
     this.logger.log(`⚙️ Message: ${this.settings.store.message}`);
     this.logger.log(`⚙️ Total runs (hidden): ${this.settings.store.totalRuns}`);
-
-    // Listen for changes
-    this.settings.onChange("enableFeature", (newValue) => {
-      this.logger.log(`⚙️ Feature enabled changed to: ${newValue}`);
-    });
 
     // You can also use simple get() for ad-hoc settings
     const adhocValue = this.get("adhoc.setting", "default");
@@ -232,22 +220,19 @@ class TemplatePlugin extends Plugin {
     // Example: Register a timer with auto-cleanup when plugin stops
     this.timerInterval = this.registerTimer(
       setInterval(() => {
-        // Only run if feature is enabled
-        if (this.settings.store.enableFeature) {
-          this.counter++;
+        this.counter++;
 
-          // Increment hidden stat
-          this.settings.store.totalRuns++;
-          this.settings.store.lastRunTime = Date.now();
+        // Increment hidden stat
+        this.settings.store.totalRuns++;
+        this.settings.store.lastRunTime = Date.now();
 
-          this.logger.log(`⏱️ Timer tick #${this.counter}`);
+        this.logger.log(`⏱️ Timer tick #${this.counter}`);
 
-          // Example: Emit an event for other plugins
-          this.emit("timer-tick", {
-            count: this.counter,
-            timestamp: Date.now(),
-          });
-        }
+        // Example: Emit an event for other plugins
+        this.emit("timer-tick", {
+          count: this.counter,
+          timestamp: Date.now(),
+        });
       }, interval) // Use setting for interval
     );
 
@@ -423,9 +408,6 @@ class TemplatePlugin extends Plugin {
       <p><strong>Events Received:</strong> <span id="template-events">0</span></p>
       <hr>
       <h3>⚙️ Settings (Equicord-style)</h3>
-      <p><strong>Feature Enabled:</strong> ${
-        this.settings.store.enableFeature
-      }</p>
       <p><strong>Update Interval:</strong> ${
         this.settings.store.updateInterval
       }ms</p>
@@ -449,9 +431,6 @@ class TemplatePlugin extends Plugin {
       </button>
       <button id="template-emit-btn" class="el-button el-button--success">
         📡 Emit Event
-      </button>
-      <button id="template-toggle-btn" class="el-button el-button--warning">
-        🔄 Toggle Feature
       </button>
       <button id="template-save-btn" class="el-button el-button--info">
         💾 Save Settings
@@ -480,20 +459,6 @@ class TemplatePlugin extends Plugin {
             message: "Hello from template!",
             timestamp: Date.now(),
           });
-        });
-      }
-
-      const toggleBtn = container.querySelector("#template-toggle-btn");
-      if (toggleBtn) {
-        this.registerListener(toggleBtn, "click", () => {
-          const newValue = !this.settings.store.enableFeature;
-          this.settings.store.enableFeature = newValue;
-          this.logger.log(`🔄 Feature toggled: ${newValue}`);
-          if (this.utils) {
-            this.logger.showSuccess(
-              `Feature ${newValue ? "enabled" : "disabled"}`
-            );
-          }
         });
       }
 
