@@ -1,7 +1,7 @@
 class StartGameButtonPlugin extends Plugin {
   constructor() {
     super({
-      name: "Start Game Button",
+      name: "🎮 Start Game Button",
       description:
         "Adds a button to the navigation menu to start VRChat with VRCX settings",
       author: "Bluscream",
@@ -36,7 +36,7 @@ class StartGameButtonPlugin extends Plugin {
 
     this.categories = {
       launch: {
-        name: "Launch Settings",
+        name: "🎮 Launch Settings",
         description: "Configure how VRChat is launched",
       },
     };

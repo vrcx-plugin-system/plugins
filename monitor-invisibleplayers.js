@@ -13,7 +13,7 @@
 class InvisiblePlayersMonitorPlugin extends Plugin {
   constructor() {
     super({
-      name: "Invisible Players Monitor",
+      name: "👻 Invisible Players Monitor",
       description:
         "Detects and notifies when potentially invisible players are in your instance",
       author: "Bluscream",
@@ -32,15 +32,15 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
     // Define category metadata
     this.categories = this.defineSettingsCategories({
       general: {
-        name: "General Settings",
+        name: "👻 General Settings",
         description: "Basic detection configuration",
       },
       display: {
-        name: "Display",
+        name: "👻 Display",
         description: "Control how invisible players are shown",
       },
       notifications: {
-        name: "Notifications",
+        name: "👻 Notifications",
         description: "Configure detection notifications",
       },
     });

@@ -3,7 +3,7 @@ class TemplatePlugin extends Plugin {
     // Call parent constructor with metadata
     // Note: ID is auto-derived from filename (template.js -> template)
     super({
-      name: "Template Plugin",
+      name: "📄 Template Plugin",
       description:
         "Example plugin demonstrating all available features and lifecycle events",
       author: "Bluscream",
@@ -59,11 +59,11 @@ class TemplatePlugin extends Plugin {
     // Optional: Define category metadata for better UI organization
     this.categories = this.defineSettingsCategories({
       general: {
-        name: "General Settings",
+        name: "📄 General Settings",
         description: "Basic plugin configuration",
       },
       advanced: {
-        name: "Advanced Options",
+        name: "📄 Advanced Options",
         description: "Advanced configuration for power users",
       },
     });

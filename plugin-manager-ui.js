@@ -1,7 +1,7 @@
 class PluginManagerUIPlugin extends Plugin {
   constructor() {
     super({
-      name: "Plugin Manager UI",
+      name: "🧩 Plugin Manager UI",
       description:
         "Visual UI for managing VRCX custom plugins - Equicord inspired",
       author: "Bluscream",
@@ -156,18 +156,7 @@ class PluginManagerUIPlugin extends Plugin {
     const startedCount = allPlugins.filter((p) => p.started).length;
 
     // Create stat cards
-    const stats = [
-      {
-        label: "Repositories",
-        value: `${enabledRepoCount}/${repoCount}`,
-        color: "#9c27b0",
-      },
-      { label: "Core Modules", value: coreModules.length, color: "#17a2b8" },
-      { label: "Total Plugins", value: allPlugins.length, color: "#28a745" },
-      { label: "Enabled", value: enabledCount, color: "#007bff" },
-      { label: "Started", value: startedCount, color: "#6f42c1" },
-      { label: "Failed", value: failedUrls.size, color: "#dc3545" },
-    ];
+    const stats = [];
 
     stats.forEach((stat) => {
       const card = this.createStatCard(stat.label, stat.value, stat.color);
@@ -823,7 +812,7 @@ class PluginManagerUIPlugin extends Plugin {
     const title = document.createElement("h5");
     title.style.cssText =
       "margin: 0 0 12px 0; font-size: 16px; font-weight: 600;";
-    title.textContent = "Filters";
+    title.textContent = "🔧 Filters";
     section.appendChild(title);
 
     // Filter controls container
@@ -1070,7 +1059,7 @@ class PluginManagerUIPlugin extends Plugin {
       const pluginsTitle = document.createElement("h5");
       pluginsTitle.style.cssText =
         "margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #e0e0e0;";
-      pluginsTitle.textContent = `Plugins (${filteredPlugins.length})`;
+      pluginsTitle.textContent = `🧩 Plugins (${filteredPlugins.length})`;
       gridContainer.appendChild(pluginsTitle);
 
       // Create grid

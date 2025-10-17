@@ -31,7 +31,7 @@
 class AutoFollowPlugin extends Plugin {
   constructor() {
     super({
-      name: "Auto Follow",
+      name: "👥 Auto Follow",
       description:
         "Automatically sends you invites when followed users join worlds (or requests invites for private instances)",
       author: "Bluscream",
@@ -343,7 +343,7 @@ class AutoFollowPlugin extends Plugin {
         await window.request.instanceRequest.selfInvite({
           instanceId: L.instanceId,
           worldId: L.worldId,
-          // shortName: "Auto Follow: Sent self-invite", // cause 403
+          // shortName: "👥 Auto Follow: Sent self-invite", // cause 403
         });
 
         this.lastRequestedFrom.set(user.id, location);

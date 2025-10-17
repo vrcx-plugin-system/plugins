@@ -1,7 +1,7 @@
 class DebugPlugin extends Plugin {
   constructor() {
     super({
-      name: "Debug Plugin",
+      name: "🐛 Debug Plugin",
       description:
         "Debug utilities, IPC logging, global scope search, and console commands for development",
       author: "Bluscream",

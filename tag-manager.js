@@ -1,7 +1,7 @@
 class TagManagerPlugin extends Plugin {
   constructor() {
     super({
-      name: "Tag Manager",
+      name: "🏷️ Tag Manager",
       description: "Custom user tags management with URL-based loading",
       author: "Bluscream",
       build: "1760363253",
@@ -58,15 +58,15 @@ class TagManagerPlugin extends Plugin {
     // Define category metadata
     this.categories = this.defineSettingsCategories({
       general: {
-        name: "Tag Sources",
+        name: "🏷️ Tag Sources",
         description: "Configure tag loading sources",
       },
       timing: {
-        name: "Update Timing",
+        name: "🏷️ Update Timing",
         description: "Control when and how often tags are refreshed",
       },
       notifications: {
-        name: "Notifications",
+        name: "🏷️ Notifications",
         description: "Configure notifications for tagged players",
       },
     });

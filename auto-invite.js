@@ -1,7 +1,7 @@
 class AutoInvitePlugin extends Plugin {
   constructor() {
     super({
-      name: "Auto Invite Manager",
+      name: "📨 Auto Invite Manager",
       description:
         "Automatic user invitation system with location tracking and custom messages",
       author: "Bluscream",

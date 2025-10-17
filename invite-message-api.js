@@ -46,7 +46,7 @@
 class InviteMessageApiPlugin extends Plugin {
   constructor() {
     super({
-      name: "Invite Message API",
+      name: "✉️ Invite Message API",
       description:
         "API for managing and rotating custom invite messages with cooldown tracking",
       author: "Bluscream",

@@ -1,7 +1,7 @@
 class AvatarLogPlugin extends Plugin {
   constructor() {
     super({
-      name: "Avatar Logger",
+      name: "📸 Avatar Logger",
       description:
         "Logs and submits avatar IDs to various avatar database providers (avtrDB, NSVR, PAW, VRCDB, VRCWB)",
       author: "Bluscream",
@@ -82,15 +82,15 @@ class AvatarLogPlugin extends Plugin {
     // Define category metadata
     this.categories = this.defineSettingsCategories({
       general: {
-        name: "General Settings",
+        name: "📸 General Settings",
         description: "Basic plugin configuration",
       },
       providers: {
-        name: "Avatar Database Providers",
+        name: "📸 Avatar Database Providers",
         description: "Enable or disable specific avatar databases",
       },
       performance: {
-        name: "Performance & Processing",
+        name: "📸 Performance & Processing",
         description: "Control how avatars are processed and submitted",
       },
     });

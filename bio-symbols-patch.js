@@ -8,7 +8,7 @@
 class BioSymbolsPatchPlugin extends Plugin {
   constructor() {
     super({
-      name: "Bio Symbols Patch",
+      name: "🔤 Bio Symbols Patch",
       description:
         "Patches replaceBioSymbols function to handle non-string inputs safely",
       author: "Bluscream",

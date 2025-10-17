@@ -1,7 +1,7 @@
 class ContextMenuApiPlugin extends Plugin {
   constructor() {
     super({
-      name: "Context Menu API",
+      name: "📋 Context Menu API",
       description: "Custom context menu management for VRCX dialogs",
       author: "Bluscream",
       build: "1760411348",

@@ -1,7 +1,7 @@
 class RegistryOverridesPlugin extends Plugin {
   constructor() {
     super({
-      name: "Registry Overrides",
+      name: "⚙️ Registry Overrides",
       description:
         "VRChat registry settings management with event-based triggers (disabled by default)",
       author: "Bluscream",

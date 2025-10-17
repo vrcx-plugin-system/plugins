@@ -8,7 +8,7 @@
 class UserBadgePipelinePatchPlugin extends Plugin {
   constructor() {
     super({
-      name: "User Badge Pipeline Patch",
+      name: "🎖️ User Badge Pipeline Patch",
       description:
         "Adds support for user-badge-assigned pipeline events and displays badge notifications",
       author: "Bluscream",

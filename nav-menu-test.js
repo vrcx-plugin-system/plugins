@@ -1,7 +1,7 @@
 class NavMenuTestPlugin extends Plugin {
   constructor() {
     super({
-      name: "Nav Menu API Test",
+      name: "🧪 Nav Menu API Test",
       description:
         "Test plugin to verify nav-menu-api functionality with extensive debug logging",
       author: "Bluscream",

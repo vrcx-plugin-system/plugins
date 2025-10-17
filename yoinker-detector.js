@@ -1,7 +1,7 @@
 class YoinkerDetectorPlugin extends Plugin {
   constructor() {
     super({
-      name: "Yoinker Detector",
+      name: "🚨 Yoinker Detector",
       description:
         "Automatically checks users against yoinker detection database and applies tags + notifications",
       author: "Bluscream",
@@ -61,23 +61,23 @@ class YoinkerDetectorPlugin extends Plugin {
     // Define category metadata
     this.categories = this.defineSettingsCategories({
       general: {
-        name: "General Settings",
+        name: "🚨 General Settings",
         description: "Basic plugin configuration",
       },
       detection: {
-        name: "Detection Triggers",
+        name: "🚨 Detection Triggers",
         description: "Control when to check users",
       },
       notifications: {
-        name: "Notifications",
+        name: "🚨 Notifications",
         description: "Configure notification settings",
       },
       tagging: {
-        name: "Auto-Tagging",
+        name: "🚨 Auto-Tagging",
         description: "Automatically tag detected yoinkers",
       },
       advanced: {
-        name: "Advanced Options",
+        name: "🚨 Advanced Options",
         description: "Advanced configuration and cache settings",
       },
     });

@@ -1,7 +1,7 @@
 class TestLoggerPlugin extends Plugin {
   constructor() {
     super({
-      name: "Logger Tester",
+      name: "🧪 Logger Tester",
       description: "Test different VRCX notification and logging methods",
       author: "Bluscream",
       build: "0",
@@ -340,10 +340,10 @@ class TestLoggerPlugin extends Plugin {
                 window.$pinia.notification.playNoty({
                   type: "GPS",
                   created_at: new Date().toJSON(),
-                  displayName: "Test User",
+                  displayName: "🧪 Test User",
                   userId: "usr_test",
                   location: "wrld_test:123456",
-                  worldName: "Test World",
+                  worldName: "🧪 Test World",
                   time: 0,
                   isFriend: true,
                   isFavorite: false,
@@ -361,7 +361,7 @@ class TestLoggerPlugin extends Plugin {
                 window.$pinia.notification.playNoty({
                   type: "Online",
                   created_at: new Date().toJSON(),
-                  displayName: "Test User",
+                  displayName: "🧪 Test User",
                   userId: "usr_test",
                   isFriend: true,
                   isFavorite: false,
@@ -379,7 +379,7 @@ class TestLoggerPlugin extends Plugin {
                 window.$pinia.notification.playNoty({
                   type: "OnPlayerJoined",
                   created_at: new Date().toJSON(),
-                  displayName: "Test User",
+                  displayName: "🧪 Test User",
                   userId: "usr_test",
                   isFriend: true,
                   isFavorite: false,
@@ -414,10 +414,10 @@ class TestLoggerPlugin extends Plugin {
                 window.$pinia.notification.queueFeedNoty({
                   type: "GPS",
                   created_at: new Date().toJSON(),
-                  displayName: "Test User",
+                  displayName: "🧪 Test User",
                   userId: "usr_test",
                   location: "wrld_test:12345",
-                  worldName: "Test World",
+                  worldName: "🧪 Test World",
                   isFriend: true,
                   isFavorite: false,
                 });
@@ -676,7 +676,7 @@ class TestLoggerPlugin extends Plugin {
 
     const tests = [
       {
-        name: "$message.success()",
+        name: "🧪 $message.success()",
         fn: async () => {
           window.$app?.config?.globalProperties?.$message?.success(
             this.testMessage
@@ -684,7 +684,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$message.warning()",
+        name: "🧪 $message.warning()",
         fn: async () => {
           window.$app?.config?.globalProperties?.$message?.warning(
             this.testMessage
@@ -692,7 +692,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$message.error()",
+        name: "🧪 $message.error()",
         fn: async () => {
           window.$app?.config?.globalProperties?.$message?.error(
             this.testMessage
@@ -700,7 +700,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$message.info()",
+        name: "🧪 $message.info()",
         fn: async () => {
           window.$app?.config?.globalProperties?.$message?.info(
             this.testMessage
@@ -708,7 +708,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$notify.success()",
+        name: "🧪 $notify.success()",
         fn: async () => {
           window.$app?.config?.globalProperties?.$notify?.success({
             title: "Logger Test",
@@ -717,7 +717,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$notify.warning()",
+        name: "🧪 $notify.warning()",
         fn: async () => {
           window.$app?.config?.globalProperties?.$notify?.warning({
             title: "Logger Test",
@@ -726,7 +726,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$notify.error()",
+        name: "🧪 $notify.error()",
         fn: async () => {
           window.$app?.config?.globalProperties?.$notify?.error({
             title: "Logger Test",
@@ -735,7 +735,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$notify.info()",
+        name: "🧪 $notify.info()",
         fn: async () => {
           window.$app?.config?.globalProperties?.$notify?.info({
             title: "Logger Test",
@@ -744,61 +744,61 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "logger.showSuccess()",
+        name: "🧪 logger.showSuccess()",
         fn: async () => {
           this.logger.showSuccess(this.testMessage);
         },
       },
       {
-        name: "logger.showInfo()",
+        name: "🧪 logger.showInfo()",
         fn: async () => {
           this.logger.showInfo(this.testMessage);
         },
       },
       {
-        name: "logger.showWarning()",
+        name: "🧪 logger.showWarning()",
         fn: async () => {
           this.logger.showWarning(this.testMessage);
         },
       },
       {
-        name: "logger.showError()",
+        name: "🧪 logger.showError()",
         fn: async () => {
           this.logger.showError(this.testMessage);
         },
       },
       {
-        name: "logger.notifySuccess()",
+        name: "🧪 logger.notifySuccess()",
         fn: async () => {
           this.logger.notifySuccess(this.testMessage);
         },
       },
       {
-        name: "logger.notifyInfo()",
+        name: "🧪 logger.notifyInfo()",
         fn: async () => {
           this.logger.notifyInfo(this.testMessage);
         },
       },
       {
-        name: "logger.notifyWarning()",
+        name: "🧪 logger.notifyWarning()",
         fn: async () => {
           this.logger.notifyWarning(this.testMessage);
         },
       },
       {
-        name: "logger.notifyError()",
+        name: "🧪 logger.notifyError()",
         fn: async () => {
           this.logger.notifyError(this.testMessage);
         },
       },
       {
-        name: "logger.notifyAll()",
+        name: "🧪 logger.notifyAll()",
         fn: async () => {
           await this.logger.notifyAll(this.testMessage);
         },
       },
       {
-        name: "logger.addGameLog()",
+        name: "🧪 logger.addGameLog()",
         fn: async () => {
           this.logger.addGameLog({
             type: "Event",
@@ -808,16 +808,16 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$pinia.notification.playNoty (GPS)",
+        name: "🧪 $pinia.notification.playNoty (GPS)",
         fn: async () => {
           if (window.$pinia?.notification?.playNoty) {
             window.$pinia.notification.playNoty({
               type: "GPS",
               created_at: new Date().toJSON(),
-              displayName: "Test User",
+              displayName: "🧪 Test User",
               userId: "usr_test",
               location: "wrld_test:123456",
-              worldName: "Test World",
+              worldName: "🧪 Test World",
               time: 0,
               isFriend: true,
               isFavorite: false,
@@ -828,13 +828,13 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "$pinia.notification.playNoty (Online)",
+        name: "🧪 $pinia.notification.playNoty (Online)",
         fn: async () => {
           if (window.$pinia?.notification?.playNoty) {
             window.$pinia.notification.playNoty({
               type: "Online",
               created_at: new Date().toJSON(),
-              displayName: "Test User",
+              displayName: "🧪 Test User",
               userId: "usr_test",
               isFriend: true,
               isFavorite: false,
@@ -845,7 +845,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "Noty Success",
+        name: "🧪 Noty Success",
         fn: async () => {
           if (typeof Noty !== "undefined") {
             new Noty({
@@ -858,7 +858,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "Noty Info",
+        name: "🧪 Noty Info",
         fn: async () => {
           if (typeof Noty !== "undefined") {
             new Noty({
@@ -871,7 +871,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "Noty Warning",
+        name: "🧪 Noty Warning",
         fn: async () => {
           if (typeof Noty !== "undefined") {
             new Noty({
@@ -884,7 +884,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "Noty Error",
+        name: "🧪 Noty Error",
         fn: async () => {
           if (typeof Noty !== "undefined") {
             new Noty({
@@ -897,7 +897,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "AppApi.DesktopNotification",
+        name: "🧪 AppApi.DesktopNotification",
         fn: async () => {
           if (window.AppApi?.DesktopNotification) {
             await window.AppApi.DesktopNotification(
@@ -910,7 +910,7 @@ class TestLoggerPlugin extends Plugin {
         },
       },
       {
-        name: "Browser Notification API",
+        name: "🧪 Browser Notification API",
         fn: async () => {
           if (
             "Notification" in window &&

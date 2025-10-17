@@ -1,7 +1,7 @@
 class BioUpdaterPlugin extends Plugin {
   constructor() {
     super({
-      name: "Bio Updater",
+      name: "📝 Bio Updater",
       description:
         "Automatic bio updating with user statistics and custom templates",
       author: "Bluscream",
@@ -53,15 +53,15 @@ Oculus ID: {oculus_id}`;
     // Define category metadata
     this.categories = this.defineSettingsCategories({
       timing: {
-        name: "Update Timing",
+        name: "📝 Update Timing",
         description: "Control when and how often bio updates occur",
       },
       steam: {
-        name: "Steam Integration",
+        name: "📝 Steam Integration",
         description: "Steam API credentials for playtime tracking",
       },
       template: {
-        name: "Bio Template",
+        name: "📝 Bio Template",
         description: "Customize your bio content and placeholders",
       },
     });

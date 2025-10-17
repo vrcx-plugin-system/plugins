@@ -1,7 +1,7 @@
 class DevToolsButtonPlugin extends Plugin {
   constructor() {
     super({
-      name: "DevTools Button",
+      name: "🔧 DevTools Button",
       description:
         "Adds a button to the navigation menu to open browser DevTools",
       author: "Bluscream",
