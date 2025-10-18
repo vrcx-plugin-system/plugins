@@ -8,7 +8,7 @@ class PluginManagerUIPlugin extends Plugin {
       build: "1760444890",
       tags: ["UI", "Core", "Settings"],
       dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/nav-menu-api.js",
+        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
       ],
     });
 
@@ -67,6 +67,7 @@ class PluginManagerUIPlugin extends Plugin {
       return;
     }
 
+    this.logger.log("Setting up Plugins nav menu item");
     this.navMenuApi.addItem("plugins", {
       label: "Plugins",
       icon: "ri-plug-line",
@@ -75,17 +76,23 @@ class PluginManagerUIPlugin extends Plugin {
       onShow: () => this.onPluginsTabShown(),
       onHide: () => this.onPluginsTabHidden(),
     });
+    this.logger.log("✓ Plugins nav menu item registered");
   }
 
   onPluginsTabShown() {
+    this.logger.log("🎯 Plugins tab shown - user navigated to Plugins view");
     setTimeout(() => this.refreshPluginGrid(), 50);
   }
 
   onPluginsTabHidden() {
+    this.logger.log(
+      "👋 Plugins tab hidden - user navigated away from Plugins view"
+    );
     // Could pause any active operations here if needed
   }
 
   createPanelContent() {
+    this.logger.log("🎨 Creating plugin manager panel content");
     const container = document.createElement("div");
     container.style.cssText = `
       padding: 20px;
@@ -95,10 +102,15 @@ class PluginManagerUIPlugin extends Plugin {
 
     try {
       // Build all content immediately - nav-menu-api handles visibility
+      this.logger.log("  → Building stats section");
       container.appendChild(this.createStatsSection());
+      this.logger.log("  → Building repository management section");
       container.appendChild(this.createRepoManagementSection());
+      this.logger.log("  → Building config sync section");
       container.appendChild(this.createConfigSyncSection());
+      this.logger.log("  → Building load plugin section");
       container.appendChild(this.createLoadPluginSection());
+      this.logger.log("  → Building filter section");
       container.appendChild(this.createFilterSection());
 
       // Plugin grid container
@@ -109,6 +121,7 @@ class PluginManagerUIPlugin extends Plugin {
 
       // Store reference for later refreshing
       this.pluginGridContainer = pluginGrid;
+      this.logger.log("✓ Plugin manager panel content created successfully");
     } catch (error) {
       this.logger.error("Error creating plugin manager content:", error);
       const errorDiv = document.createElement("div");
@@ -435,6 +448,8 @@ class PluginManagerUIPlugin extends Plugin {
   async handleAddRepository(input) {
     const url = input.value.trim();
 
+    this.logger.log(`📦 User requested to add repository: ${url}`);
+
     if (!url) {
       this.logger.showWarn("Please enter a repository URL");
       return;
@@ -452,6 +467,7 @@ class PluginManagerUIPlugin extends Plugin {
     }
 
     try {
+      this.logger.log(`  → Adding repository via RepoManager...`);
       this.logger.showInfo("Adding repository...");
       const result = await repoManager.addRepository(url);
 
@@ -481,6 +497,10 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleToggleRepository(url, enabled) {
+    this.logger.log(
+      `🔘 User toggled repository: ${url} (${enabled ? "enable" : "disable"})`
+    );
+
     const repoManager = window.customjs?.repoManager;
     if (!repoManager) {
       this.logger.showError("Repository manager not available");
@@ -515,6 +535,8 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleRefreshRepository(url, button) {
+    this.logger.log(`🔄 User clicked refresh for repository: ${url}`);
+
     const repoManager = window.customjs?.repoManager;
     if (!repoManager) {
       this.logger.showError("Repository manager not available");
@@ -526,6 +548,7 @@ class PluginManagerUIPlugin extends Plugin {
       button.disabled = true;
       button.innerHTML = '<i class="ri-loader-4-line ri-spin"></i>';
 
+      this.logger.log(`  → Refreshing repository...`);
       const success = await repoManager.refreshRepository(url);
 
       if (success) {
@@ -565,6 +588,8 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleRefreshRepositories(button) {
+    this.logger.log(`🔄 User clicked refresh all repositories`);
+
     const repoManager = window.customjs?.repoManager;
     if (!repoManager) {
       this.logger.showError("Repository manager not available");
@@ -577,6 +602,7 @@ class PluginManagerUIPlugin extends Plugin {
       button.innerHTML =
         '<i class="ri-loader-4-line ri-spin"></i> Refreshing...';
 
+      this.logger.log(`  → Refreshing all repositories...`);
       await repoManager.refreshAllRepositories();
 
       button.innerHTML = '<i class="ri-check-line"></i> Refreshed!';
@@ -604,9 +630,12 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleRemoveRepository(url) {
+    this.logger.log(`🗑️ User clicked remove for repository: ${url}`);
+
     if (
       !confirm(`Are you sure you want to remove this repository?\n\n${url}`)
     ) {
+      this.logger.log("  → User cancelled removal");
       return;
     }
 
@@ -617,6 +646,7 @@ class PluginManagerUIPlugin extends Plugin {
     }
 
     try {
+      this.logger.log(`  → Removing repository...`);
       const success = repoManager.removeRepository(url);
 
       if (success) {
@@ -690,12 +720,15 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleImportConfig(button) {
+    this.logger.log(`📥 User clicked import from VRChat config`);
+
     const originalHTML = button.innerHTML;
     try {
       button.disabled = true;
       button.innerHTML =
         '<i class="ri-loader-4-line ri-spin"></i> Importing...';
 
+      this.logger.log(`  → Importing config from VRChat config.json...`);
       const result =
         await window.customjs.configManager.importFromVRChatConfig();
 
@@ -755,12 +788,15 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleExportConfig(button) {
+    this.logger.log(`📤 User clicked export to VRChat config`);
+
     const originalHTML = button.innerHTML;
     try {
       button.disabled = true;
       button.innerHTML =
         '<i class="ri-loader-4-line ri-spin"></i> Exporting...';
 
+      this.logger.log(`  → Exporting config to VRChat config.json...`);
       const result = await window.customjs.configManager.exportToVRChatConfig();
 
       if (result && result.success) {
@@ -839,6 +875,9 @@ class PluginManagerUIPlugin extends Plugin {
 
     this.registerListener(searchInput, "input", (e) => {
       this.searchValue.value = e.target.value.toLowerCase();
+      this.logger.log(
+        `🔍 User changed search query to: "${this.searchValue.value}"`
+      );
       this.refreshPluginGrid();
     });
 
@@ -869,6 +908,7 @@ class PluginManagerUIPlugin extends Plugin {
 
     this.registerListener(filterSelect, "change", (e) => {
       this.searchValue.filter = e.target.value;
+      this.logger.log(`🔽 User changed filter to: ${this.searchValue.filter}`);
       this.refreshPluginGrid();
     });
 
@@ -961,6 +1001,8 @@ class PluginManagerUIPlugin extends Plugin {
   async handleLoadPlugin(input, status) {
     const url = input.value.trim();
 
+    this.logger.log(`📥 User requested to load plugin from URL: ${url}`);
+
     if (!url) {
       status.textContent = "⚠️ Please enter a URL";
       status.style.color = "#ffc107";
@@ -971,6 +1013,7 @@ class PluginManagerUIPlugin extends Plugin {
     status.style.color = "#007bff";
 
     try {
+      this.logger.log(`  → Adding plugin via PluginManager...`);
       const result = await window.customjs.pluginManager.addPlugin(url);
 
       if (result.success) {
@@ -989,6 +1032,7 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   refreshPluginGrid() {
+    this.logger.log("🔄 Refreshing plugin grid...");
     try {
       const gridContainer = this.pluginGridContainer;
 
@@ -1005,6 +1049,10 @@ class PluginManagerUIPlugin extends Plugin {
       const failedUrls =
         window.customjs?.pluginManager?.failedUrls || new Set();
       const repoManager = window.customjs?.repoManager;
+
+      this.logger.log(
+        `  → Loaded plugins: ${loadedPlugins.length}, Core modules: ${coreModules.length}, Failed: ${failedUrls.size}`
+      );
 
       // Get plugin config to include disabled plugins
       const pluginConfig = window.customjs?.configManager?.get("plugins") || {};
@@ -1090,6 +1138,9 @@ class PluginManagerUIPlugin extends Plugin {
       });
 
       gridContainer.appendChild(grid);
+      this.logger.log(
+        `✓ Plugin grid refreshed - showing ${filteredPlugins.length} plugins (filter: ${this.searchValue.filter}, search: "${this.searchValue.value}")`
+      );
     } catch (error) {
       this.logger.error("Error refreshing plugin grid:", error);
     }
@@ -1610,6 +1661,8 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleTogglePlugin(pluginId) {
+    this.logger.log(`🔘 User clicked toggle for plugin: ${pluginId}`);
+
     // Prevent concurrent toggles of the same plugin
     if (this.togglingPlugins.has(pluginId)) {
       this.logger.warn(
@@ -1697,6 +1750,8 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleReloadPlugin(pluginUrl) {
+    this.logger.log(`🔄 User clicked reload for plugin: ${pluginUrl}`);
+
     if (!pluginUrl) {
       this.logger.warn("No URL available for reload");
       this.logger.showWarn("Plugin URL not available");
@@ -1704,7 +1759,7 @@ class PluginManagerUIPlugin extends Plugin {
     }
 
     try {
-      this.logger.log(`Reloading plugin from ${pluginUrl}`);
+      this.logger.log(`  → Reloading plugin from ${pluginUrl}`);
       this.logger.showInfo("Reloading plugin...");
 
       // Check if plugin is disabled in config
@@ -1735,6 +1790,8 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleAnalyzePlugin(pluginUrl) {
+    this.logger.log(`🔍 User clicked analyze for plugin: ${pluginUrl}`);
+
     if (!pluginUrl) {
       this.logger.warn("No URL available for analysis");
       this.logger.showWarn("Plugin URL not available");
@@ -1742,7 +1799,7 @@ class PluginManagerUIPlugin extends Plugin {
     }
 
     try {
-      this.logger.log(`Analyzing plugin: ${pluginUrl}`);
+      this.logger.log(`  → Analyzing plugin: ${pluginUrl}`);
       this.logger.showInfo("Analyzing plugin code...");
 
       // Access PluginLoader through pluginManager
@@ -1997,22 +2054,33 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   handleShowDetails(plugin) {
+    this.logger.log(`ℹ️ User clicked info for plugin: ${plugin.metadata.id}`);
     // Dump to console and open devtools
-    this.logger.log("Plugin details:", plugin);
+    this.logger.log("  → Plugin details:", plugin);
     if (window.AppApi?.ShowDevTools) {
       window.AppApi.ShowDevTools();
     }
   }
 
   async handleShowPluginSettings(plugin) {
+    this.logger.log(
+      `⚙️ User clicked settings for plugin: ${plugin.metadata.id}`
+    );
+
     // Check if plugin has settings
     const hasSettings =
       plugin.settings?.def && Object.keys(plugin.settings.def).length > 0;
 
     if (hasSettings) {
+      this.logger.log(
+        `  → Opening settings modal (${
+          Object.keys(plugin.settings.def).length
+        } settings)`
+      );
       // Show settings modal
       this.showSettingsModal(plugin);
     } else {
+      this.logger.log("  → Plugin has no configurable settings");
       // Show message that no settings are available
       this.logger.showInfo(
         `${plugin.metadata.name} has no configurable settings`
@@ -2021,6 +2089,8 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleRemovePlugin(pluginUrl) {
+    this.logger.log(`🗑️ User clicked remove for plugin: ${pluginUrl}`);
+
     if (!pluginUrl) {
       this.logger.warn("No URL available for removal");
       this.logger.showWarn("Plugin URL not available");
@@ -2032,11 +2102,12 @@ class PluginManagerUIPlugin extends Plugin {
         `Are you sure you want to remove this plugin?\n\nNote: Code will remain in memory until VRCX restart.`
       )
     ) {
+      this.logger.log("  → User cancelled removal");
       return;
     }
 
     try {
-      this.logger.log(`Removing plugin from ${pluginUrl}`);
+      this.logger.log(`  → Removing plugin from ${pluginUrl}`);
 
       const result = await window.customjs.pluginManager.removePlugin(
         pluginUrl
@@ -2059,6 +2130,8 @@ class PluginManagerUIPlugin extends Plugin {
   }
 
   async handleInstallPlugin(pluginUrl, button) {
+    this.logger.log(`📥 User clicked install for plugin: ${pluginUrl}`);
+
     if (!pluginUrl) {
       this.logger.showWarn("No URL available for installation");
       return;
@@ -2070,7 +2143,7 @@ class PluginManagerUIPlugin extends Plugin {
       button.innerHTML =
         '<i class="ri-loader-4-line ri-spin"></i> Installing...';
 
-      this.logger.log(`Installing plugin from ${pluginUrl}`);
+      this.logger.log(`  → Installing plugin from ${pluginUrl}`);
       const result = await window.customjs.pluginManager.addPlugin(pluginUrl);
 
       if (result.success) {

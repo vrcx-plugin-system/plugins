@@ -1,4 +1,7 @@
 class ProtocolLinksPlugin extends Plugin {
+  utils: any;
+  contextMenuApi: any;
+
   constructor() {
     super({
       name: "🔗 VRCX Protocol Links",
@@ -8,7 +11,7 @@ class ProtocolLinksPlugin extends Plugin {
       build: "1760411348",
       tags: ["Utility", "Integration"],
       dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/context-menu-api.js",
+        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",
       ],
     });
   }
@@ -20,7 +23,7 @@ class ProtocolLinksPlugin extends Plugin {
 
   async start() {
     // Setup utils shortcut
-    this.utils = window.customjs.utils;
+    this.utils = (window as any).customjs.utils;
 
     // Wait for dependencies
     this.contextMenuApi = await window.customjs.pluginManager.waitForPlugin(
@@ -40,7 +43,7 @@ class ProtocolLinksPlugin extends Plugin {
     this.logger.log("Protocol Links plugin started, menu items added");
   }
 
-  async onLogin(user) {
+  async onLogin(user: any) {
     // No login-specific logic needed for protocol links plugin
   }
 
@@ -63,46 +66,46 @@ class ProtocolLinksPlugin extends Plugin {
     this.contextMenuApi.addUserItem("copy-user-link", {
       text: "Copy User Link",
       icon: "el-icon-link",
-      onClick: (userData) => this.copyUserLink(userData),
+      onClick: (userData: any) => this.copyUserLink(userData),
     });
 
     this.contextMenuApi.addUserItem("copy-user-import", {
       text: "Copy User Import Link",
       icon: "el-icon-download",
-      onClick: (userData) => this.copyUserImportLink(userData),
+      onClick: (userData: any) => this.copyUserImportLink(userData),
     });
 
     // Avatar dialog items
     this.contextMenuApi.addAvatarItem("copy-avatar-link", {
       text: "Copy Avatar Link",
       icon: "el-icon-link",
-      onClick: (avatarData) => this.copyAvatarLink(avatarData),
+      onClick: (avatarData: any) => this.copyAvatarLink(avatarData),
     });
 
     this.contextMenuApi.addAvatarItem("copy-avatar-import", {
       text: "Copy Avatar Import Link",
       icon: "el-icon-download",
-      onClick: (avatarData) => this.copyAvatarImportLink(avatarData),
+      onClick: (avatarData: any) => this.copyAvatarImportLink(avatarData),
     });
 
     // World dialog items
     this.contextMenuApi.addWorldItem("copy-world-link", {
       text: "Copy World Link",
       icon: "el-icon-link",
-      onClick: (worldData) => this.copyWorldLink(worldData),
+      onClick: (worldData: any) => this.copyWorldLink(worldData),
     });
 
     this.contextMenuApi.addWorldItem("copy-world-import", {
       text: "Copy World Import Link",
       icon: "el-icon-download",
-      onClick: (worldData) => this.copyWorldImportLink(worldData),
+      onClick: (worldData: any) => this.copyWorldImportLink(worldData),
     });
 
     // Group dialog items
     this.contextMenuApi.addGroupItem("copy-group-link", {
       text: "Copy Group Link",
       icon: "el-icon-link",
-      onClick: (groupData) => this.copyGroupLink(groupData),
+      onClick: (groupData: any) => this.copyGroupLink(groupData),
     });
 
     this.logger.log("All context menu items added");
@@ -129,7 +132,7 @@ class ProtocolLinksPlugin extends Plugin {
     this.logger.log("All context menu items removed");
   }
 
-  copyUserLink(userData) {
+  copyUserLink(userData: any) {
     if (!userData || !userData.id) {
       this.logger.showError("No user data available");
       return;
@@ -137,7 +140,7 @@ class ProtocolLinksPlugin extends Plugin {
     this.utils.copyToClipboard(`vrcx://user/${userData.id}`, "User link");
   }
 
-  copyUserImportLink(userData) {
+  copyUserImportLink(userData: any) {
     if (!userData || !userData.id) {
       this.logger.showError("No user data available");
       return;
@@ -148,7 +151,7 @@ class ProtocolLinksPlugin extends Plugin {
     );
   }
 
-  copyAvatarLink(avatarData) {
+  copyAvatarLink(avatarData: any) {
     if (!avatarData || !avatarData.id) {
       this.logger.showError("No avatar data available");
       return;
@@ -156,7 +159,7 @@ class ProtocolLinksPlugin extends Plugin {
     this.utils.copyToClipboard(`vrcx://avatar/${avatarData.id}`, "Avatar link");
   }
 
-  copyAvatarImportLink(avatarData) {
+  copyAvatarImportLink(avatarData: any) {
     if (!avatarData || !avatarData.id) {
       this.logger.showError("No avatar data available");
       return;
@@ -167,7 +170,7 @@ class ProtocolLinksPlugin extends Plugin {
     );
   }
 
-  copyWorldLink(worldData) {
+  copyWorldLink(worldData: any) {
     if (!worldData || !worldData.id) {
       this.logger.showError("No world data available");
       return;
@@ -175,7 +178,7 @@ class ProtocolLinksPlugin extends Plugin {
     this.utils.copyToClipboard(`vrcx://world/${worldData.id}`, "World link");
   }
 
-  copyWorldImportLink(worldData) {
+  copyWorldImportLink(worldData: any) {
     if (!worldData || !worldData.id) {
       this.logger.showError("No world data available");
       return;
@@ -186,7 +189,7 @@ class ProtocolLinksPlugin extends Plugin {
     );
   }
 
-  copyGroupLink(groupData) {
+  copyGroupLink(groupData: any) {
     if (!groupData || !groupData.id) {
       this.logger.showError("No group data available");
       return;
@@ -196,9 +199,9 @@ class ProtocolLinksPlugin extends Plugin {
 
   /**
    * Add a custom avatar database provider link
-   * @param {string} url - URL of the avatar database provider
+   * @param url - URL of the avatar database provider
    */
-  addAvatarDatabaseProvider(url) {
+  addAvatarDatabaseProvider(url: string) {
     this.utils.copyToClipboard(
       `vrcx://addavatardb/${url}`,
       "Avatar database provider link"
@@ -207,10 +210,10 @@ class ProtocolLinksPlugin extends Plugin {
 
   /**
    * Create multi-item import links
-   * @param {string} type - Import type (avatar, world, friend)
-   * @param {string[]} ids - Array of IDs to import
+   * @param type - Import type (avatar, world, friend)
+   * @param ids - Array of IDs to import
    */
-  createMultiImportLink(type, ids) {
+  createMultiImportLink(type: string, ids: string[]) {
     if (!Array.isArray(ids) || ids.length === 0) {
       this.logger.showError("No IDs provided for import");
       return;

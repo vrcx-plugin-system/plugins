@@ -8,7 +8,7 @@ class NavMenuTestPlugin extends Plugin {
       build: "0",
       tags: ["Debug", "Experimental"],
       dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/nav-menu-api.js",
+        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
       ],
     });
 

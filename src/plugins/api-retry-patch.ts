@@ -15,6 +15,13 @@
  * - useJitter: Add random jitter to delays (default: true)
  */
 class ApiRetryPatchPlugin extends Plugin {
+  originalMethods: Map<string, Function>;
+  retryStats: {
+    totalRetries: number;
+    successfulRetries: number;
+    failedRetries: number;
+  };
+
   constructor() {
     super({
       name: "🔄 API Retry Patch",
@@ -43,22 +50,16 @@ class ApiRetryPatchPlugin extends Plugin {
         type: SettingType.NUMBER,
         description: "Maximum number of retry attempts",
         default: 3,
-        min: 1,
-        max: 10,
       },
       baseDelay: {
         type: SettingType.NUMBER,
         description: "Base delay between retries (ms)",
         default: 1000,
-        min: 100,
-        max: 5000,
       },
       maxDelay: {
         type: SettingType.NUMBER,
         description: "Maximum delay between retries (ms)",
         default: 10000,
-        min: 1000,
-        max: 60000,
       },
       useJitter: {
         type: SettingType.BOOLEAN,
@@ -124,7 +125,7 @@ class ApiRetryPatchPlugin extends Plugin {
   /**
    * Check if an error is retryable
    */
-  isRetryableError(error) {
+  isRetryableError(error: any): boolean {
     const settings = this.settings.store;
     const errorMsg = error?.message || String(error);
     const status = error?.status || 0;
@@ -173,7 +174,7 @@ class ApiRetryPatchPlugin extends Plugin {
   /**
    * Calculate delay for retry attempt with exponential backoff
    */
-  calculateDelay(attempt) {
+  calculateDelay(attempt: number): number {
     const settings = this.settings.store;
     const baseDelay = settings.baseDelay || 1000;
     const maxDelay = settings.maxDelay || 10000;
@@ -194,17 +195,17 @@ class ApiRetryPatchPlugin extends Plugin {
   /**
    * Sleep for specified milliseconds
    */
-  async sleep(ms) {
+  async sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
    * Wrap a function with retry logic
    */
-  wrapWithRetry(originalFunc, funcName) {
+  wrapWithRetry(originalFunc: Function, funcName: string): Function {
     const self = this;
 
-    return async function wrappedWithRetry(...args) {
+    return async function wrappedWithRetry(...args: any[]) {
       const maxRetries = self.settings.store.maxRetries || 3;
       let lastError = null;
 
@@ -240,7 +241,7 @@ class ApiRetryPatchPlugin extends Plugin {
           // Log retry attempt
           self.retryStats.totalRetries++;
           const delay = self.calculateDelay(attempt);
-          const errorMsg = error?.message || String(error);
+          const errorMsg = (error as any)?.message || String(error);
           const shortError =
             errorMsg.length > 100
               ? errorMsg.substring(0, 100) + "..."
@@ -270,7 +271,7 @@ class ApiRetryPatchPlugin extends Plugin {
    */
   patchApiMethods() {
     try {
-      const apiRequests = window.request;
+      const apiRequests = (window as any).request;
       if (!apiRequests) {
         this.logger.error("window.request not found, cannot patch API methods");
         return;
@@ -279,47 +280,47 @@ class ApiRetryPatchPlugin extends Plugin {
       // Methods to patch - comprehensive list of API methods
       const methodsToPatch = [
         // Auth methods
-        { obj: apiRequests.authRequest, name: "🔄 verifyOTP" },
-        { obj: apiRequests.authRequest, name: "🔄 verifyTOTP" },
-        { obj: apiRequests.authRequest, name: "🔄 verifyEmailOTP" },
-        { obj: apiRequests.authRequest, name: "🔄 getConfig" },
+        { obj: apiRequests.authRequest, name: "verifyOTP" },
+        { obj: apiRequests.authRequest, name: "verifyTOTP" },
+        { obj: apiRequests.authRequest, name: "verifyEmailOTP" },
+        { obj: apiRequests.authRequest, name: "getConfig" },
 
         // User methods
-        { obj: apiRequests.userRequest, name: "🔄 getUser" },
-        { obj: apiRequests.userRequest, name: "🔄 getCachedUser" },
-        { obj: apiRequests.userRequest, name: "🔄 getUsers" },
-        { obj: apiRequests.userRequest, name: "🔄 saveCurrentUser" },
-        { obj: apiRequests.userRequest, name: "🔄 getCurrentUser" },
+        { obj: apiRequests.userRequest, name: "getUser" },
+        { obj: apiRequests.userRequest, name: "getCachedUser" },
+        { obj: apiRequests.userRequest, name: "getUsers" },
+        { obj: apiRequests.userRequest, name: "saveCurrentUser" },
+        { obj: apiRequests.userRequest, name: "getCurrentUser" },
 
         // World methods
-        { obj: apiRequests.worldRequest, name: "🔄 getWorld" },
-        { obj: apiRequests.worldRequest, name: "🔄 getCachedWorld" },
-        { obj: apiRequests.worldRequest, name: "🔄 saveWorld" },
+        { obj: apiRequests.worldRequest, name: "getWorld" },
+        { obj: apiRequests.worldRequest, name: "getCachedWorld" },
+        { obj: apiRequests.worldRequest, name: "saveWorld" },
 
         // Instance methods
-        { obj: apiRequests.instanceRequest, name: "🔄 getInstance" },
-        { obj: apiRequests.instanceRequest, name: "🔄 getCachedInstance" },
-        { obj: apiRequests.instanceRequest, name: "🔄 selfInvite" },
-        { obj: apiRequests.instanceRequest, name: "🔄 createInstance" },
+        { obj: apiRequests.instanceRequest, name: "getInstance" },
+        { obj: apiRequests.instanceRequest, name: "getCachedInstance" },
+        { obj: apiRequests.instanceRequest, name: "selfInvite" },
+        { obj: apiRequests.instanceRequest, name: "createInstance" },
 
         // Friend methods
-        { obj: apiRequests.friendRequest, name: "🔄 getFriends" },
-        { obj: apiRequests.friendRequest, name: "🔄 sendFriendRequest" },
-        { obj: apiRequests.friendRequest, name: "🔄 deleteFriend" },
+        { obj: apiRequests.friendRequest, name: "getFriends" },
+        { obj: apiRequests.friendRequest, name: "sendFriendRequest" },
+        { obj: apiRequests.friendRequest, name: "deleteFriend" },
 
         // Notification methods
-        { obj: apiRequests.notificationRequest, name: "🔄 sendInvite" },
-        { obj: apiRequests.notificationRequest, name: "🔄 sendRequestInvite" },
-        { obj: apiRequests.notificationRequest, name: "🔄 getNotifications" },
-        { obj: apiRequests.notificationRequest, name: "🔄 getNotificationsV2" },
+        { obj: apiRequests.notificationRequest, name: "sendInvite" },
+        { obj: apiRequests.notificationRequest, name: "sendRequestInvite" },
+        { obj: apiRequests.notificationRequest, name: "getNotifications" },
+        { obj: apiRequests.notificationRequest, name: "getNotificationsV2" },
 
         // Avatar methods
-        { obj: apiRequests.avatarRequest, name: "🔄 getAvatar" },
-        { obj: apiRequests.avatarRequest, name: "🔄 saveAvatar" },
+        { obj: apiRequests.avatarRequest, name: "getAvatar" },
+        { obj: apiRequests.avatarRequest, name: "saveAvatar" },
 
         // Group methods
-        { obj: apiRequests.groupRequest, name: "🔄 getGroup" },
-        { obj: apiRequests.groupRequest, name: "🔄 getGroupMember" },
+        { obj: apiRequests.groupRequest, name: "getGroup" },
+        { obj: apiRequests.groupRequest, name: "getGroupMember" },
       ];
 
       let patchedCount = 0;
@@ -339,7 +340,7 @@ class ApiRetryPatchPlugin extends Plugin {
       }
 
       this.logger.log(`Successfully patched ${patchedCount} API methods`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to patch API methods: ${error.message}`);
     }
   }
@@ -349,7 +350,7 @@ class ApiRetryPatchPlugin extends Plugin {
    */
   restoreOriginalMethods() {
     try {
-      const apiRequests = window.request;
+      const apiRequests = (window as any).request;
       if (!apiRequests) return;
 
       for (const [key, originalMethod] of this.originalMethods.entries()) {
@@ -377,7 +378,7 @@ class ApiRetryPatchPlugin extends Plugin {
       }
 
       this.originalMethods.clear();
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to restore methods: ${error.message}`);
     }
   }
@@ -407,11 +408,11 @@ class ApiRetryPatchPlugin extends Plugin {
 
   /**
    * Wrap any async function with retry logic
-   * @param {Function} func - Async function to wrap
-   * @param {string} name - Name for logging
-   * @returns {Function} Wrapped function with retry logic
+   * @param func - Async function to wrap
+   * @param name - Name for logging
+   * @returns Wrapped function with retry logic
    */
-  wrapFunctionWithRetry(func, name = "custom") {
+  wrapFunctionWithRetry(func: Function, name: string = "custom"): Function {
     return this.wrapWithRetry(func, name);
   }
 }

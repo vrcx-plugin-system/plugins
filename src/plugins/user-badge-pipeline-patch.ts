@@ -35,12 +35,6 @@ class UserBadgePipelinePatchPlugin extends Plugin {
     this.logger.log("User Badge Pipeline Patch plugin started");
   }
 
-  async stop() {
-    this.logger.log("Stopping User Badge Pipeline Patch plugin");
-
-    await super.stop();
-  }
-
   // ============================================================================
   // PATCHING LOGIC
   // ============================================================================

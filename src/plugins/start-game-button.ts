@@ -1,4 +1,6 @@
 class StartGameButtonPlugin extends Plugin {
+  navMenuApi: any;
+
   constructor() {
     super({
       name: "🎮 Start Game Button",
@@ -8,41 +10,44 @@ class StartGameButtonPlugin extends Plugin {
       build: "1729018400",
       tags: ["Utility", "Game", "Button"],
       dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/nav-menu-api.js",
+        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
       ],
     });
 
     this.navMenuApi = null;
+  }
+
+  async load() {
+    const SettingType = window.customjs.SettingType;
+
+    this.categories = this.defineSettingsCategories({
+      launch: {
+        name: "🎮 Launch Settings",
+        description: "Configure how VRChat is launched",
+      },
+    });
+
     this.settings = this.defineSettings({
       confirmBeforeLaunch: {
-        type: window.customjs.SettingType.BOOLEAN,
+        type: SettingType.BOOLEAN,
         description: "Ask for confirmation before launching VRChat",
         default: true,
         category: "launch",
       },
       desktopMode: {
-        type: window.customjs.SettingType.BOOLEAN,
+        type: SettingType.BOOLEAN,
         description: "Launch in Desktop Mode (--no-vr)",
         default: false,
         category: "launch",
       },
       showNotifications: {
-        type: window.customjs.SettingType.BOOLEAN,
+        type: SettingType.BOOLEAN,
         description: "Show notifications when launching game",
         default: true,
         category: "launch",
       },
     });
 
-    this.categories = {
-      launch: {
-        name: "🎮 Launch Settings",
-        description: "Configure how VRChat is launched",
-      },
-    };
-  }
-
-  async load() {
     this.logger.log("Start Game Button ready");
     this.loaded = true;
   }
@@ -71,7 +76,7 @@ class StartGameButtonPlugin extends Plugin {
 
   async handleStartGame() {
     try {
-      if (!window.AppApi?.StartGame) {
+      if (!(window as any).AppApi?.StartGame) {
         this.logger.showError("Cannot start game: AppApi not available");
         return;
       }
@@ -82,7 +87,7 @@ class StartGameButtonPlugin extends Plugin {
         (await this.getConfigValue("vrcLaunchPathOverride")) || "";
       const desktopMode = this.settings.store.desktopMode;
 
-      const args = [];
+      const args: string[] = [];
       if (launchArguments) {
         args.push(launchArguments);
       }
@@ -113,14 +118,14 @@ class StartGameButtonPlugin extends Plugin {
         this.logger.showInfo("Starting VRChat...");
       }
 
-      let result;
+      let result: boolean;
       if (vrcLaunchPathOverride) {
-        result = await window.AppApi.StartGameFromPath(
+        result = await (window as any).AppApi.StartGameFromPath(
           vrcLaunchPathOverride,
           argsString
         );
       } else {
-        result = await window.AppApi.StartGame(argsString);
+        result = await (window as any).AppApi.StartGame(argsString);
       }
 
       if (result) {
@@ -134,21 +139,21 @@ class StartGameButtonPlugin extends Plugin {
             : "Failed to find VRChat, set a custom path in launch options"
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       this.logger.showError(`Error starting game: ${error.message}`);
     }
   }
 
   /**
    * Show confirmation dialog using Element Plus or fallback to native confirm
-   * @param {string} title - Dialog title
-   * @param {string} message - Dialog message
-   * @returns {Promise<boolean>} True if confirmed, false if cancelled
+   * @param title - Dialog title
+   * @param message - Dialog message
+   * @returns True if confirmed, false if cancelled
    */
-  async showConfirmDialog(title, message) {
+  async showConfirmDialog(title: string, message: string): Promise<boolean> {
     try {
       // Try Element Plus $confirm (Vue global properties)
-      const $confirm = window.$app?.config?.globalProperties?.$confirm;
+      const $confirm = (window as any).$app?.config?.globalProperties?.$confirm;
       if ($confirm) {
         try {
           await $confirm(message, title, {
@@ -169,7 +174,7 @@ class StartGameButtonPlugin extends Plugin {
       );
       const fullMessage = `${title}\n\n${message}`;
       return confirm(fullMessage);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.warn(`Error showing confirm dialog: ${error.message}`);
       // Fallback to native confirm on any error
       const fullMessage = `${title}\n\n${message}`;
@@ -179,24 +184,24 @@ class StartGameButtonPlugin extends Plugin {
 
   /**
    * Helper to get config value from VRCX's config repository
-   * @param {string} key - Config key
-   * @returns {Promise<string|null>}
+   * @param key - Config key
+   * @returns Config value or null
    */
-  async getConfigValue(key) {
+  async getConfigValue(key: string): Promise<string | null> {
     try {
       // Try to use configRepository if available
-      if (window.configRepository?.getString) {
-        return await window.configRepository.getString(key);
+      if ((window as any).configRepository?.getString) {
+        return await (window as any).configRepository.getString(key);
       }
 
       // Fallback: try AppApi
-      if (window.AppApi?.GetConfigValue) {
-        return await window.AppApi.GetConfigValue(key);
+      if ((window as any).AppApi?.GetConfigValue) {
+        return await (window as any).AppApi.GetConfigValue(key);
       }
 
       this.logger.warn(`Cannot read config value: ${key}`);
       return null;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.warn(`Error reading config value ${key}:`, error);
       return null;
     }

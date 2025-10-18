@@ -1,4 +1,7 @@
 class RegistryOverridesPlugin extends Plugin {
+  eventHandlers: Map<string, Function>;
+  _lastGameRunning: boolean;
+
   constructor() {
     super({
       name: "⚙️ Registry Overrides",
@@ -12,6 +15,7 @@ class RegistryOverridesPlugin extends Plugin {
 
     // Map of event names to handlers
     this.eventHandlers = new Map();
+    this._lastGameRunning = false;
   }
 
   async load() {
@@ -23,16 +27,16 @@ class RegistryOverridesPlugin extends Plugin {
 
     this.settings = this.defineSettings({
       overrides: {
-        type: SettingType.CUSTOM,
+        type: SettingType.STRING,
         description:
           "Dictionary of registry key overrides with their values and trigger events",
-        default: defaultOverrides,
+        default: JSON.stringify(defaultOverrides),
       },
     });
 
     this.logger.log(
       `⚙️ Loaded ${
-        Object.keys(this.settings.store.overrides).length
+        Object.keys(JSON.parse(this.settings.store.overrides || "{}")).length
       } registry overrides`
     );
 
@@ -64,7 +68,7 @@ class RegistryOverridesPlugin extends Plugin {
     );
   }
 
-  async onLogin(user) {
+  async onLogin(user: any) {
     // No login-specific logic needed for registry overrides plugin
   }
 
@@ -96,7 +100,7 @@ class RegistryOverridesPlugin extends Plugin {
 
   setupGameStateMonitoring() {
     // Subscribe to game state changes
-    this.subscribe("GAME", ({ isGameRunning }) => {
+    this.subscribe("GAME", ({ isGameRunning }: any) => {
       // Check if game started (changed to true)
       if (isGameRunning && !this._lastGameRunning) {
         this.logger.log("Game started detected");
@@ -110,9 +114,9 @@ class RegistryOverridesPlugin extends Plugin {
 
   /**
    * Trigger registry updates for specific events
-   * @param {string} eventName - Event name (VRCX_START, GAME_START, etc.)
+   * @param eventName - Event name (VRCX_START, GAME_START, etc.)
    */
-  triggerEvent(eventName) {
+  triggerEvent(eventName: string) {
     const handler = this.eventHandlers.get(eventName);
     if (handler) {
       this.logger.log(`Triggering event: ${eventName}`);
@@ -124,12 +128,12 @@ class RegistryOverridesPlugin extends Plugin {
 
   /**
    * Apply registry settings from configuration
-   * @param {string} triggerEvent - Event that triggered this (VRCX_START, PERIODIC, etc.)
+   * @param triggerEvent - Event that triggered this (VRCX_START, PERIODIC, etc.)
    */
-  async applyRegistrySettings(triggerEvent = "PERIODIC") {
+  async applyRegistrySettings(triggerEvent: string = "PERIODIC") {
     try {
       // Get config from ConfigManager
-      const config = this.settings.store.overrides;
+      const config = JSON.parse(this.settings.store.overrides || "{}");
 
       if (!config || Object.keys(config).length === 0) {
         return; // No registry settings configured
@@ -138,17 +142,18 @@ class RegistryOverridesPlugin extends Plugin {
       // Apply all registry settings from config
       for (const [key, configValue] of Object.entries(config)) {
         try {
-          let value, events;
+          let value: any;
+          let events: string[];
 
           // Handle both simple key-value format and object format
           if (
             typeof configValue === "object" &&
             configValue !== null &&
-            configValue.value !== undefined
+            (configValue as any).value !== undefined
           ) {
             // Object format: { value: X, events: [...] }
-            value = configValue.value;
-            events = configValue.events || ["PERIODIC"];
+            value = (configValue as any).value;
+            events = (configValue as any).events || ["PERIODIC"];
           } else {
             // Simple format - apply on all events
             value = configValue;
@@ -161,7 +166,7 @@ class RegistryOverridesPlugin extends Plugin {
           }
 
           // Get old value
-          const oldVal = await window.AppApi.GetVRChatRegistryKey(key);
+          const oldVal = await (window as any).AppApi.GetVRChatRegistryKey(key);
 
           // Skip if value is already correct
           if (oldVal === value) {
@@ -179,42 +184,42 @@ class RegistryOverridesPlugin extends Plugin {
           }
 
           // Apply registry setting
-          await window.AppApi.SetVRChatRegistryKey(key, value, registryType);
-        } catch (error) {
-          this.error(`Error setting registry key ${key}:`, error);
+          await (window as any).AppApi.SetVRChatRegistryKey(key, value, registryType);
+        } catch (error: any) {
+          this.logger.error(`Error setting registry key ${key}:`, error);
         }
       }
-    } catch (error) {
-      this.error("Error applying registry settings:", error);
+    } catch (error: any) {
+      this.logger.error("Error applying registry settings:", error);
     }
   }
 
   /**
    * Get current registry value
-   * @param {string} key - Registry key name
-   * @returns {Promise<any>} Current value
+   * @param key - Registry key name
+   * @returns Current value
    */
-  async getRegistryValue(key) {
+  async getRegistryValue(key: string): Promise<any> {
     try {
-      return await window.AppApi.GetVRChatRegistryKey(key);
-    } catch (error) {
-      this.error(`Error getting registry key ${key}:`, error);
+      return await (window as any).AppApi.GetVRChatRegistryKey(key);
+    } catch (error: any) {
+      this.logger.error(`Error getting registry key ${key}:`, error);
       return null;
     }
   }
 
   /**
    * Set registry value
-   * @param {string} key - Registry key name
-   * @param {any} value - Value to set
-   * @param {number} type - Registry type (1=REG_SZ, 3=REG_DWORD)
+   * @param key - Registry key name
+   * @param value - Value to set
+   * @param type - Registry type (1=REG_SZ, 3=REG_DWORD)
    */
-  async setRegistryValue(key, value, type = 3) {
+  async setRegistryValue(key: string, value: any, type: number = 3): Promise<boolean> {
     try {
-      await window.AppApi.SetVRChatRegistryKey(key, value, type);
+      await (window as any).AppApi.SetVRChatRegistryKey(key, value, type);
       this.logger.log(`Set registry key ${key} = ${value}`);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Error setting registry key ${key}:`, error);
       return false;
     }

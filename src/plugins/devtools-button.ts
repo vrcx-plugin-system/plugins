@@ -1,4 +1,6 @@
 class DevToolsButtonPlugin extends Plugin {
+  navMenuApi: any;
+
   constructor() {
     super({
       name: "🔧 DevTools Button",
@@ -8,7 +10,7 @@ class DevToolsButtonPlugin extends Plugin {
       build: "1760450000",
       tags: ["Utility", "Developer", "Button"],
       dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/nav-menu-api.js",
+        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
       ],
     });
 
@@ -45,15 +47,15 @@ class DevToolsButtonPlugin extends Plugin {
 
   async handleOpenDevTools() {
     try {
-      if (!window.AppApi?.ShowDevTools) {
+      if (!(window as any).AppApi?.ShowDevTools) {
         this.logger.showError("Cannot open DevTools: AppApi not available");
         return;
       }
 
       this.logger.log("Opening DevTools");
-      await window.AppApi.ShowDevTools();
+      await (window as any).AppApi.ShowDevTools();
       this.logger.showSuccess("DevTools opened");
-    } catch (error) {
+    } catch (error: any) {
       this.logger.showError(`Error opening DevTools: ${error.message}`);
     }
   }

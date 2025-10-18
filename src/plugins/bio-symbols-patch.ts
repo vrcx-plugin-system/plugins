@@ -6,6 +6,11 @@
  * This happens when the function receives a non-string value (object, array, etc)
  */
 class BioSymbolsPatchPlugin extends Plugin {
+  originalFunction: Function | null;
+  originalUtils: any;
+  patched: boolean;
+  patchedViaProxy: boolean;
+
   constructor() {
     super({
       name: "🔤 Bio Symbols Patch",
@@ -58,14 +63,14 @@ class BioSymbolsPatchPlugin extends Plugin {
   patchReplaceBioSymbols() {
     try {
       // Try to find the function in utils
-      if (window.utils?.replaceBioSymbols) {
+      if ((window as any).utils?.replaceBioSymbols) {
         this.logger.log("Found replaceBioSymbols in window.utils");
-        this.patchFunction(window.utils, "replaceBioSymbols");
+        this.patchFunction((window as any).utils, "replaceBioSymbols");
         return;
       }
 
       // Try to find it in shared utils
-      const sharedUtils = window.$pinia?._s?.get?.("Utils");
+      const sharedUtils = (window as any).$pinia?._s?.get?.("Utils");
       if (sharedUtils?.replaceBioSymbols) {
         this.logger.log("Found replaceBioSymbols in pinia Utils store");
         this.patchFunction(sharedUtils, "replaceBioSymbols");
@@ -77,7 +82,7 @@ class BioSymbolsPatchPlugin extends Plugin {
         "replaceBioSymbols not found yet, will inject patched version"
       );
       this.injectPatchedFunction();
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to patch replaceBioSymbols: ${error.message}`);
     }
   }
@@ -85,7 +90,7 @@ class BioSymbolsPatchPlugin extends Plugin {
   /**
    * Patch an existing function on an object
    */
-  patchFunction(obj, funcName) {
+  patchFunction(obj: any, funcName: string) {
     try {
       // Store original
       this.originalFunction = obj[funcName];
@@ -118,7 +123,7 @@ class BioSymbolsPatchPlugin extends Plugin {
       this.patched = true;
       this.logger.log(`✓ Successfully patched ${funcName}`);
       this.logger.showSuccess("Bio symbols patch applied");
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to patch function: ${error.message}`);
     }
   }
@@ -126,14 +131,14 @@ class BioSymbolsPatchPlugin extends Plugin {
   /**
    * Patch using a Proxy wrapper (for read-only properties)
    */
-  patchViaProxy(obj, funcName, patchedFunc) {
+  patchViaProxy(obj: any, funcName: string, patchedFunc: Function) {
     try {
       // Store original object reference
       this.originalUtils = obj;
 
       // Create a Proxy that intercepts the replaceBioSymbols call
       const proxyHandler = {
-        get: (target, prop) => {
+        get: (target: any, prop: string) => {
           if (prop === funcName) {
             return patchedFunc;
           }
@@ -144,13 +149,13 @@ class BioSymbolsPatchPlugin extends Plugin {
       const proxiedUtils = new Proxy(obj, proxyHandler);
 
       // Replace window.utils with the proxy
-      window.utils = proxiedUtils;
+      (window as any).utils = proxiedUtils;
 
       this.patched = true;
       this.patchedViaProxy = true;
       this.logger.log(`✓ Successfully patched ${funcName} via Proxy`);
       this.logger.showSuccess("Bio symbols patch applied (Proxy mode)");
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to patch via Proxy: ${error.message}`);
     }
   }
@@ -158,10 +163,10 @@ class BioSymbolsPatchPlugin extends Plugin {
   /**
    * Create a patched version of the function
    */
-  createPatchedFunction(originalFunc) {
+  createPatchedFunction(originalFunc: Function | null): Function {
     const self = this;
 
-    return function patchedReplaceBioSymbols(input) {
+    return function patchedReplaceBioSymbols(input: any) {
       try {
         // Handle null/undefined
         if (input === null || input === undefined) {
@@ -198,7 +203,7 @@ class BioSymbolsPatchPlugin extends Plugin {
           // Fallback implementation if no original
           return self.replaceBioSymbolsFallback(stringInput);
         }
-      } catch (error) {
+      } catch (error: any) {
         self.logger.error(
           `Error in patched replaceBioSymbols: ${error.message}`
         );
@@ -211,12 +216,12 @@ class BioSymbolsPatchPlugin extends Plugin {
   /**
    * Fallback implementation of replaceBioSymbols
    */
-  replaceBioSymbolsFallback(str) {
+  replaceBioSymbolsFallback(str: any): string {
     if (!str || typeof str !== "string") {
       return "";
     }
 
-    const symbolMap = {
+    const symbolMap: Record<string, string> = {
       "@": "＠",
       "#": "＃",
       $: "＄",
@@ -259,13 +264,13 @@ class BioSymbolsPatchPlugin extends Plugin {
    * Inject patched function if original not found
    */
   injectPatchedFunction() {
-    if (!window.utils) {
+    if (!(window as any).utils) {
       this.logger.warn("window.utils not available, cannot inject patch");
       return;
     }
 
     // Create and inject the patched function
-    window.utils.replaceBioSymbols = this.createPatchedFunction(null);
+    (window as any).utils.replaceBioSymbols = this.createPatchedFunction(null);
     this.patched = true;
 
     this.logger.log("✓ Injected patched replaceBioSymbols into window.utils");
@@ -278,13 +283,13 @@ class BioSymbolsPatchPlugin extends Plugin {
     try {
       if (this.patchedViaProxy && this.originalUtils) {
         // Restore original utils object
-        window.utils = this.originalUtils;
+        (window as any).utils = this.originalUtils;
         this.logger.log("Restored original utils object (removed Proxy)");
         this.patchedViaProxy = false;
         this.originalUtils = null;
-      } else if (window.utils?.replaceBioSymbols && this.originalFunction) {
+      } else if ((window as any).utils?.replaceBioSymbols && this.originalFunction) {
         try {
-          window.utils.replaceBioSymbols = this.originalFunction;
+          (window as any).utils.replaceBioSymbols = this.originalFunction;
           this.logger.log("Restored original replaceBioSymbols");
         } catch (e) {
           // If can't restore, not a big deal - just log it
@@ -296,7 +301,7 @@ class BioSymbolsPatchPlugin extends Plugin {
 
       this.patched = false;
       this.originalFunction = null;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
         `Failed to restore original function: ${error.message}`
       );
@@ -310,7 +315,7 @@ class BioSymbolsPatchPlugin extends Plugin {
   /**
    * Check if the patch is currently applied
    */
-  isPatchApplied() {
+  isPatchApplied(): boolean {
     return this.patched;
   }
 

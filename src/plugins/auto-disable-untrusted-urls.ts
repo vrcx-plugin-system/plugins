@@ -1,4 +1,6 @@
 class AutoDisableUntrustedURLsPlugin extends Plugin {
+  _lastGameRunning: boolean;
+
   constructor() {
     super({
       name: "🛡️ Auto Disable Untrusted URLs",
@@ -73,7 +75,7 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
     }
 
     // Subscribe to game state changes
-    this.subscribe("GAME", ({ isGameRunning }) => {
+    this.subscribe("GAME", ({ isGameRunning }: any) => {
       // Check if game started (changed to true)
       if (isGameRunning && !this._lastGameRunning) {
         this.logger.log("Game started detected");
@@ -94,7 +96,7 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
     }
 
     // Subscribe to location changes
-    this.subscribe("LOCATION", ({ location }) => {
+    this.subscribe("LOCATION", ({ location }: any) => {
       if (!location?.location) return;
 
       const instanceType = this.getInstanceType(location.location);
@@ -117,10 +119,10 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
 
   /**
    * Determine instance type from location string
-   * @param {string} location - VRChat location string
-   * @returns {string} Instance type (public, private, friends, etc.)
+   * @param location - VRChat location string
+   * @returns Instance type (public, private, friends, etc.)
    */
-  getInstanceType(location) {
+  getInstanceType(location: string): string {
     if (!location) return "unknown";
 
     // Extract instance type from location string
@@ -136,16 +138,16 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
 
   /**
    * Set VRC_ALLOW_UNTRUSTED_URL registry setting
-   * @param {number} value - Value to set (0 = disabled, 1 = enabled)
-   * @param {string} trigger - What triggered this action
+   * @param value - Value to set (0 = disabled, 1 = enabled)
+   * @param trigger - What triggered this action
    */
-  async setUntrustedURLs(value, trigger = "MANUAL") {
+  async setUntrustedURLs(value: number, trigger: string = "MANUAL") {
     try {
       const key = "VRC_ALLOW_UNTRUSTED_URL";
       const desiredValue = value;
 
       // Get current value
-      const currentValue = await window.AppApi.GetVRChatRegistryKey(key);
+      const currentValue = await (window as any).AppApi.GetVRChatRegistryKey(key);
 
       // Skip if already set to desired value
       if (currentValue === desiredValue) {
@@ -158,9 +160,9 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
       );
 
       // Set registry value
-      await window.AppApi.SetVRChatRegistryKey(key, desiredValue, 3); // 3 = REG_DWORD
-    } catch (error) {
-      this.error("Error setting untrusted URLs:", error);
+      await (window as any).AppApi.SetVRChatRegistryKey(key, desiredValue, 3); // 3 = REG_DWORD
+    } catch (error: any) {
+      this.logger.error("Error setting untrusted URLs:", error);
     }
   }
 }
