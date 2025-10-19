@@ -75,7 +75,9 @@ Automatically checks for updates to the VRCX Plugin System core and plugins with
 2. Fetches latest release from GitHub API
 3. Compares `tag_name` with `window.customjs.build`
 4. Shows confirmation dialog if newer version found
-5. Respects dismissed versions list
+5. Opens release page in new tab if accepted
+6. Prompts to reload VRCX after download
+7. Respects dismissed versions list
 
 ### Plugin Update Checking
 
@@ -119,6 +121,28 @@ const rateLimitInfo = updateChecker.rateLimit;
 console.log(rateLimitInfo);
 // { limit: 60, remaining: 45, reset: 1234567890, used: 15 }
 ```
+
+## User Workflow
+
+### Core System Update
+
+When a core system update is detected:
+
+1. **Update dialog** appears with version info
+2. Click **"View Release"** to open GitHub release page
+3. **Download** `custom.js` from the release page
+4. **Place** it in `%APPDATA%\VRCX\` (replacing the old one)
+5. **Reload prompt** appears asking to reload VRCX
+6. Click **"Reload Now"** to apply the update immediately
+7. Or click **"Later"** and reload manually when ready
+
+### Plugin Update
+
+When plugin updates are detected:
+
+1. **Update dialog** shows list of outdated plugins
+2. Click **"Update All"** or update individually
+3. Plugins hot-reload automatically (no VRCX restart needed)
 
 ## GitHub Token Setup
 

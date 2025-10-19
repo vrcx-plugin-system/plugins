@@ -368,6 +368,21 @@ class UpdateCheckerPlugin extends CustomModule {
         if (result) {
             if (this.settings.store.openReleasePageOnUpdate || manual) {
                 window.open(release.html_url, '_blank');
+                
+                // Offer to reload the page after they download the update
+                const reloadMessage = `The release page has been opened.\n\nAfter downloading custom.js to %APPDATA%\\VRCX\\, would you like to reload VRCX to apply the update?`;
+                
+                const shouldReload = await this.showConfirmDialog(
+                    '🔄 Reload VRCX?',
+                    reloadMessage,
+                    'Reload Now',
+                    'Later'
+                );
+                
+                if (shouldReload) {
+                    this.logger.showInfo('Reloading VRCX to apply core system update...');
+                    window.location.reload();
+                }
             }
         } else {
             // User dismissed - add to dismissed list
