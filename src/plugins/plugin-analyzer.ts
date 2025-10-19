@@ -111,10 +111,28 @@ class PluginAnalyzerPlugin extends CustomModule {
       const codeMetadata = await CustomModuleClass.fetchMetadata(pluginUrl);
 
       if (codeMetadata) {
+        // Fetch both minified and source code
+        let minifiedCode = codeMetadata.sourceCode;
+        let originalCode = null;
+        
+        if (sourceUrl) {
+          try {
+            const sourceResponse = await fetch(sourceUrl + '?v=' + Date.now());
+            if (sourceResponse.ok) {
+              originalCode = await sourceResponse.text();
+              this.logger.log(`✓ Fetched original source (${originalCode.length} bytes)`);
+            }
+          } catch (err) {
+            this.logger.warn(`Failed to fetch original source: ${err instanceof Error ? err.message : String(err)}`);
+          }
+        }
+        
         // Merge repo metadata with code analysis and runtime info
         const metadata = {
           ...codeMetadata,
           sourceUrl: sourceUrl || codeMetadata.sourceUrl,
+          minifiedCode: minifiedCode,
+          originalCode: originalCode,
           repoData: repoMetadata,
           loadedModule: loadedModule,
           isLoaded: !!loadedModule,
@@ -130,9 +148,8 @@ class PluginAnalyzerPlugin extends CustomModule {
       }
     } catch (error: any) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-
       this.logger.error(`Error analyzing plugin: ${errorMsg}`);
-      this.logger.showError(`Analysis error: ${error.message}`);
+      this.logger.showError(`Analysis error: ${errorMsg}`);
     }
   }
 
@@ -212,7 +229,10 @@ class PluginAnalyzerPlugin extends CustomModule {
       {
         title: "Code Metrics",
         data: {
-          Size: metadata.sizeFormatted,
+          "Minified Size": this.formatBytes(metadata.minifiedCode?.length || 0),
+          "Original Size": metadata.originalCode ? this.formatBytes(metadata.originalCode.length) : "N/A",
+          "Size Reduction": metadata.originalCode ? 
+            `${Math.round((1 - (metadata.minifiedCode?.length || 0) / metadata.originalCode.length) * 100)}%` : "N/A",
           "Line Count": metadata.lineCount,
           "Function Count": metadata.functionCount,
           "Event Handlers": metadata.eventHandlerCount,
@@ -285,8 +305,8 @@ class PluginAnalyzerPlugin extends CustomModule {
       container.appendChild(sectionEl);
     });
 
-    // Source code section
-    if (metadata.sourceCode) {
+    // Source code section with tabs for minified and original
+    if (metadata.minifiedCode || metadata.originalCode) {
       const sourceSection = document.createElement("div");
       sourceSection.style.cssText = "margin-top: 20px;";
 
@@ -295,8 +315,28 @@ class PluginAnalyzerPlugin extends CustomModule {
         "margin: 0 0 10px 0; color: #409eff; font-size: 14px; text-transform: uppercase;";
       sourceHeader.textContent = "Source Code";
 
-      const sourceCode = document.createElement("pre");
-      sourceCode.style.cssText = `
+      // Tab container
+      const tabContainer = document.createElement("div");
+      tabContainer.style.cssText = "display: flex; gap: 10px; margin-bottom: 10px;";
+
+      // Minified tab button
+      const minifiedTab = document.createElement("button");
+      minifiedTab.className = "el-button el-button--small el-button--primary";
+      minifiedTab.textContent = `Minified (${this.formatBytes(metadata.minifiedCode?.length || 0)})`;
+      minifiedTab.style.cssText = "flex: 1;";
+
+      // Original tab button (if available)
+      let originalTab: HTMLButtonElement | null = null;
+      if (metadata.originalCode) {
+        originalTab = document.createElement("button");
+        originalTab.className = "el-button el-button--small";
+        originalTab.textContent = `Original (${this.formatBytes(metadata.originalCode.length)})`;
+        originalTab.style.cssText = "flex: 1;";
+      }
+
+      // Code containers
+      const minifiedPre = document.createElement("pre");
+      minifiedPre.style.cssText = `
         background: #1e1e1e;
         padding: 15px;
         border-radius: 4px;
@@ -306,15 +346,68 @@ class PluginAnalyzerPlugin extends CustomModule {
         font-size: 12px;
         color: #d4d4d4;
         line-height: 1.5;
+        display: block;
       `;
-      sourceCode.textContent = metadata.sourceCode;
+      minifiedPre.textContent = metadata.minifiedCode || '';
 
+      let originalPre: HTMLPreElement | null = null;
+      if (metadata.originalCode) {
+        originalPre = document.createElement("pre");
+        originalPre.style.cssText = `
+          background: #1e1e1e;
+          padding: 15px;
+          border-radius: 4px;
+          overflow-x: auto;
+          max-height: 400px;
+          font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+          font-size: 12px;
+          color: #d4d4d4;
+          line-height: 1.5;
+          display: none;
+        `;
+        originalPre.textContent = metadata.originalCode;
+      }
+
+      // Tab switching logic
+      this.registerListener(minifiedTab, 'click', () => {
+        minifiedTab.className = "el-button el-button--small el-button--primary";
+        if (originalTab) originalTab.className = "el-button el-button--small";
+        minifiedPre.style.display = 'block';
+        if (originalPre) originalPre.style.display = 'none';
+      });
+
+      if (originalTab && originalPre) {
+        this.registerListener(originalTab, 'click', () => {
+          originalTab!.className = "el-button el-button--small el-button--primary";
+          minifiedTab.className = "el-button el-button--small";
+          minifiedPre.style.display = 'none';
+          originalPre!.style.display = 'block';
+        });
+      }
+
+      // Build section
       sourceSection.appendChild(sourceHeader);
-      sourceSection.appendChild(sourceCode);
+      tabContainer.appendChild(minifiedTab);
+      if (originalTab) tabContainer.appendChild(originalTab);
+      sourceSection.appendChild(tabContainer);
+      sourceSection.appendChild(minifiedPre);
+      if (originalPre) sourceSection.appendChild(originalPre);
+      
       container.appendChild(sourceSection);
     }
 
     return container;
+  }
+
+  /**
+   * Format bytes to human-readable size
+   */
+  formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   }
 
   /**

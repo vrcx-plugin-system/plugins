@@ -60,7 +60,7 @@ class UpdateCheckerPlugin extends CustomModule {
                 title: 'Check Core Updates',
                 color: 'primary',
                 icon: 'ri-refresh-line',
-                description: 'Manually check for VRCX core system updates',
+                description: 'Manually check for core system updates',
                 callback: async () => {
                     await this.checkCoreUpdate(true);
                 }
@@ -105,7 +105,7 @@ class UpdateCheckerPlugin extends CustomModule {
             // Core update checking
             checkCoreOnStartup: {
                 type: SettingType.BOOLEAN,
-                description: 'Automatically check for VRCX core system updates when the application starts',
+                description: 'Automatically check for core system updates when the application starts',
                 default: true
             },
             coreCheckInterval: {
@@ -336,7 +336,7 @@ class UpdateCheckerPlugin extends CustomModule {
                 if (isDismissed) {
                     this.logger.showInfo(`Update ${latestVersion} was previously dismissed. Current: ${currentBuild}`);
                 } else {
-                    this.logger.showSuccess(`VRCX is up to date (build ${currentBuild})`);
+                    this.logger.showSuccess(`Plugin System is up to date (build ${currentBuild})`);
                 }
             }
         } catch (error) {
@@ -352,16 +352,16 @@ class UpdateCheckerPlugin extends CustomModule {
 
     private async showCoreUpdateNotification(release: GitHubRelease, manual: boolean): Promise<void> {
         const currentBuild = (window as any).customjs?.build || 0;
-        const message = `A new version of VRCX is available!\n\nCurrent: ${currentBuild}\nLatest: ${release.tag_name}\n\nReleased: ${new Date(release.published_at).toLocaleString()}`;
+        const message = `A new version of the VRCX Plugin System is available!\n\nCurrent: ${currentBuild}\nLatest: ${release.tag_name}\n\nReleased: ${new Date(release.published_at).toLocaleString()}`;
         
         if (this.settings.store.showCoreNotification || manual) {
-            this.logger.showInfo('New VRCX update available: ' + release.tag_name);
+            this.logger.showInfo('New VRCX Plugin System update available: ' + release.tag_name);
         }
         
         const dialogApi = (window as any).customjs?.getModule('dialog-api');
         if (dialogApi) {
             const result = await (dialogApi as any).showConfirm({
-                title: '🔄 VRCX Update Available',
+                title: '🔄 VRCX Plugin System Update Available',
                 message: message,
                 confirmText: 'View Release',
                 cancelText: 'Dismiss',
@@ -589,8 +589,8 @@ class UpdateCheckerPlugin extends CustomModule {
             `Resets in: ${minutesUntilReset} minutes`,
             `Reset time: ${resetTime.toLocaleTimeString()}`,
             ``,
-            hasToken ? `✓ Using personal access token` : `⚠ No token configured (60 req/hour limit)`
-        ].join('\n');
+            hasToken ? `✓ Using personal access token` : `⚠ No token (60 req/hour limit)`
+        ].join('</br>');
         
         this.logger.showInfo(message);
     }
