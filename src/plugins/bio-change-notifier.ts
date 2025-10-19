@@ -12,7 +12,7 @@ class BioChangeNotifierPlugin extends Plugin {
           name: "Bluscream",
         }
       ],
-      build: "1760844638",
+      build: "1760846455",
       tags: ["Notifications", "Social"],
       dependencies: [],
     });

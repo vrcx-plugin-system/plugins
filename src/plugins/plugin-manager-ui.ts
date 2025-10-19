@@ -12,7 +12,7 @@ class PluginManagerUIPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760768627",
+      build: "1760846455",
       tags: ["UI", "Core", "Settings"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
