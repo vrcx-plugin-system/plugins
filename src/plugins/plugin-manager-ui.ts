@@ -437,6 +437,21 @@ class PluginManagerUIPlugin extends CustomModule {
       await this.handleToggleRepository(repo.url, !repo.enabled);
     });
 
+    // Copy URL button
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "el-button el-button--small";
+    copyBtn.innerHTML = '<i class="ri-file-copy-line"></i>';
+    copyBtn.title = "Copy repository URL";
+    this.registerListener(copyBtn, "click", async (e) => {
+      e.stopPropagation();
+      try {
+        await navigator.clipboard.writeText(repo.url);
+        this.logger.showSuccess(`Copied URL: ${repo.url}`);
+      } catch (error) {
+        this.logger.showError("Failed to copy URL");
+      }
+    });
+
     // Refresh button
     const refreshBtn = document.createElement("button");
     refreshBtn.className = "el-button el-button--small el-button--info";
@@ -458,6 +473,7 @@ class PluginManagerUIPlugin extends CustomModule {
     });
 
     actionsSection.appendChild(switchContainer);
+    actionsSection.appendChild(copyBtn);
     actionsSection.appendChild(refreshBtn);
     actionsSection.appendChild(removeBtn);
 
