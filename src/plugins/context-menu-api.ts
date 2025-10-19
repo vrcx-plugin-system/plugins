@@ -1,5 +1,11 @@
 // 
 class ContextMenuApiPlugin extends CustomModule {
+  menuTypes: string[];
+  items: Map<string, Map<string, any>>;
+  menuContainers: Map<string, any>;
+  processedMenus: Set<string>;
+  debounceTimers: Map<string, any>;
+
   constructor() {
     super({
       name: "📋 Context Menu API",
@@ -13,19 +19,10 @@ class ContextMenuApiPlugin extends CustomModule {
       dependencies: [],
     });
 
-    // Supported menu types
     this.menuTypes = ["user", "world", "avatar", "group", "instance"];
-
-    // Map of menuType -> Map of itemId -> item
     this.items = new Map();
-
-    // Map of menuId -> { menuType, container }
     this.menuContainers = new Map();
-
-    // Set of processed menu IDs
     this.processedMenus = new Set();
-
-    // Map of menuId -> debounce timer ID
     this.debounceTimers = new Map();
   }
 
@@ -219,7 +216,7 @@ class ContextMenuApiPlugin extends CustomModule {
     )
       .filter(
         (el) =>
-          el.style.display !== "none" &&
+          (el as HTMLElement).style.display !== "none" &&
           el.getAttribute("aria-hidden") !== "true"
       )
       .sort((a, b) => {
@@ -248,18 +245,18 @@ class ContextMenuApiPlugin extends CustomModule {
     if (!triggerButton) {
       // Find all visible dialogs
       const dialogs = [
-        ...document.querySelectorAll(".x-user-dialog"),
-        ...document.querySelectorAll(".x-avatar-dialog"),
-        ...document.querySelectorAll(".x-world-dialog"),
-        ...document.querySelectorAll(".x-group-dialog"),
-      ].filter((d) => window.getComputedStyle(d).display !== "none");
+        ...Array.from(document.querySelectorAll(".x-user-dialog")),
+        ...Array.from(document.querySelectorAll(".x-avatar-dialog")),
+        ...Array.from(document.querySelectorAll(".x-world-dialog")),
+        ...Array.from(document.querySelectorAll(".x-group-dialog")),
+      ].filter((d) => window.getComputedStyle(d as Element).display !== "none");
 
       // Find dropdown trigger buttons in visible dialogs
       for (const dialog of dialogs) {
         const buttons = dialog.querySelectorAll(
           "button[aria-controls], button.el-dropdown__caret-button"
         );
-        for (const btn of buttons) {
+        for (const btn of Array.from(buttons)) {
           // Check if this button's dropdown is the one we're looking at
           const rect = btn.getBoundingClientRect();
           const dropdownRect = highestDropdown.getBoundingClientRect();
@@ -529,8 +526,8 @@ class ContextMenuApiPlugin extends CustomModule {
         if (element) {
           // Update text
           const textNode = Array.from(element.childNodes).find(
-            (node) => node.nodeType === Node.TEXT_NODE
-          );
+            (node) => (node as Node).nodeType === Node.TEXT_NODE
+          ) as Node;
           if (textNode) {
             textNode.textContent = item.text;
           }
