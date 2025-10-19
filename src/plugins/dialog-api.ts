@@ -141,6 +141,9 @@ class DialogApiPlugin extends CustomModule {
       return false;
     }
 
+    // Set visible BEFORE rendering so display style is correct
+    dialog.visible = true;
+
     // Call onOpen callback
     if (dialog.onOpen) {
       try {
@@ -153,7 +156,6 @@ class DialogApiPlugin extends CustomModule {
     // Create or update the dialog element
     this.renderDialog(dialogId);
 
-    dialog.visible = true;
     this.logger.log(`Showing dialog: ${dialogId}`);
     return true;
   }
