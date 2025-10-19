@@ -1,0 +1,30 @@
+(()=>{var d=Object.defineProperty;var r=(c,t)=>d(c,"name",{value:t,configurable:!0});const a=class a extends CustomModule{constructor(){super({name:"\u{1F9EA} Dialog API Test",description:"Test plugin to demonstrate Dialog API functionality",authors:[{name:"Bluscream"}],tags:["Test","Example","Dialog"],dependencies:[]})}async load(){const t=window.customjs.types.SettingType;this.settings=this.defineSettings({showOnLogin:{type:t.BOOLEAN,description:"Show test dialog on login",default:!1}}),this.logger.log("Dialog API Test plugin ready"),this.loaded=!0}async start(){if(this.dialogApi=await window.customjs.waitForModule("dialog-api"),!this.dialogApi){this.logger.error("Dialog API not found! Please enable the Dialog API plugin.");return}this.registerExampleDialogs(),this.enabled=!0,this.started=!0,this.logger.log("Dialog API Test plugin started")}async onLogin(t){if(this.settings.store.showOnLogin){const i=this.dialogApi.registerDialog("dialog-test-welcome",{title:`Welcome ${t.displayName}! \u{1F44B}`,content:`
+          <div style="text-align: center; padding: 20px;">
+            <h2 style="color: #409eff; margin-bottom: 15px;">Dialog API Test</h2>
+            <p style="margin-bottom: 10px;">This is a custom dialog created using the Dialog API!</p>
+            <p style="color: #909399; font-size: 12px;">This dialog appears because "Show on Login" is enabled in settings.</p>
+          </div>
+        `,width:"500px",footer:`
+          <button class="el-button el-button--primary" onclick="window.customjs.getModule('dialog-api').closeDialog('dialog-test-welcome')">
+            <span>Got it!</span>
+          </button>
+        `});setTimeout(()=>i.show(),2e3)}}async stop(){this.logger.log("Stopping Dialog API Test"),this.dialogApi&&(this.dialogApi.destroyDialog("dialog-test-simple"),this.dialogApi.destroyDialog("dialog-test-custom"),this.dialogApi.destroyDialog("dialog-test-fullscreen"),this.dialogApi.destroyDialog("dialog-test-welcome")),await super.stop()}registerExampleDialogs(){const t=this.dialogApi.registerDialog("dialog-test-simple",{title:"\u{1F4DD} Simple Dialog",content:`
+        <div style="padding: 10px;">
+          <p>This is a simple dialog with default options.</p>
+          <p style="color: #909399; font-size: 12px; margin-top: 10px;">
+            Features: Close button, modal backdrop, ESC to close, click outside to close
+          </p>
+        </div>
+      `,width:"400px"});this.logger.log("Registered simple dialog");const i=this.dialogApi.registerDialog("dialog-test-custom",{title:"\u{1F3A8} Custom Styled Dialog",width:"600px",content:this.createCustomContent(),footer:this.createCustomFooter(),onOpen:()=>{this.logger.log("Custom dialog opened!")},onClose:()=>{this.logger.log("Custom dialog closed!")}});this.logger.log("Registered custom dialog");const s=this.dialogApi.registerDialog("dialog-test-fullscreen",{title:"\u{1F5A5}\uFE0F Fullscreen Dialog",content:`
+        <div style="padding: 20px;">
+          <h3 style="color: #67c23a; margin-bottom: 15px;">Fullscreen Mode</h3>
+          <p>This dialog takes up the entire screen.</p>
+          <p style="margin-top: 10px;">You can use this for:</p>
+          <ul style="margin-left: 20px; margin-top: 5px;">
+            <li>Image viewers</li>
+            <li>Detailed forms</li>
+            <li>Rich content displays</li>
+            <li>Settings panels</li>
+          </ul>
+        </div>
+      `,fullscreen:!0,draggable:!1});this.logger.log("Registered fullscreen dialog"),this.logger.log("\u{1F4CB} Test dialogs registered. Try these commands:"),this.logger.log("  window.customjs.getModule('dialog-api').showDialog('dialog-test-simple')"),this.logger.log("  window.customjs.getModule('dialog-api').showDialog('dialog-test-custom')"),this.logger.log("  window.customjs.getModule('dialog-api').showDialog('dialog-test-fullscreen')")}createCustomContent(){const t=document.createElement("div");t.style.cssText="padding: 15px;";const i=document.createElement("h3");i.textContent="Interactive Content",i.style.cssText="color: #409eff; margin-bottom: 15px;",t.appendChild(i);const s=document.createElement("p");s.textContent="This dialog has custom HTML content with interactive elements:",s.style.cssText="margin-bottom: 15px;",t.appendChild(s);const l=document.createElement("button");l.className="el-button el-button--success",l.innerHTML="<span>Click Me!</span>",l.style.cssText="margin-right: 10px;",this.registerListener(l,"click",()=>{this.logger.showSuccess("Button clicked!")}),t.appendChild(l);const e=document.createElement("input");e.className="el-input__inner",e.placeholder="Type something...",e.style.cssText="width: 200px; margin-right: 10px;",t.appendChild(e);const o=document.createElement("button");return o.className="el-button el-button--primary",o.innerHTML="<span>Log Input</span>",this.registerListener(o,"click",()=>{const g=e.value;g?this.logger.log(`Input value: ${g}`):this.logger.showWarning("Please enter some text first")}),t.appendChild(o),t}createCustomFooter(){const t=document.createElement("div");t.style.cssText="display: flex; justify-content: space-between;";const i=document.createElement("div"),s=document.createElement("button");s.className="el-button el-button--info",s.innerHTML="<span>Info</span>",this.registerListener(s,"click",()=>{this.logger.showInfo("This is a custom footer with multiple actions!")}),i.appendChild(s);const l=document.createElement("div"),e=document.createElement("button");e.className="el-button",e.innerHTML="<span>Cancel</span>",this.registerListener(e,"click",()=>{this.dialogApi.closeDialog("dialog-test-custom")});const o=document.createElement("button");return o.className="el-button el-button--primary",o.innerHTML="<span>Confirm</span>",o.style.cssText="margin-left: 10px;",this.registerListener(o,"click",()=>{this.logger.showSuccess("Confirmed!"),this.dialogApi.closeDialog("dialog-test-custom")}),l.appendChild(e),l.appendChild(o),t.appendChild(i),t.appendChild(l),t}};r(a,"DialogApiTestPlugin");let n=a;window.customjs.__LAST_PLUGIN_CLASS__=n;})();

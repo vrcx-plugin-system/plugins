@@ -1,5 +1,11 @@
 // 
 class NavMenuApiPlugin extends CustomModule {
+  customItems: Map<string, any>;
+  contentContainers: Map<string, HTMLElement>;
+  navMenu: HTMLElement | null;
+  contentParent: HTMLElement | null;
+  currentActiveIndex: string | null;
+
   constructor() {
     super({
       name: "🧭 Navigation Menu API",
@@ -72,7 +78,7 @@ class NavMenuApiPlugin extends CustomModule {
   }
 
   async waitForNavMenu() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       let attempts = 0;
       const maxAttempts = 50; // 5 seconds max wait for items
 
@@ -106,7 +112,7 @@ class NavMenuApiPlugin extends CustomModule {
   }
 
   async setupContentArea() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       const findContentArea = () => {
         this.contentParent = document.querySelector(".el-splitter");
 
@@ -177,7 +183,7 @@ class NavMenuApiPlugin extends CustomModule {
       vrcxContainers.forEach((container) => {
         // Only hide if it's not a custom container
         if (!container.id || !container.id.startsWith("custom-nav-content-")) {
-          container.style.display = "none";
+          (container as HTMLElement).style.display = "none";
         }
       });
     }
@@ -187,7 +193,7 @@ class NavMenuApiPlugin extends CustomModule {
       const isActive = activeIndex === itemId;
       const wasActive = previousIndex === itemId;
 
-      container.style.display = isActive ? "block" : "none";
+      (container as HTMLElement).style.display = isActive ? "block" : "none";
 
       // Fire lifecycle callbacks
       if (isActive && !wasActive) {
@@ -420,7 +426,7 @@ class NavMenuApiPlugin extends CustomModule {
     if (item.position !== null || item.before || item.after) {
       const navItems = this.navMenu.querySelectorAll(".el-menu-item");
       const vrcxItems = Array.from(navItems).filter(
-        (el) => !el.hasAttribute("data-custom-nav-item")
+        (el: Element) => !el.hasAttribute("data-custom-nav-item")
       );
 
       if (vrcxItems.length === 0) {
@@ -494,14 +500,14 @@ class NavMenuApiPlugin extends CustomModule {
           vrcxContainers.forEach((container) => {
             // Only hide VRCX native containers, not custom ones
             if (!container.id || !container.id.startsWith("custom-nav-content-")) {
-              container.style.display = "none";
+              (container as HTMLElement).style.display = "none";
             }
           });
         }
 
         // Hide all custom content containers
         this.contentContainers.forEach((container) => {
-          container.style.display = "none";
+          (container as HTMLElement).style.display = "none";
         });
 
         // Show the content for this item
@@ -569,7 +575,7 @@ class NavMenuApiPlugin extends CustomModule {
     } else if (item.before) {
       // Insert before a specific item
       const allItems = this.navMenu.querySelectorAll(".el-menu-item");
-      for (const existingItem of allItems) {
+      for (const existingItem of Array.from(allItems)) {
         const index = existingItem.getAttribute("index");
         if (index === item.before) {
           referenceNode = existingItem;
@@ -579,7 +585,7 @@ class NavMenuApiPlugin extends CustomModule {
     } else if (item.after) {
       // Insert after a specific item
       const allItems = this.navMenu.querySelectorAll(".el-menu-item");
-      for (const existingItem of allItems) {
+      for (const existingItem of Array.from(allItems)) {
         const index = existingItem.getAttribute("index");
         if (index === item.after) {
           referenceNode = existingItem.nextSibling;

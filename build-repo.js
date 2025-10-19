@@ -24,6 +24,7 @@ const DEFAULT_ENABLED = [
   "user-badge-pipeline-patch",
   "context-menu-api",
   "nav-menu-api",
+  "dialog-api",
   "invite-message-api",
   "plugin-manager-ui",
 ];
