@@ -7,64 +7,114 @@
       "description": "Repository maintainer"
     }
   ],
-  "build": "1760849578074",
+  "build": "1760855944974",
   "url": "https://github.com/vrcx-plugin-system/plugins",
   "modules": [
     {
+      "id": "registry-overrides",
+      "name": "⚙️ Registry Overrides",
+      "description": "VRChat registry settings management with event-based triggers (disabled by default)",
+      "authors": [
+        {
+          "name": "Bluscream"
+        }
+      ],
+      "build": "1760855376",
+      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/registry-overrides.js",
+      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/registry-overrides.ts",
+      "tags": [
+        "Game",
+        "Config",
+        "Automation"
+      ],
+      "enabled": false
+    },
+    {
+      "id": "invite-message-api",
+      "name": "✉️ Invite Message API",
+      "description": "API for managing and rotating custom invite messages with cooldown tracking",
+      "authors": [
+        {
+          "name": "Bluscream"
+        }
+      ],
+      "build": "1760855376",
+      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/invite-message-api.js",
+      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/invite-message-api.ts",
+      "tags": [
+        "API",
+        "Social",
+        "Library"
+      ],
+      "enabled": true
+    },
+    {
       "id": "user-badge-pipeline-patch",
-      "name": "\\u{1F396}\\uFE0F User Badge Pipeline Patch",
+      "name": "🎖️ User Badge Pipeline Patch",
       "description": "Adds support for user-badge-assigned pipeline events and displays badge notifications",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/user-badge-pipeline-patch.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/user-badge-pipeline-patch.ts",
-      "tags": ["Bugfix", "Notifications", "Patch", "Fix"],
+      "tags": [
+        "Bugfix",
+        "Notifications",
+        "Patch",
+        "Fix"
+      ],
       "enabled": true
     },
     {
       "id": "start-game-button",
-      "name": "\\u{1F3AE} Start Game Button",
+      "name": "🎮 Start Game Button",
       "description": "Adds a button to the navigation menu to start VRChat with VRCX settings",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/start-game-button.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/start-game-button.ts",
-      "tags": ["Utility", "Game", "Button"],
+      "tags": [
+        "Utility",
+        "Game",
+        "Button"
+      ],
       "enabled": false
     },
     {
       "id": "tag-manager",
-      "name": "\\u{1F3F7}\\{uFE0F} Tag Manager",
+      "name": "🏷️ Tag Manager",
       "description": "Custom user tags management with URL-based loading",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/tag-manager.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/tag-manager.ts",
-      "tags": ["Social", "Enhancement"],
+      "tags": [
+        "Social",
+        "Enhancement"
+      ],
       "enabled": false
     },
     {
       "id": "debug",
-      "name": "\\u{1F41B} Debug Plugin",
+      "name": "🐛 Debug Plugin",
       "description": "Debug utilities, IPC logging, global scope search, and console commands for development",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/debug.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/debug.ts",
       "tags": [],
@@ -72,44 +122,50 @@
     },
     {
       "id": "auto-follow",
-      "name": "\\u{1F465} Auto Follow",
+      "name": "👥 Auto Follow",
       "description": "Automatically sends you invites when followed users join worlds (or requests invites for private instances)",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-follow.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/auto-follow.ts",
-      "tags": ["Automation", "Social"],
+      "tags": [
+        "Automation",
+        "Social"
+      ],
       "enabled": false
     },
     {
       "id": "monitor-invisibleplayers",
-      "name": "\\u{1F47B} Invisible Players Monitor",
+      "name": "👻 Invisible Players Monitor",
       "description": "Detects and notifies when potentially invisible players are in your instance",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/monitor-invisibleplayers.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/monitor-invisibleplayers.ts",
-      "tags": ["Monitor", "Security"],
+      "tags": [
+        "Monitor",
+        "Security"
+      ],
       "enabled": false
     },
     {
       "id": "template",
-      "name": "\\u{1F4C4} Template Plugin",
+      "name": "📄 Template Plugin",
       "description": "Example plugin demonstrating all available features and lifecycle events",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/template.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/template.ts",
       "tags": [],
@@ -117,273 +173,304 @@
     },
     {
       "id": "context-menu-api",
-      "name": "\\u{1F4CB} Context Menu API",
+      "name": "📋 Context Menu API",
       "description": "Custom context menu management for VRCX dialogs",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/context-menu-api.ts",
-      "tags": ["API", "Core", "Context", "Library"],
+      "tags": [
+        "API",
+        "Core",
+        "Context",
+        "Library"
+      ],
       "enabled": true
     },
     {
       "id": "bio-updater",
-      "name": "\\u{1F4DD} Bio Updater",
+      "name": "📝 Bio Updater",
       "description": "Automatic bio updating with user statistics and custom templates",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-updater.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/bio-updater.ts",
-      "tags": ["Automation", "Social"],
+      "tags": [
+        "Automation",
+        "Social"
+      ],
       "enabled": false
     },
     {
       "id": "auto-invite",
-      "name": "\\u{1F4E8} Auto Invite Manager",
+      "name": "📨 Auto Invite Manager",
       "description": "Automatic user invitation system with location tracking and custom messages",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-invite.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/auto-invite.ts",
-      "tags": ["Automation", "Social"],
+      "tags": [
+        "Automation",
+        "Social"
+      ],
       "enabled": false
     },
     {
       "id": "avatar-log",
-      "name": "\\u{1F4F8} Avatar Logger",
+      "name": "📸 Avatar Logger",
       "description": "Logs and submits avatar IDs to various avatar database providers (avtrDB, NSVR, PAW, VRCDB, VRCWB)",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/avatar-log.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/avatar-log.ts",
-      "tags": ["Logger", "Database", "Integration"],
+      "tags": [
+        "Logger",
+        "Database",
+        "Integration"
+      ],
       "enabled": false
     },
     {
       "id": "api-retry-patch",
-      "name": "\\u{1F504} API Retry Patch",
+      "name": "🔄 API Retry Patch",
       "description": "Automatically retries failed API requests for transient network errors",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/api-retry-patch.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/api-retry-patch.ts",
-      "tags": ["Network", "API", "Utility", "Patch", "Fix"],
+      "tags": [
+        "Network",
+        "API",
+        "Utility",
+        "Patch",
+        "Fix"
+      ],
       "enabled": true
     },
     {
       "id": "bio-change-notifier",
-      "name": "\\u{1F514} Bio Change Notifier",
+      "name": "🔔 Bio Change Notifier",
       "description": "Get notified when friends change their bio with a detailed diff view",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-change-notifier.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/bio-change-notifier.ts",
-      "tags": ["Notifications", "Social"],
+      "tags": [
+        "Notifications",
+        "Social"
+      ],
       "enabled": false
     },
     {
       "id": "protocol-links",
-      "name": "\\u{1F517} VRCX Protocol Links",
+      "name": "🔗 VRCX Protocol Links",
       "description": "Adds context menu items to copy VRCX protocol links for users, avatars, worlds, groups, and instances",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/protocol-links.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/protocol-links.ts",
-      "tags": ["Utility", "Integration"],
+      "tags": [
+        "Utility",
+        "Integration"
+      ],
       "enabled": false
     },
     {
       "id": "bio-symbols-patch",
-      "name": "\\u{1F524} Bio Symbols Patch",
+      "name": "🔤 Bio Symbols Patch",
       "description": "Patches replaceBioSymbols function to handle non-string inputs safely",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-symbols-patch.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/bio-symbols-patch.ts",
-      "tags": ["Bugfix", "Utility", "Patch", "Fix"],
+      "tags": [
+        "Bugfix",
+        "Utility",
+        "Patch",
+        "Fix"
+      ],
       "enabled": true
     },
     {
       "id": "devtools-button",
-      "name": "\\u{1F527} DevTools Button",
+      "name": "🔧 DevTools Button",
       "description": "Adds a button to the navigation menu to open browser DevTools",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/devtools-button.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/devtools-button.ts",
-      "tags": ["Utility", "Developer", "Button"],
-      "enabled": false
-    },
-    {
-      "id": "yoinker-detector",
-      "name": "\\u{1F6A8} Yoinker Detector",
-      "description": "Automatically checks users against yoinker detection database and applies tags + notifications",
-      "authors": [
-        {
-          "name": "Bluscream"
-        }
+      "tags": [
+        "Utility",
+        "Developer",
+        "Button"
       ],
-      "build": "1760849507",
-      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/yoinker-detector.js",
-      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/yoinker-detector.ts",
-      "tags": ["Security", "Social", "Integration"],
-      "enabled": false
-    },
-    {
-      "id": "selfinvite-onblockedplayer",
-      "name": "\\u{1F6AB} Self Invite on Blocked Player",
-      "description": "Automatically creates a self-invite to a new instance when a blocked player joins your current instance",
-      "authors": [
-        {
-          "name": "Bluscream"
-        }
-      ],
-      "build": "1760849507",
-      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/selfinvite-onblockedplayer.js",
-      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/selfinvite-onblockedplayer.ts",
-      "tags": ["Automation", "Security"],
-      "enabled": false
-    },
-    {
-      "id": "auto-disable-untrusted-urls",
-      "name": "\\u{1F6E1}\\uFE0F Auto Disable Untrusted URLs",
-      "description": "Automatically disables VRChat",
-      "authors": [
-        {
-          "name": "Bluscream"
-        }
-      ],
-      "build": "1760849506",
-      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-disable-untrusted-urls.js",
-      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/auto-disable-untrusted-urls.ts",
-      "tags": ["Security", "Automation"],
       "enabled": false
     },
     {
       "id": "plugin-manager-ui",
-      "name": "\\u{1F9E9} Plugin Manager UI",
+      "name": "🧩 Plugin Manager UI",
       "description": "Visual UI for managing VRCX custom plugins - Equicord inspired",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/plugin-manager-ui.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/plugin-manager-ui.ts",
-      "tags": ["UI", "Core", "Settings"],
+      "tags": [
+        "UI",
+        "Core",
+        "Settings"
+      ],
       "enabled": true
     },
     {
       "id": "logger-test",
-      "name": "\\u{1F9EA} Logger Tester",
+      "name": "🧪 Logger Tester",
       "description": "Test different VRCX notification and logging methods",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/logger-test.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/logger-test.ts",
-      "tags": ["Debug", "Utility"],
+      "tags": [
+        "Debug",
+        "Utility"
+      ],
       "enabled": false
     },
     {
       "id": "nav-menu-test",
-      "name": "\\u{1F9EA} Nav Menu API Test",
+      "name": "🧪 Nav Menu API Test",
       "description": "Test plugin to verify nav-menu-api functionality with extensive debug logging",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-test.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/nav-menu-test.ts",
-      "tags": ["Debug", "Experimental"],
+      "tags": [
+        "Debug",
+        "Experimental"
+      ],
       "enabled": false
     },
     {
       "id": "nav-menu-api",
-      "name": "\\u{1F9ED} Navigation Menu API",
+      "name": "🧭 Navigation Menu API",
       "description": "API for adding custom navigation menu items to VRCX",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
+      "build": "1760855376",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/nav-menu-api.ts",
-      "tags": ["API", "Core", "Navigation", "Library"],
+      "tags": [
+        "API",
+        "Core",
+        "Navigation",
+        "Library"
+      ],
       "enabled": true
     },
     {
-      "id": "registry-overrides",
-      "name": "\\u2699\\uFE0F Registry Overrides",
-      "description": "VRChat registry settings management with event-based triggers (disabled by default)",
+      "id": "yoinker-detector",
+      "name": "🚨 Yoinker Detector",
+      "description": "Automatically checks users against yoinker detection database and applies tags + notifications",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849507",
-      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/registry-overrides.js",
-      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/registry-overrides.ts",
-      "tags": ["Game", "Config", "Automation"],
+      "build": "1760855376",
+      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/yoinker-detector.js",
+      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/yoinker-detector.ts",
+      "tags": [
+        "Security",
+        "Social",
+        "Integration"
+      ],
       "enabled": false
     },
     {
-      "id": "invite-message-api",
-      "name": "\\u2709\\uFE0F Invite Message API",
-      "description": "API for managing and rotating custom invite messages with cooldown tracking",
+      "id": "selfinvite-onblockedplayer",
+      "name": "🚫 Self Invite on Blocked Player",
+      "description": "Automatically creates a self-invite to a new instance when a blocked player joins your current instance",
       "authors": [
         {
           "name": "Bluscream"
         }
       ],
-      "build": "1760849506",
-      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/invite-message-api.js",
-      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/invite-message-api.ts",
-      "tags": ["API", "Social", "Library"],
-      "enabled": true
+      "build": "1760855376",
+      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/selfinvite-onblockedplayer.js",
+      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/selfinvite-onblockedplayer.ts",
+      "tags": [
+        "Automation",
+        "Security"
+      ],
+      "enabled": false
+    },
+    {
+      "id": "auto-disable-untrusted-urls",
+      "name": "🛡️ Auto Disable Untrusted URLs",
+      "description": "Automatically disables VRChat",
+      "authors": [
+        {
+          "name": "Bluscream"
+        }
+      ],
+      "build": "1760855376",
+      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-disable-untrusted-urls.js",
+      "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/auto-disable-untrusted-urls.ts",
+      "tags": [
+        "Security",
+        "Automation"
+      ],
+      "enabled": false
     }
   ]
 }

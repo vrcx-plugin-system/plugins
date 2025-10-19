@@ -56,10 +56,18 @@ function extractPluginMetadata(filePath, fileName) {
       enabled: DEFAULT_ENABLED.includes(pluginId),
     };
 
-    // Extract name (handles minified code)
+    // Extract name (handles minified code) and decode Unicode escapes
     const nameMatch = content.match(/name:\s*["']([^"']+)["']/);
     if (nameMatch) {
-      metadata.name = nameMatch[1];
+      let name = nameMatch[1];
+      // Decode Unicode escape sequences
+      name = name.replace(/\\u\{([0-9A-Fa-f]+)\}/g, (match, code) => {
+        return String.fromCodePoint(parseInt(code, 16));
+      });
+      name = name.replace(/\\u([0-9A-Fa-f]{4})/g, (match, code) => {
+        return String.fromCodePoint(parseInt(code, 16));
+      });
+      metadata.name = name;
     }
 
     // Extract description (handles minified code) and decode Unicode escapes
@@ -69,6 +77,12 @@ function extractPluginMetadata(filePath, fileName) {
       // Decode Unicode escape sequences
       description = description.replace(
         /\\u\{([0-9A-Fa-f]+)\}/g,
+        (match, code) => {
+          return String.fromCodePoint(parseInt(code, 16));
+        }
+      );
+      description = description.replace(
+        /\\u([0-9A-Fa-f]{4})/g,
         (match, code) => {
           return String.fromCodePoint(parseInt(code, 16));
         }
