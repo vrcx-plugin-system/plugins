@@ -2,7 +2,7 @@
  * Update Checker 🔄
  * Checks for updates to the core system and plugins, with automatic hot-reload support
  */
-
+// 
 interface GitHubRelease {
     tag_name: string;
     name: string;
@@ -28,14 +28,7 @@ interface PluginUpdateInfo {
     repoUrl?: string;
 }
 
-export default class UpdateCheckerPlugin {
-    metadata: any;
-    settings: any;
-    actionButtons: any[];
-    logger: any;
-    enabled: boolean = true;
-    started: boolean = false;
-
+class UpdateCheckerPlugin extends CustomModule {
     private checkTimer: NodeJS.Timeout | null = null;
     private pluginCheckTimer: NodeJS.Timeout | null = null;
     private isCheckingCore = false;
@@ -50,106 +43,23 @@ export default class UpdateCheckerPlugin {
     private readonly GITHUB_API = 'https://api.github.com';
 
     constructor() {
-        this.metadata = {
+        super({
             name: 'Update Checker 🔄',
-            version: '1.0.0',
-            author: 'Bluscream',
+            authors: [{
+                name: 'Bluscream',
+                description: 'VRCX Plugin System Maintainer',
+                userId: 'usr_08082729-592d-4098-9a21-83c8dd37a844'
+            }],
             description: 'Automatically checks for updates to VRCX core system and plugins with hot-reload support',
+            tags: ['Utility', 'Updates', 'Automation'],
             required_dependencies: ['dialog-api', 'logger']
-        };
-
-        this.logger = (window as any).customjs?.logger;
-
-        this.settings = (window as any).customjs?.definePluginSettings({
-            // Core update checking
-            checkCoreOnStartup: {
-                type: 'boolean' as const,
-                default: true,
-                label: 'Check for Core Updates on Startup',
-                description: 'Automatically check for VRCX core system updates when the application starts'
-            },
-            coreCheckInterval: {
-                type: 'timespan' as const,
-                default: 3600000, // 1 hour
-                min: 300000, // 5 minutes
-                label: 'Core Update Check Interval',
-                description: 'How often to check for core system updates (minimum 5 minutes)'
-            },
-            showCoreNotification: {
-                type: 'boolean' as const,
-                default: true,
-                label: 'Show Core Update Notifications',
-                description: 'Display a notification when a new core version is available'
-            },
-            openReleasePageOnUpdate: {
-                type: 'boolean' as const,
-                default: false,
-                label: 'Auto-Open Release Page',
-                description: 'Automatically open the GitHub release page when an update is found'
-            },
-
-            // Plugin update checking
-            checkPluginsOnStartup: {
-                type: 'boolean' as const,
-                default: true,
-                label: 'Check for Plugin Updates on Startup',
-                description: 'Automatically check for plugin updates when the application starts'
-            },
-            pluginCheckInterval: {
-                type: 'timespan' as const,
-                default: 7200000, // 2 hours
-                min: 300000, // 5 minutes
-                label: 'Plugin Update Check Interval',
-                description: 'How often to check for plugin updates (minimum 5 minutes)'
-            },
-            autoUpdatePlugins: {
-                type: 'boolean' as const,
-                default: false,
-                label: 'Auto-Update Plugins',
-                description: 'Automatically hot-reload updated plugins without confirmation'
-            },
-            showNewPlugins: {
-                type: 'boolean' as const,
-                default: true,
-                label: 'Show New Plugin Discoveries',
-                description: 'Display a modal when new plugins are discovered in repositories'
-            },
-
-            // GitHub API settings
-            githubToken: {
-                type: 'string' as const,
-                default: '',
-                label: 'GitHub Personal Access Token',
-                description: 'Optional: Increases API rate limit from 60 to 5000 requests/hour'
-            },
-            showRateLimitWarnings: {
-                type: 'boolean' as const,
-                default: true,
-                label: 'Show Rate Limit Warnings',
-                description: 'Display warnings when approaching GitHub API rate limits'
-            },
-
-            // Hidden settings for tracking
-            seenPlugins: {
-                type: 'array' as const,
-                default: [],
-                hidden: true
-            },
-            lastCoreVersion: {
-                type: 'string' as const,
-                default: '',
-                hidden: true
-            },
-            dismissedCoreVersions: {
-                type: 'array' as const,
-                default: [],
-                hidden: true
-            }
-        }, this.metadata.name);
+        });
 
         this.actionButtons = [
             {
                 title: 'Check Core Updates',
+                color: 'primary',
+                icon: 'ri-refresh-line',
                 description: 'Manually check for VRCX core system updates',
                 callback: async () => {
                     await this.checkCoreUpdate(true);
@@ -157,6 +67,8 @@ export default class UpdateCheckerPlugin {
             },
             {
                 title: 'Check Plugin Updates',
+                color: 'info',
+                icon: 'ri-plugin-line',
                 description: 'Manually check for plugin updates',
                 callback: async () => {
                     await this.checkPluginUpdates(true);
@@ -164,6 +76,8 @@ export default class UpdateCheckerPlugin {
             },
             {
                 title: 'Show Rate Limit Status',
+                color: 'warning',
+                icon: 'ri-time-line',
                 description: 'Display current GitHub API rate limit status',
                 callback: () => {
                     this.showRateLimitStatus();
@@ -171,20 +85,101 @@ export default class UpdateCheckerPlugin {
             },
             {
                 title: 'Reset Dismissed Updates',
+                color: 'danger',
+                icon: 'ri-close-circle-line',
                 description: 'Clear the list of dismissed update notifications',
                 callback: () => {
-                    this.settings.store.dismissedCoreVersions = [];
+                    this.settings.store.dismissedCoreVersions = '[]';
                     this.logger.showSuccess('Dismissed updates cleared');
                 }
             }
         ];
     }
 
-    getDisplayName(): string {
-        return this.metadata.name;
-    }
-
     async load(): Promise<void> {
+        await super.load();
+        
+        const SettingType = (window as any).customjs.types.SettingType;
+
+        this.settings = this.defineSettings({
+            // Core update checking
+            checkCoreOnStartup: {
+                type: SettingType.BOOLEAN,
+                description: 'Automatically check for VRCX core system updates when the application starts',
+                default: true
+            },
+            coreCheckInterval: {
+                type: SettingType.TIMESPAN,
+                description: 'How often to check for core system updates',
+                default: 3600000, // 1 hour
+                min: 300000 // 5 minutes minimum
+            },
+            showCoreNotification: {
+                type: SettingType.BOOLEAN,
+                description: 'Display a notification when a new core version is available',
+                default: true
+            },
+            openReleasePageOnUpdate: {
+                type: SettingType.BOOLEAN,
+                description: 'Automatically open the GitHub release page when an update is found',
+                default: false
+            },
+
+            // Plugin update checking
+            checkPluginsOnStartup: {
+                type: SettingType.BOOLEAN,
+                description: 'Automatically check for plugin updates when the application starts',
+                default: true
+            },
+            pluginCheckInterval: {
+                type: SettingType.TIMESPAN,
+                description: 'How often to check for plugin updates',
+                default: 7200000, // 2 hours
+                min: 300000 // 5 minutes minimum
+            },
+            autoUpdatePlugins: {
+                type: SettingType.BOOLEAN,
+                description: 'Automatically hot-reload updated plugins without confirmation',
+                default: false
+            },
+            showNewPlugins: {
+                type: SettingType.BOOLEAN,
+                description: 'Display a modal when new plugins are discovered in repositories',
+                default: true
+            },
+
+            // GitHub API settings
+            githubToken: {
+                type: SettingType.STRING,
+                description: 'Optional: Increases API rate limit from 60 to 5000 requests/hour',
+                default: ''
+            },
+            showRateLimitWarnings: {
+                type: SettingType.BOOLEAN,
+                description: 'Display warnings when approaching GitHub API rate limits',
+                default: true
+            },
+
+            // Hidden settings for tracking
+            seenPlugins: {
+                type: SettingType.STRING,
+                description: 'Tracked seen plugins',
+                default: '[]',
+                hidden: true
+            },
+            lastCoreVersion: {
+                type: SettingType.STRING,
+                description: 'Last seen core version',
+                default: '',
+                hidden: true
+            },
+            dismissedCoreVersions: {
+                type: SettingType.STRING,
+                description: 'Dismissed core versions',
+                default: '[]',
+                hidden: true
+            }
+        });
         // Parse repository info from sourceUrl
         this.parseRepositoryInfo();
         
@@ -329,7 +324,8 @@ export default class UpdateCheckerPlugin {
             this.lastCoreCheck = Date.now();
             
             // Check if this is a new version
-            const isDismissed = this.settings.store.dismissedCoreVersions.includes(latestVersion);
+            const dismissedVersions = JSON.parse(this.settings.store.dismissedCoreVersions || '[]');
+            const isDismissed = dismissedVersions.includes(latestVersion);
             const isNewer = latestBuild > currentBuild;
             
             if (isNewer && !isDismissed) {
@@ -377,10 +373,10 @@ export default class UpdateCheckerPlugin {
                 }
             } else {
                 // User dismissed - add to dismissed list
-                const dismissed = this.settings.store.dismissedCoreVersions;
+                const dismissed = JSON.parse(this.settings.store.dismissedCoreVersions || '[]');
                 if (!dismissed.includes(release.tag_name)) {
                     dismissed.push(release.tag_name);
-                    this.settings.store.dismissedCoreVersions = dismissed;
+                    this.settings.store.dismissedCoreVersions = JSON.stringify(dismissed);
                 }
             }
         } else if (this.settings.store.openReleasePageOnUpdate) {
@@ -415,7 +411,7 @@ export default class UpdateCheckerPlugin {
             
             const allPluginUpdates: PluginUpdateInfo[] = [];
             const newPlugins: any[] = [];
-            const seenPlugins = new Set(this.settings.store.seenPlugins);
+            const seenPlugins = new Set(JSON.parse(this.settings.store.seenPlugins || '[]'));
             
             for (const repo of enabledRepos) {
                 try {
@@ -466,7 +462,7 @@ export default class UpdateCheckerPlugin {
             }
             
             // Update seen plugins
-            this.settings.store.seenPlugins = Array.from(seenPlugins);
+            this.settings.store.seenPlugins = JSON.stringify(Array.from(seenPlugins));
             this.lastPluginCheck = Date.now();
             
             // Handle updates
