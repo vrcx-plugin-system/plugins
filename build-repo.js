@@ -100,17 +100,26 @@ function extractPluginMetadata(filePath, fileName) {
         const authorsCode = authorsMatch[1];
         const authors = [];
 
-        // Extract author objects
-        const authorObjMatches = authorsCode.matchAll(
-          /\{\s*name:\s*["']([^"']+)["'](?:[^}]*?description:\s*["']([^"']*?)["'])?(?:[^}]*?userId:\s*["']([^"']*?)["'])?(?:[^}]*?avatarUrl:\s*["']([^"']*?)["'])?\s*\}/g
-        );
+        // Extract author objects - handle properties in any order
+        const authorObjMatches = authorsCode.matchAll(/\{[^}]+\}/g);
 
         for (const match of authorObjMatches) {
-          const author = { name: match[1] };
-          if (match[2]) author.description = match[2];
-          if (match[3]) author.userId = match[3];
-          if (match[4]) author.avatarUrl = match[4];
-          authors.push(author);
+          const authorStr = match[0];
+          const author = {};
+
+          const nameMatch = authorStr.match(/name:\s*["']([^"']+)["']/);
+          if (nameMatch) author.name = nameMatch[1];
+
+          const descMatch = authorStr.match(/description:\s*["']([^"']+)["']/);
+          if (descMatch) author.description = descMatch[1];
+
+          const userIdMatch = authorStr.match(/userId:\s*["']([^"']+)["']/);
+          if (userIdMatch) author.userId = userIdMatch[1];
+
+          const avatarMatch = authorStr.match(/avatarUrl:\s*["']([^"']+)["']/);
+          if (avatarMatch) author.avatarUrl = avatarMatch[1];
+
+          if (author.name) authors.push(author);
         }
 
         if (authors.length > 0) {
@@ -187,7 +196,8 @@ function buildRepository() {
     authors: [
       {
         name: "Bluscream",
-        description: "Repository maintainer",
+        userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
+        description: "VRCX Plugin System Maintainer",
       },
     ],
     build: Date.now().toString(),

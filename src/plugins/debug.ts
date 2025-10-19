@@ -6,9 +6,7 @@ class DebugPlugin extends CustomModule {
       description:
         "Debug utilities, IPC logging, global scope search, and console commands for development",
       authors: [
-      {
-        name: "Bluscream",
-      }
+      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
     ],
       dependencies: [],
     });

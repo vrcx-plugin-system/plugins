@@ -8,9 +8,7 @@ class AutoDisableUntrustedURLsPlugin extends CustomModule {
       description:
         "Automatically disables VRChat's untrusted URL feature for security (enables in private instances)",
       authors: [
-      {
-        name: "Bluscream",
-      }
+      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
     ],
       tags: ["Security", "Automation"],
       dependencies: [],

@@ -15,9 +15,7 @@ class TemplatePlugin extends CustomModule {
       description:
         "Example plugin demonstrating all available features and lifecycle events",
       authors: [
-      {
-        name: "Bluscream",
-      }
+      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
     ],
       dependencies: [
         // Always include plugin.js as first dependency

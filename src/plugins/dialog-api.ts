@@ -9,9 +9,7 @@ class DialogApiPlugin extends CustomModule {
       name: "💬 Dialog API",
       description: "API for creating and showing custom dialogs in VRCX",
       authors: [
-        {
-          name: "Bluscream",
-        }
+        {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
       ],
       tags: ["API", "Core", "Dialog", "Library"],
       dependencies: [],

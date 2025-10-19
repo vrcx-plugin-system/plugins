@@ -13,9 +13,7 @@ class UserBadgePipelinePatchPlugin extends CustomModule {
       description:
         "Adds support for user-badge-assigned pipeline events and displays badge notifications",
       authors: [
-      {
-        name: "Bluscream",
-      }
+      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
     ],
       tags: ["Bugfix", "Notifications", "Patch", "Fix"],
       dependencies: [],
