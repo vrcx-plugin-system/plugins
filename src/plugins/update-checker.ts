@@ -573,16 +573,7 @@ class UpdateCheckerPlugin extends CustomModule {
         const minutesUntilReset = Math.floor(timeUntilReset / 60000);
         
         const hasToken = !!this.settings.store.githubToken;
-        const message = [
-            `GitHub API Rate Limit Status`,
-            ``,
-            `Used: ${this.rateLimit.used}/${this.rateLimit.limit}`,
-            `Remaining: ${this.rateLimit.remaining}`,
-            `Resets in: ${minutesUntilReset} minutes`,
-            `Reset time: ${resetTime.toLocaleTimeString()}`,
-            ``,
-            hasToken ? `✓ Using personal access token` : `⚠ No token (60 req/hour limit)`
-        ].join('</br>');
+        const message = `GitHub API Rate: ${this.rateLimit.used}/${this.rateLimit.limit} used, ${this.rateLimit.remaining} left | Resets in ${minutesUntilReset} min (${resetTime.toLocaleTimeString()}) | ${hasToken ? "✓ Using token" : "⚠ No token (60/h)"}`;
         
         this.logger.showInfo(message);
     }
