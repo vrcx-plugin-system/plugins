@@ -14,7 +14,7 @@ class DevToolsButtonPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760766085",
+      build: "1760768627",
       tags: ["Utility", "Developer", "Button"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
