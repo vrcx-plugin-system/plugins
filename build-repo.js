@@ -11,6 +11,8 @@ const DIST_DIR = path.join(__dirname, "dist");
 const REPO_FILE = path.join(DIST_DIR, "repo.json");
 const BASE_URL =
   "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist";
+const SOURCE_BASE_URL =
+  "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins";
 
 // Files to exclude from scanning
 const EXCLUDE_FILES = [];
@@ -49,6 +51,7 @@ function extractPluginMetadata(filePath, fileName) {
       authors: [{ name: "Unknown" }],
       build: buildTimestamp, // Use file modification time
       url: `${BASE_URL}/${fileName}`,
+      sourceUrl: `${SOURCE_BASE_URL}/${fileName.replace(".js", ".ts")}`,
       tags: [],
       enabled: DEFAULT_ENABLED.includes(pluginId),
     };
@@ -134,7 +137,7 @@ function buildRepository() {
     return file.endsWith(".js") && !EXCLUDE_FILES.includes(file);
   });
 
-  console.log(`📦 Found ${pluginFiles.length} plugin files`);
+  console.log(`📦 Found ${pluginFiles.length} module files`);
 
   // Extract metadata from each plugin
   const plugins = [];
@@ -165,14 +168,14 @@ function buildRepository() {
     ],
     build: Date.now().toString(),
     url: "https://github.com/vrcx-plugin-system/plugins",
-    plugins: plugins,
+    modules: plugins,
   };
 
   // Write to file
   try {
     fs.writeFileSync(REPO_FILE, JSON.stringify(repository, null, 2));
     console.log(`\n✅ Repository file created: ${REPO_FILE}`);
-    console.log(`📊 Total plugins: ${plugins.length}`);
+    console.log(`📊 Total modules: ${plugins.length}`);
 
     // Show tag breakdown
     const tagCount = {};

@@ -1369,23 +1369,10 @@ class PluginManagerUIPlugin extends Plugin {
       });
     }
 
-    // Custom action buttons (if plugin defines them)
+    // Custom action buttons
     let customActions = null;
-    if (
-      plugin.getActionButtons &&
-      typeof plugin.getActionButtons === "function"
-    ) {
-      try {
-        const customButtons = plugin.getActionButtons();
-        if (customButtons && customButtons.length > 0) {
-          customActions = this.createCustomActionButtons(plugin, customButtons);
-        }
-      } catch (error) {
-        this.logger.error(
-          `Error getting action buttons for ${plugin.metadata.id}:`,
-          error
-        );
-      }
+    if (plugin.actionButtons && plugin.actionButtons.length > 0) {
+      customActions = this.createCustomActionButtons(plugin, plugin.actionButtons);
     }
 
     // Standard action buttons
@@ -1521,12 +1508,12 @@ class PluginManagerUIPlugin extends Plugin {
         if (buttonDef.icon) {
           innerHTML += `<i class="${buttonDef.icon}"></i> `;
         }
-        innerHTML += buttonDef.label || "Action";
+        innerHTML += buttonDef.title || "Action";
         button.innerHTML = innerHTML;
 
-        // Set title/tooltip if provided
-        if (buttonDef.title) {
-          button.title = buttonDef.title;
+        // Set tooltip if provided
+        if (buttonDef.description) {
+          button.title = buttonDef.description;
         }
 
         // Register click handler

@@ -12,6 +12,22 @@ interface ModuleAuthor {
   avatarUrl?: string;
 }
 
+declare class CustomActionButton {
+  title: string;
+  color: "primary" | "success" | "warning" | "danger" | "info";
+  icon?: string;
+  description?: string;
+  callback: () => void | Promise<void>;
+
+  constructor(config: {
+    title: string;
+    color?: "primary" | "success" | "warning" | "danger" | "info";
+    icon?: string;
+    description?: string;
+    callback: () => void | Promise<void>;
+  });
+}
+
 declare class Plugin {
   metadata: PluginMetadata;
   enabled: boolean;
@@ -23,6 +39,7 @@ declare class Plugin {
   categories?: Record<string, SettingCategory>;
   dependencies: string[];
   logColor: string;
+  actionButtons: CustomActionButton[];
 
   constructor(metadata: PluginMetadata);
   
@@ -134,9 +151,21 @@ interface CustomJS {
     replace: Record<string, Array<(originalFunc: Function, ...args: any[]) => any>>;
   };
   functions: Record<string, Function>;
+  classes: {
+    Logger: any;
+    ConfigManager: any;
+    SettingsStore: any;
+    Plugin: typeof Plugin;
+    PluginLoader: any;
+    PluginManager: any;
+    CustomActionButton: typeof CustomActionButton;
+    PluginRepo: any;
+    PluginRepoManager: any;
+  };
   utils?: PluginUtils;
   debug?: any;
   SettingType: typeof SettingType;
+  definePluginSettings?: Function;
   __LAST_PLUGIN_CLASS__?: typeof Plugin;
   coreModules?: Map<string, any>;
   configManager?: any;

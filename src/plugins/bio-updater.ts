@@ -17,23 +17,18 @@ class BioUpdaterPlugin extends Plugin {
     });
 
     this.updateTimerId = null;
-  }
 
-  /**
-   * Define custom action buttons for the plugin manager UI
-   * @returns {Array} Array of button definitions
-   */
-  getActionButtons() {
-    return [
-      {
-        label: "Update Bio Now",
+    // Define custom action buttons
+    this.actionButtons = [
+      new CustomActionButton({
+        title: "Update Bio Now",
         color: "success",
         icon: "ri-refresh-line",
-        title: "Manually trigger bio update",
+        description: "Manually trigger bio update",
         callback: async () => {
           await this.triggerUpdate();
         },
-      },
+      }),
     ];
   }
 
