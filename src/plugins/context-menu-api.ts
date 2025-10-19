@@ -343,7 +343,9 @@ class ContextMenuApiPlugin extends CustomModule {
       try {
         item.onClick(dialogData);
       } catch (error) {
-        this.logger.error(`Error in ${menuType} menu item ${itemId}:`, error);
+        const errorMsg = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Error in ${menuType} menu item ${itemId}: ${errorMsg}`);
       }
     }
   }
@@ -394,7 +396,9 @@ class ContextMenuApiPlugin extends CustomModule {
         }
       }
     } catch (error) {
-      this.logger.error("Error extracting dialog data from Pinia:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error extracting dialog data from Pinia: ${errorMsg}`);
     }
 
     return null;

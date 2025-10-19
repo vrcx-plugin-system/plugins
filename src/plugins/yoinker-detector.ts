@@ -251,7 +251,9 @@ class YoinkerDetectorPlugin extends CustomModule {
 
       this.logger.log("✅ Event hooks registered");
     } catch (error) {
-      this.logger.error("Failed to register event hooks:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Failed to register event hooks: ${errorMsg}`);
     }
   }
 
@@ -325,7 +327,9 @@ class YoinkerDetectorPlugin extends CustomModule {
         this.saveProcessedUsers();
       }
     } catch (error) {
-      this.logger.error("Error processing queue:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error processing queue: ${errorMsg}`);
       this.isProcessing = false;
     }
   }
@@ -428,7 +432,9 @@ class YoinkerDetectorPlugin extends CustomModule {
       }
     } catch (error) {
       this.settings.store.statsErrors++;
-      this.logger.error(`Error checking user ${userId}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error checking user ${userId}: ${errorMsg}`);
     }
   }
 
@@ -474,7 +480,9 @@ class YoinkerDetectorPlugin extends CustomModule {
         this.logger.log(`🏷️ Applied tag "${tagName}" to user ${userId}`);
       }
     } catch (error) {
-      this.logger.error(`Error applying tag to user ${userId}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error applying tag to user ${userId}: ${errorMsg}`);
     }
   }
 
@@ -559,7 +567,9 @@ class YoinkerDetectorPlugin extends CustomModule {
       // Mark migration as complete
       this.settings.store.migrationComplete = true;
     } catch (error) {
-      this.logger.error("Error during migration from localStorage:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error during migration from localStorage: ${errorMsg}`);
       // Still mark as complete to avoid repeated failures
       this.settings.store.migrationComplete = true;
     }
@@ -577,7 +587,9 @@ class YoinkerDetectorPlugin extends CustomModule {
         `📂 Loaded ${this.processedUsers.size} processed users (cache is session-only)`
       );
     } catch (error) {
-      this.logger.error("Error loading processed users:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error loading processed users: ${errorMsg}`);
     }
   }
 
@@ -589,7 +601,9 @@ class YoinkerDetectorPlugin extends CustomModule {
         Array.from(this.processedUsers)
       );
     } catch (error) {
-      this.logger.error("Error saving processed users:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error saving processed users: ${errorMsg}`);
     }
   }
 

@@ -149,7 +149,9 @@ class DialogApiPlugin extends CustomModule {
       try {
         dialog.onOpen();
       } catch (err) {
-        this.logger.error(`Error in onOpen callback for ${dialogId}:`, err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+
+        this.logger.error(`Error in onOpen callback for ${dialogId}: ${errorMsg}`);
       }
     }
 
@@ -182,7 +184,9 @@ class DialogApiPlugin extends CustomModule {
           return false;
         }
       } catch (err) {
-        this.logger.error(`Error in beforeClose callback for ${dialogId}:`, err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+
+        this.logger.error(`Error in beforeClose callback for ${dialogId}: ${errorMsg}`);
       }
     }
 
@@ -199,7 +203,9 @@ class DialogApiPlugin extends CustomModule {
       try {
         dialog.onClose();
       } catch (err) {
-        this.logger.error(`Error in onClose callback for ${dialogId}:`, err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+
+        this.logger.error(`Error in onClose callback for ${dialogId}: ${errorMsg}`);
       }
     }
 

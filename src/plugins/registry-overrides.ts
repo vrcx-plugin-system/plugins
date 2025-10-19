@@ -190,11 +190,15 @@ class RegistryOverridesPlugin extends CustomModule {
           // Apply registry setting
           await (window as any).AppApi.SetVRChatRegistryKey(key, value, registryType);
         } catch (error: any) {
-          this.logger.error(`Error setting registry key ${key}:`, error);
+          const errorMsg = error instanceof Error ? error.message : String(error);
+
+          this.logger.error(`Error setting registry key ${key}: ${errorMsg}`);
         }
       }
     } catch (error: any) {
-      this.logger.error("Error applying registry settings:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error applying registry settings: ${errorMsg}`);
     }
   }
 
@@ -207,7 +211,9 @@ class RegistryOverridesPlugin extends CustomModule {
     try {
       return await (window as any).AppApi.GetVRChatRegistryKey(key);
     } catch (error: any) {
-      this.logger.error(`Error getting registry key ${key}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error getting registry key ${key}: ${errorMsg}`);
       return null;
     }
   }
@@ -224,7 +230,9 @@ class RegistryOverridesPlugin extends CustomModule {
       this.logger.log(`Set registry key ${key} = ${value}`);
       return true;
     } catch (error: any) {
-      this.logger.error(`Error setting registry key ${key}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error setting registry key ${key}: ${errorMsg}`);
       return false;
     }
   }

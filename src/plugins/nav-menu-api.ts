@@ -203,7 +203,9 @@ class NavMenuApiPlugin extends CustomModule {
           try {
             item.onShow();
           } catch (error) {
-            this.logger.error(`Error in onShow callback for ${itemId}:`, error);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+
+            this.logger.error(`Error in onShow callback for ${itemId}: ${errorMsg}`);
           }
         }
       } else if (!isActive && wasActive) {
@@ -213,7 +215,9 @@ class NavMenuApiPlugin extends CustomModule {
           try {
             item.onHide();
           } catch (error) {
-            this.logger.error(`Error in onHide callback for ${itemId}:`, error);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+
+            this.logger.error(`Error in onHide callback for ${itemId}: ${errorMsg}`);
           }
         }
       }
@@ -520,7 +524,9 @@ class NavMenuApiPlugin extends CustomModule {
             try {
               item.onShow();
             } catch (error) {
-              this.logger.error(`Error in onShow callback for ${item.id}:`, error);
+              const errorMsg = error instanceof Error ? error.message : String(error);
+
+              this.logger.error(`Error in onShow callback for ${item.id}: ${errorMsg}`);
             }
           }
         } else {

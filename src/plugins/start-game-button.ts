@@ -204,7 +204,9 @@ class StartGameButtonPlugin extends CustomModule {
       this.logger.warn(`Cannot read config value: ${key}`);
       return null;
     } catch (error: any) {
-      this.logger.warn(`Error reading config value ${key}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.warn(`Error reading config value ${key}: ${errorMsg}`);
       return null;
     }
   }

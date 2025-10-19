@@ -269,7 +269,9 @@ class AvatarLogPlugin extends CustomModule {
 
       this.logger.log("✅ Avatar event hooks registered");
     } catch (error) {
-      this.logger.error("Failed to register avatar hooks:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Failed to register avatar hooks: ${errorMsg}`);
     }
   }
 
@@ -335,7 +337,9 @@ class AvatarLogPlugin extends CustomModule {
         this.saveProcessedAvatars();
       }
     } catch (error) {
-      this.logger.error("Error processing queue:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error processing queue: ${errorMsg}`);
       this.isProcessing = false;
     }
   }
@@ -404,7 +408,9 @@ class AvatarLogPlugin extends CustomModule {
       return { success: true, unique: false, provider: "avtrDB" };
     } catch (error) {
       this.stats.byProvider[provider].errors++;
-      this.logger.error(`avtrDB error for ${avatarId}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`avtrDB error for ${avatarId}: ${errorMsg}`);
       return { success: false, error: error.message, provider: "avtrDB" };
     }
   }
@@ -445,7 +451,9 @@ class AvatarLogPlugin extends CustomModule {
       return { success: false, status: response.status, provider: "NSVR" };
     } catch (error) {
       // NSVR goes offline often, don't count as error
-      this.logger.warn(`NSVR error for ${avatarId}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.warn(`NSVR error for ${avatarId}: ${errorMsg}`);
       return { success: false, error: error.message, provider: "NSVR" };
     }
   }
@@ -487,7 +495,9 @@ class AvatarLogPlugin extends CustomModule {
       return { success: false, status: response.status, provider: "PAW" };
     } catch (error) {
       this.stats.byProvider[provider].errors++;
-      this.logger.error(`PAW error for ${avatarId}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`PAW error for ${avatarId}: ${errorMsg}`);
       return { success: false, error: error.message, provider: "PAW" };
     }
   }
@@ -528,7 +538,9 @@ class AvatarLogPlugin extends CustomModule {
       return { success: false, status: response.status, provider: "VRCDB" };
     } catch (error) {
       this.stats.byProvider[provider].errors++;
-      this.logger.error(`VRCDB error for ${avatarId}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`VRCDB error for ${avatarId}: ${errorMsg}`);
       return { success: false, error: error.message, provider: "VRCDB" };
     }
   }
@@ -569,7 +581,9 @@ class AvatarLogPlugin extends CustomModule {
       return { success: false, status: response.status, provider: "VRCWB" };
     } catch (error) {
       this.stats.byProvider[provider].errors++;
-      this.logger.error(`VRCWB error for ${avatarId}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`VRCWB error for ${avatarId}: ${errorMsg}`);
       return { success: false, error: error.message, provider: "VRCWB" };
     }
   }
@@ -668,7 +682,9 @@ class AvatarLogPlugin extends CustomModule {
 
       this.logger.log(`✅ Store scan complete - found ${count} avatars`);
     } catch (error) {
-      this.logger.error("Error scanning stores:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error scanning stores: ${errorMsg}`);
     }
   }
 
@@ -685,7 +701,9 @@ class AvatarLogPlugin extends CustomModule {
         );
       }
     } catch (error) {
-      this.logger.error("Error loading processed avatars:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error loading processed avatars: ${errorMsg}`);
     }
   }
 
@@ -699,7 +717,9 @@ class AvatarLogPlugin extends CustomModule {
       };
       localStorage.setItem("avatarlog_processed", JSON.stringify(data));
     } catch (error) {
-      this.logger.error("Error saving processed avatars:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error saving processed avatars: ${errorMsg}`);
     }
   }
 

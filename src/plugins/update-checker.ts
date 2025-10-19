@@ -417,9 +417,9 @@ class UpdateCheckerPlugin extends CustomModule {
             for (const repo of enabledRepos) {
                 try {
                     // Re-fetch repository data
-                    await repo.load();
+                    await repo.fetch();
                     
-                    const repoPlugins = repo.data?.plugins || [];
+                    const repoPlugins = repo.data?.modules || [];
                     
                     for (const plugin of repoPlugins) {
                         const pluginId = plugin.id || plugin.name;

@@ -183,7 +183,9 @@ class InvisiblePlayersMonitorPlugin extends CustomModule {
         this.lastInvisiblePlayers = 0;
       }
     } catch (error) {
-      this.logger.error("Error handling instance data:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error handling instance data: ${errorMsg}`);
     }
   }
 

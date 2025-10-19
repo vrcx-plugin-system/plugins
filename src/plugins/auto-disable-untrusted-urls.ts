@@ -166,7 +166,9 @@ class AutoDisableUntrustedURLsPlugin extends CustomModule {
       // Set registry value
       await (window as any).AppApi.SetVRChatRegistryKey(key, desiredValue, 3); // 3 = REG_DWORD
     } catch (error: any) {
-      this.logger.error("Error setting untrusted URLs:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error setting untrusted URLs: ${errorMsg}`);
     }
   }
 }

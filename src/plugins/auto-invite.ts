@@ -253,7 +253,8 @@ class AutoInvitePlugin extends CustomModule {
       this.logger.log("Auto Invite context menu buttons added");
       return true;
     } catch (error) {
-      this.logger.error("Error setting up Auto Invite buttons:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error setting up Auto Invite buttons: ${errorMsg}`);
 
       if (!this.autoInviteItem || !this.clearAutoInviteItem) {
         setTimeout(() => this.setupUserButton(), 2000);

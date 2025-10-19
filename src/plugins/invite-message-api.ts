@@ -134,7 +134,9 @@ class InviteMessageApiPlugin extends CustomModule {
         await this.refreshMessages(messageType);
       }
     } catch (error) {
-      this.logger.error(`Failed to load ${messageType} data:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Failed to load ${messageType} data: ${errorMsg}`);
     }
   }
 
@@ -336,7 +338,9 @@ class InviteMessageApiPlugin extends CustomModule {
         success: true,
       };
     } catch (error) {
-      this.logger.error(`Failed to edit invite message:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Failed to edit invite message: ${errorMsg}`);
       throw error;
     }
   }
@@ -450,7 +454,9 @@ class InviteMessageApiPlugin extends CustomModule {
         success: true,
       };
     } catch (error) {
-      this.logger.error(`Failed to edit invite response message:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Failed to edit invite response message: ${errorMsg}`);
       throw error;
     }
   }
@@ -562,7 +568,9 @@ class InviteMessageApiPlugin extends CustomModule {
         success: true,
       };
     } catch (error) {
-      this.logger.error(`Failed to edit invite request message:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Failed to edit invite request message: ${errorMsg}`);
       throw error;
     }
   }

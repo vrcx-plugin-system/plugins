@@ -132,7 +132,9 @@ class RetryAutoLoginPlugin extends CustomModule {
       this.logger.log("Not logged in, attempting auto login...");
       await this.attemptAutoLogin();
     } catch (error) {
-      this.logger.error("Error in checkAndRetryLogin:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error in checkAndRetryLogin: ${errorMsg}`);
     }
   }
 
@@ -233,7 +235,9 @@ class RetryAutoLoginPlugin extends CustomModule {
       this.logger.log("Auto login request sent");
       return true;
     } catch (error: any) {
-      this.logger.error("Error attempting auto login:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error attempting auto login: ${errorMsg}`);
       if (this.settings.store.showNotifications) {
         this.logger.showError(`Login retry failed: ${error.message}`);
       }

@@ -192,7 +192,8 @@ class AutoFollowPlugin extends CustomModule {
       this.logger.log("Auto Follow context menu buttons added");
       return true;
     } catch (error) {
-      this.logger.error("Error setting up Auto Follow buttons:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error setting up Auto Follow buttons: ${errorMsg}`);
 
       if (!this.autoFollowItem || !this.clearAutoFollowItem) {
         setTimeout(() => this.setupUserButtons(), 2000);

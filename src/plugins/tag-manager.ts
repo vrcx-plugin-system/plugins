@@ -174,7 +174,9 @@ class TagManagerPlugin extends CustomModule {
       try {
         await this.loadTagsFromUrl(url);
       } catch (error) {
-        this.logger.error(`Failed to load tags from ${url}:`, error);
+        const errorMsg = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Failed to load tags from ${url}: ${errorMsg}`);
       }
     }
 
@@ -203,7 +205,9 @@ class TagManagerPlugin extends CustomModule {
         this.logger.warn(`No valid tags found in ${url}`);
       }
     } catch (error) {
-      this.logger.error(`Error loading tags from ${url}:`, error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error loading tags from ${url}: ${errorMsg}`);
       throw error;
     }
   }
@@ -291,7 +295,9 @@ class TagManagerPlugin extends CustomModule {
           TagColour: tag.TagColour,
         });
       } catch (error) {
-        this.logger.error(`Error applying tag for user ${tag.UserId}:`, error);
+        const errorMsg = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Error applying tag for user ${tag.UserId}: ${errorMsg}`);
       }
     }
 
@@ -600,7 +606,9 @@ class TagManagerPlugin extends CustomModule {
         );
       }
     } catch (error) {
-      this.logger.error("Error handling player join:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error handling player join: ${errorMsg}`);
     }
   }
 
@@ -656,7 +664,9 @@ class TagManagerPlugin extends CustomModule {
       });
       this.logger.log(`Manually added tag: ${tag} for user ${userId}`);
     } catch (error) {
-      this.logger.error("Error adding manual tag:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error adding manual tag: ${errorMsg}`);
     }
   }
 

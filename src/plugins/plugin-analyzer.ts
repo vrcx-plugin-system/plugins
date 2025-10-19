@@ -129,7 +129,9 @@ class PluginAnalyzerPlugin extends CustomModule {
         this.logger.showError("Failed to analyze plugin");
       }
     } catch (error: any) {
-      this.logger.error("Error analyzing plugin:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error analyzing plugin: ${errorMsg}`);
       this.logger.showError(`Analysis error: ${error.message}`);
     }
   }

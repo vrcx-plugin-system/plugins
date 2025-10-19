@@ -145,7 +145,8 @@ class PluginManagerUIPlugin extends CustomModule {
       this.pluginGridContainer = pluginGrid;
       this.logger.log("✓ Plugin manager panel content created successfully");
     } catch (error) {
-      this.logger.error("Error creating plugin manager content:", error);
+      const err = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error creating plugin manager content: ${err}`);
       const errorDiv = document.createElement("div");
       errorDiv.style.cssText =
         "padding: 20px; text-align: center; color: #dc3545;";
@@ -392,7 +393,9 @@ class PluginManagerUIPlugin extends CustomModule {
               this.logger.showWarning("User dialog not available");
             }
           } catch (error) {
-            this.logger.error("Error opening user dialog:", error);
+            const err = error instanceof Error ? error.message : String(error);
+
+            this.logger.error(`Error opening user dialog: ${err}`);
           }
         });
         
@@ -560,7 +563,9 @@ class PluginManagerUIPlugin extends CustomModule {
         this.logger.showError(`Failed to add repository: ${result.message}`);
       }
     } catch (error) {
-      this.logger.error("Error adding repository:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error adding repository: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
     }
   }
@@ -601,7 +606,9 @@ class PluginManagerUIPlugin extends CustomModule {
         this.logger.showError("Failed to toggle repository");
       }
     } catch (error) {
-      this.logger.error("Error toggling repository:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error toggling repository: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
     }
   }
@@ -649,7 +656,9 @@ class PluginManagerUIPlugin extends CustomModule {
         }, 2000);
       }
     } catch (error) {
-      this.logger.error("Error refreshing repository:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error refreshing repository: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
       button.innerHTML = originalHTML;
       button.disabled = false;
@@ -688,7 +697,9 @@ class PluginManagerUIPlugin extends CustomModule {
         button.disabled = false;
       }, 2000);
     } catch (error) {
-      this.logger.error("Error refreshing repositories:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error refreshing repositories: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
       button.innerHTML = originalHTML;
       button.disabled = false;
@@ -728,7 +739,9 @@ class PluginManagerUIPlugin extends CustomModule {
         this.logger.showError("Failed to remove repository");
       }
     } catch (error) {
-      this.logger.error("Error removing repository:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error removing repository: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
     }
   }
@@ -837,7 +850,9 @@ class PluginManagerUIPlugin extends CustomModule {
         }, 2000);
       }
     } catch (error) {
-      this.logger.error("Error importing config:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error importing config: ${err}`);
       button.innerHTML = '<i class="ri-error-warning-line"></i> Error';
       button.className = "el-button el-button--danger";
 
@@ -898,7 +913,9 @@ class PluginManagerUIPlugin extends CustomModule {
         }, 2000);
       }
     } catch (error) {
-      this.logger.error("Error exporting config:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error exporting config: ${err}`);
       button.innerHTML = '<i class="ri-error-warning-line"></i> Error';
       button.className = "el-button el-button--danger";
 
@@ -1204,7 +1221,9 @@ class PluginManagerUIPlugin extends CustomModule {
         `✓ Plugin grid refreshed - showing ${filteredPlugins.length} plugins (filter: ${this.searchValue.filter}, search: "${this.searchValue.value}")`
       );
     } catch (error) {
-      this.logger.error("Error refreshing plugin grid:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error refreshing plugin grid: ${err}`);
     }
   }
 
@@ -1341,7 +1360,9 @@ class PluginManagerUIPlugin extends CustomModule {
               this.logger.showWarning("User dialog not available");
             }
           } catch (error) {
-            this.logger.error("Error opening user dialog:", error);
+            const err = error instanceof Error ? error.message : String(error);
+
+            this.logger.error(`Error opening user dialog: ${err}`);
           }
         });
         
@@ -1826,7 +1847,9 @@ class PluginManagerUIPlugin extends CustomModule {
       // Refresh after toggle completes
       setTimeout(() => this.refreshPluginGrid(), 200);
     } catch (error) {
-      this.logger.error(`Error toggling plugin ${pluginId}:`, error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error toggling plugin ${pluginId}: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
     } finally {
       // Remove lock after a delay to ensure no race conditions
@@ -1871,7 +1894,9 @@ class PluginManagerUIPlugin extends CustomModule {
         this.logger.showError(`Reload failed: ${result.message}`);
       }
     } catch (error) {
-      this.logger.error("Error reloading plugin:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error reloading plugin: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
     }
   }
@@ -1962,7 +1987,9 @@ class PluginManagerUIPlugin extends CustomModule {
         this.logger.showError(`Removal failed: ${result.message}`);
       }
     } catch (error) {
-      this.logger.error("Error removing plugin:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error removing plugin: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
     }
   }
@@ -2004,7 +2031,9 @@ class PluginManagerUIPlugin extends CustomModule {
         }, 2000);
       }
     } catch (error) {
-      this.logger.error("Error installing plugin:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error installing plugin: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
       button.innerHTML = originalHTML;
       button.className = "el-button el-button--small el-button--success";
@@ -2027,7 +2056,9 @@ class PluginManagerUIPlugin extends CustomModule {
         this.logger.showError(`Failed again: ${result.message}`);
       }
     } catch (error) {
-      this.logger.error("Error retrying plugin:", error);
+      const err = error instanceof Error ? error.message : String(error);
+
+      this.logger.error(`Error retrying plugin: ${err}`);
       this.logger.showError(`Error: ${error.message}`);
     }
   }
@@ -2545,7 +2576,9 @@ class PluginManagerUIPlugin extends CustomModule {
           `Setting ${key} changed to ${newValue} (old: ${!newValue})`
         );
       } catch (error) {
-        this.logger.error(`Error toggling ${key}:`, error);
+        const err = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Error toggling ${key}: ${err}`);
       }
     });
 
@@ -2568,7 +2601,9 @@ class PluginManagerUIPlugin extends CustomModule {
           this.logger.log(`Setting ${key} changed to ${newValue}`);
         }
       } catch (error) {
-        this.logger.error(`Error updating ${key}:`, error);
+        const err = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Error updating ${key}: ${err}`);
       }
     });
 
@@ -2603,7 +2638,9 @@ class PluginManagerUIPlugin extends CustomModule {
         plugin.settings.store[key] = input.value;
         this.logger.log(`Setting ${key} changed to "${input.value}"`);
       } catch (error) {
-        this.logger.error(`Error updating ${key}:`, error);
+        const err = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Error updating ${key}: ${err}`);
       }
     });
 
@@ -2735,7 +2772,9 @@ class PluginManagerUIPlugin extends CustomModule {
           plugin.settings.store[key] = textarea.value;
           this.logger.log(`Setting ${key} updated (multiline)`);
         } catch (error) {
-          this.logger.error(`Error updating ${key}:`, error);
+          const err = error instanceof Error ? error.message : String(error);
+
+          this.logger.error(`Error updating ${key}: ${err}`);
         }
       }
     });
@@ -2770,7 +2809,9 @@ class PluginManagerUIPlugin extends CustomModule {
         plugin.settings.store[key] = select.value;
         this.logger.log(`Setting ${key} changed to "${select.value}"`);
       } catch (error) {
-        this.logger.error(`Error updating ${key}:`, error);
+        const err = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Error updating ${key}: ${err}`);
       }
     });
 
@@ -2800,7 +2841,9 @@ class PluginManagerUIPlugin extends CustomModule {
         plugin.settings.store[key] = parseFloat(slider.value);
         this.logger.log(`Setting ${key} changed to ${slider.value}`);
       } catch (error) {
-        this.logger.error(`Error updating ${key}:`, error);
+        const err = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Error updating ${key}: ${err}`);
       }
     });
 
@@ -2848,7 +2891,9 @@ class PluginManagerUIPlugin extends CustomModule {
         
         this.logger.log(`Timespan ${key} changed to ${parsedMs}ms (${newDisplay})`);
       } catch (error) {
-        this.logger.error(`Error updating timespan ${key}:`, error);
+        const err = error instanceof Error ? error.message : String(error);
+
+        this.logger.error(`Error updating timespan ${key}: ${err}`);
         input.value = displayValue;
       }
     });
