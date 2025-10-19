@@ -1,5 +1,11 @@
 // 
 class YoinkerDetectorPlugin extends CustomModule {
+  processedUsers: Set<string>;
+  pendingQueue: Set<string>;
+  isProcessing: boolean;
+  yoinkerCheckCache: Map<string, any>;
+  rateLimits: any;
+
   constructor() {
     super({
       name: "Yoinker Detector 🚨",
@@ -32,10 +38,10 @@ class YoinkerDetectorPlugin extends CustomModule {
 
     this.actionButtons = [
       {
-        label: "Clear Cache",
+        title: "Clear Cache",
         color: "danger",
         icon: "ri-delete-bin-line",
-        title: "Clear all processed users, cache, and reset stats",
+        description: "Clear all processed users, cache, and reset stats",
         callback: async () => {
           if (
             confirm(
@@ -535,7 +541,7 @@ class YoinkerDetectorPlugin extends CustomModule {
         if (data.cache) {
           const cacheExpiration = this.settings.store.cacheExpiration * 60000;
           for (const [userId, result] of Object.entries(data.cache)) {
-            const cacheAge = (Date.now() - result.timestamp) / 1000 / 60;
+            const cacheAge = (Date.now() - (result as any).timestamp) / 1000 / 60;
             if (cacheAge < cacheExpiration) {
               this.yoinkerCheckCache.set(userId, result);
             }

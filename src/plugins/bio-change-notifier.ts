@@ -20,10 +20,10 @@ class BioChangeNotifierPlugin extends CustomModule {
 
     this.actionButtons = [
       {
-        label: "Open Bio Feed",
+        title: "Open Bio Feed",
         color: "primary",
         icon: "ri-file-list-3-line",
-        title: "Open feed filtered by bio changes with entries expanded",
+        description: "Open feed filtered by bio changes with entries expanded",
         callback: async () => {
           await this.openBioFeed();
         },
@@ -426,8 +426,8 @@ class BioChangeNotifierPlugin extends CustomModule {
 
     return buildDiff(0, oldWords.length, 0, newWords.length)
       .join(' ')
-      .replaceAll(/<br>\s+/g, '<br>')
-      .replaceAll(/\s+<br>/g, '<br>');
+      .replace(/<br>\s+/g, '<br>')
+      .replace(/\s+<br>/g, '<br>');
   }
 
   /**
@@ -559,10 +559,10 @@ class BioChangeNotifierPlugin extends CustomModule {
       setTimeout(() => {
         try {
           // Find all expand toggle buttons and click them
-          const expandButtons = document.querySelectorAll('.el-table__expand-icon:not(.el-table__expand-icon--expanded)');
-          expandButtons.forEach(button => {
-            button.click();
-          });
+        const expandButtons = document.querySelectorAll('.el-table__expand-icon:not(.el-table__expand-icon--expanded)');
+        expandButtons.forEach(button => {
+          (button as HTMLElement).click();
+        });
           
           this.logger.showSuccess(`Opened Bio feed with ${expandButtons.length} entries`);
         } catch (error) {

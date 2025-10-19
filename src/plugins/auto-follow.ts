@@ -59,10 +59,10 @@ class AutoFollowPlugin extends CustomModule {
 
     this.actionButtons = [
       {
-        label: "Clear All",
+        title: "Clear All",
         color: "warning",
         icon: "ri-user-unfollow-line",
-        title: "Clear all auto-follow users from the list",
+        description: "Clear all auto-follow users from the list",
         callback: async () => {
           const count = this.autoFollowUsers.size;
           if (count === 0) {
@@ -144,10 +144,10 @@ class AutoFollowPlugin extends CustomModule {
 
     // Remove context menu items
     const contextMenu =
-      window.customjs?.pluginManager?.getPlugin("context-menu-api");
+      window.customjs?.getModule("context-menu-api");
     if (contextMenu) {
-      contextMenu.removeUserItem("autoFollow");
-      contextMenu.removeUserItem("clearAutoFollow");
+      (contextMenu as any).removeUserItem("autoFollow");
+      (contextMenu as any).removeUserItem("clearAutoFollow");
     }
 
     // Clear auto-follow users
@@ -287,7 +287,7 @@ class AutoFollowPlugin extends CustomModule {
     }
 
     // Parse the location to get instance details
-    const L = window.utils.parseLocation(location);
+    const L = (window as any).utils.parseLocation(location);
 
     // Skip traveling state - wait for actual destination
     if (L.isTraveling) {
@@ -402,12 +402,12 @@ class AutoFollowPlugin extends CustomModule {
 
         // Only add message if we have one
         if (customMessage) {
-          inviteParams.message = customMessage;
+          (inviteParams as any).message = customMessage;
         }
 
         // Send invite request to the user
         await window.request.notificationRequest.sendRequestInvite(
-          inviteParams,
+          inviteParams as any,
           user.id
         );
 

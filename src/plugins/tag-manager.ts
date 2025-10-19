@@ -20,10 +20,10 @@ class TagManagerPlugin extends CustomModule {
 
     this.actionButtons = [
       {
-        label: "Refresh Tags",
+        title: "Refresh Tags",
         color: "success",
         icon: "ri-refresh-line",
-        title: "Reload tags from all configured URLs",
+        description: "Reload tags from all configured URLs",
         callback: async () => {
           this.logger.showInfo("Refreshing tags from URLs...");
           await this.refreshTags();
@@ -32,15 +32,15 @@ class TagManagerPlugin extends CustomModule {
         },
       },
       {
-        label: "Find Tagged Users",
+        title: "Find Tagged Users",
         color: "primary",
         icon: "ri-search-line",
-        title: "Search all stores for tagged users and print to console",
+        description: "Search all stores for tagged users and print to console",
         callback: async () => {
           this.logger.showInfo("Searching for tagged users...");
           const result = this.findTaggedUsers(true);
           const total = Object.values(result).reduce(
-            (sum, store) => sum + Object.keys(store).length,
+            (sum: number, store: any) => sum + Object.keys(store).length,
             0
           );
           this.logger.showSuccess(
@@ -214,9 +214,9 @@ class TagManagerPlugin extends CustomModule {
     // Handle FewTags format: object with user IDs as keys
     if (typeof data === "object" && !Array.isArray(data)) {
       for (const [userId, userData] of Object.entries(data)) {
-        if (userData && userData.tags && Array.isArray(userData.tags)) {
-          const mainTag = userData.tag || userData.tags[0] || "Custom Tag";
-          const tagColor = userData.foreground_color || "#FF00C6";
+        if (userData && (userData as any).tags && Array.isArray((userData as any).tags)) {
+          const mainTag = (userData as any).tag || (userData as any).tags[0] || "Custom Tag";
+          const tagColor = (userData as any).foreground_color || "#FF00C6";
 
           tags.push({
             UserId: userId,
@@ -304,7 +304,7 @@ class TagManagerPlugin extends CustomModule {
    * @param {boolean} print - Whether to print findings to console (default: false)
    * @returns {Object} Dictionary of tagged users by store type
    */
-  findTaggedUsers(print = false) {
+  findTaggedUsers(print = false, copy = false) {
     const result = {
       friends: {},
       blocked: {},
@@ -321,8 +321,8 @@ class TagManagerPlugin extends CustomModule {
     };
 
     let totalCount = 0;
+    const allEntries = [];
 
-    // Helper to add tagged user
     const addTaggedUser = (store, userId, displayName, tag) => {
       try {
         if (!result[store]) result[store] = {};
@@ -330,15 +330,21 @@ class TagManagerPlugin extends CustomModule {
         result[store][userId] = tagText;
         totalCount++;
 
+        allEntries.push({
+          store,
+          userId,
+          displayName: displayName || "",
+          tagText,
+        });
+
         if (print) {
           this.logger.log(`[${store}] ${displayName || userId} - ${tagText}`);
         }
       } catch (err) {
-        // Silent fail for individual entries
+        // silent
       }
     };
 
-    // 1. Check friends
     try {
       const friends = window.$pinia?.user?.currentUser?.friends || [];
       for (const friendId of friends) {
@@ -352,19 +358,18 @@ class TagManagerPlugin extends CustomModule {
       this.logger.logError("Error checking friends:", error?.message);
     }
 
-    // 2. Check moderated players (blocked, muted, etc.)
     try {
       const moderations = Array.from(
         window.$pinia?.moderation?.cachedPlayerModerations?.values() || []
       );
       for (const mod of moderations) {
-        const tag = this.getUserTag(mod.targetUserId);
+        const tag = this.getUserTag((mod as any).targetUserId);
         if (tag) {
-          const storeName = this.getModerationStoreName(mod.type);
+          const storeName = this.getModerationStoreName((mod as any).type);
           addTaggedUser(
             storeName,
-            mod.targetUserId,
-            mod.targetDisplayName,
+            (mod as any).targetUserId,
+            (mod as any).targetDisplayName,
             tag
           );
         }
@@ -373,7 +378,6 @@ class TagManagerPlugin extends CustomModule {
       this.logger.logError("Error checking moderations:", error?.message);
     }
 
-    // 3. Check cached users
     try {
       const cachedUsers = window.$pinia?.user?.cachedUsers || new Map();
       for (const [userId, user] of cachedUsers) {
@@ -388,7 +392,6 @@ class TagManagerPlugin extends CustomModule {
       this.logger.logError("Error checking cached users:", error?.message);
     }
 
-    // 4. Check game log
     try {
       const gameLogData = window.$pinia?.gameLog?.gameLogTable || [];
       const seenInGameLog = new Set();
@@ -407,7 +410,6 @@ class TagManagerPlugin extends CustomModule {
       this.logger.logError("Error checking game log:", error?.message);
     }
 
-    // 5. Check feed
     try {
       const feedData = window.$pinia?.feed?.sharedFeed || [];
       const seenInFeed = new Set();
@@ -426,7 +428,6 @@ class TagManagerPlugin extends CustomModule {
       this.logger.logError("Error checking feed:", error?.message);
     }
 
-    // 6. Check friend log
     try {
       const friendLogData = window.$pinia?.friend?.friendLog || [];
       const seenInFriendLog = new Set();
@@ -449,7 +450,6 @@ class TagManagerPlugin extends CustomModule {
       this.logger.logError("Error checking friend log:", error?.message);
     }
 
-    // 7. Check notification log
     try {
       const notificationLogData =
         window.$pinia?.notification?.notificationTable || [];
@@ -473,19 +473,40 @@ class TagManagerPlugin extends CustomModule {
       this.logger.logError("Error checking notification log:", error?.message);
     }
 
-    // Print summary
-    try {
-      if (print) {
+    // Copy to clipboard in CSV format if copy == true
+    if (copy) {
+      try {
+        let csv = "userId,store,displayName,tagText\n";
+        for (const entry of allEntries) {
+          const row = [
+            (entry.userId || "").replace(/"/g, '""'),
+            (entry.store || "").replace(/"/g, '""'),
+            (entry.displayName || "").replace(/"/g, '""'),
+            (entry.tagText || "").replace(/"/g, '""'),
+          ]
+            .map((v) => `"${v}"`).join(",");
+          csv += row + "\n";
+        }
+        if (window.navigator?.clipboard) {
+          window.navigator.clipboard.writeText(csv);
+          this.logger.log("Tagged users copied to clipboard as CSV");
+        }
+      } catch (e) {
+        this.logger.warn("Failed to copy tagged users to clipboard");
+      }
+    }
+
+    if (print) {
+      try {
         const summary = Object.entries(result)
           .filter(([_, users]) => Object.keys(users).length > 0)
           .map(([store, users]) => `${store}: ${Object.keys(users).length}`)
           .join(" | ");
-
         this.logger.log(`\n📊 Tagged Users Summary (${totalCount} total)`);
         this.logger.log(summary);
+      } catch (error) {
+        this.logger.logError("Error printing summary:", error?.message);
       }
-    } catch (error) {
-      this.logger.logError("Error printing summary:", error?.message);
     }
 
     return result;

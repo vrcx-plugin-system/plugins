@@ -35,10 +35,10 @@ class AutoInvitePlugin extends CustomModule {
 
     this.actionButtons = [
       {
-        label: "Clear All",
+        title: "Clear All",
         color: "warning",
         icon: "ri-mail-forbid-line",
-        title: "Clear all auto-invite users from the list",
+        description: "Clear all auto-invite users from the list",
         callback: async () => {
           const count = this.autoInviteUsers.size;
           if (count === 0) {
@@ -122,10 +122,10 @@ class AutoInvitePlugin extends CustomModule {
 
     // Remove context menu items
     const contextMenu =
-      window.customjs?.pluginManager?.getPlugin("context-menu-api");
+      window.customjs?.getModule("context-menu-api");
     if (contextMenu) {
-      contextMenu.removeUserItem("autoInvite");
-      contextMenu.removeUserItem("clearAutoInvite");
+      (contextMenu as any).removeUserItem("autoInvite");
+      (contextMenu as any).removeUserItem("clearAutoInvite");
     }
 
     // Clear auto-invite users
@@ -293,16 +293,16 @@ class AutoInvitePlugin extends CustomModule {
       this.logger.log(`User arrived at: ${location}`);
 
       // Trigger registry overrides for instance switching
-      const registryPlugin = window.customjs?.plugins?.find(
+      const registryPlugin = window.customjs?.modules?.find(
         (p) => p.metadata?.id === "registry-overrides"
       );
-      if (registryPlugin?.triggerEvent) {
+      if ((registryPlugin as any)?.triggerEvent) {
         const isPublic =
           location.includes("~public") || location.includes("~hidden");
         const eventType = isPublic
           ? "INSTANCE_SWITCH_PUBLIC"
           : "INSTANCE_SWITCH_PRIVATE";
-        registryPlugin.triggerEvent(eventType);
+        (registryPlugin as any).triggerEvent(eventType);
       }
     }
   }
@@ -370,11 +370,11 @@ class AutoInvitePlugin extends CustomModule {
 
           // Only add message if we have one
           if (customMessage) {
-            inviteParams.message = customMessage;
+            (inviteParams as any).message = customMessage;
           }
 
           return window.request.notificationRequest.sendInvite(
-            inviteParams,
+            inviteParams as any,
             user.id
           );
         }

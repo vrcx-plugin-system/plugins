@@ -45,6 +45,10 @@
  */
 
 class InviteMessageApiPlugin extends CustomModule {
+  inviteStore: any;
+  COOLDOWN_MS: number;
+  MAX_MESSAGE_LENGTH: number;
+
   constructor() {
     super({
       name: "✉️ Invite Message API",

@@ -21,10 +21,10 @@ class RetryAutoLoginPlugin extends CustomModule {
 
     this.actionButtons = [
       {
-        label: "Retry Login Now",
+        title: "Retry Login Now",
         color: "primary",
         icon: "ri-login-circle-line",
-        title: "Immediately retry login with saved credentials",
+        description: "Immediately retry login with saved credentials",
         callback: async () => {
           await this.attemptAutoLogin();
         },

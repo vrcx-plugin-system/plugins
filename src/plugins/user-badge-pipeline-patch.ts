@@ -7,6 +7,9 @@
  * This happens when VRChat sends badge assignment notifications that VRCX doesn't handle yet
  */
 class UserBadgePipelinePatchPlugin extends CustomModule {
+  patched: boolean;
+  originalHandler: any;
+
   constructor() {
     super({
       name: "User Badge Pipeline Patch 🎖️",
@@ -174,8 +177,7 @@ class UserBadgePipelinePatchPlugin extends CustomModule {
 
       // Show a nice notification
       this.logger.showSuccess(
-        `🏅 Badge Earned: ${badge.badgeName}`,
-        badge.badgeDescription
+        `🏅 Badge Earned: ${badge.badgeName} - ${badge.badgeDescription || ""}`
       );
     } catch (error) {
       this.logger.error(`Error handling badge assignment: ${error.message}`);
@@ -189,8 +191,7 @@ class UserBadgePipelinePatchPlugin extends CustomModule {
   showBasicNotification(badge) {
     try {
       this.logger.showInfo(
-        `🏅 Badge Earned: ${badge.badgeName}`,
-        badge.badgeDescription
+        `🏅 Badge Earned: ${badge.badgeName} - ${badge.badgeDescription || ""}`
       );
     } catch (error) {
       this.logger.error(`Failed to show notification: ${error.message}`);

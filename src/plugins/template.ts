@@ -300,12 +300,9 @@ class TemplatePlugin extends CustomModule {
       );
     }
 
-    // Example: Get global config values (not plugin settings)
-    const steamId = this.getConfig("steam.id", "not-set");
-    this.logger.log(`⚙️ Steam ID from config: ${steamId}`);
-
-    // Example: Set global config values (not plugin settings)
-    this.setConfig("template.lastLogin", Date.now());
+    // Example: Access config through settings
+    const exampleValue = this.settings.store.exampleString;
+    this.logger.log(`⚙️ Example setting: ${exampleValue}`);
 
     // Example: Update plugin settings (instantly saved)
     this.settings.store.username = displayName || "Unknown";

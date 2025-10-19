@@ -52,20 +52,20 @@ class AvatarLogPlugin extends CustomModule {
 
     this.actionButtons = [
       {
-        label: "Scan Stores",
+        title: "Scan Stores",
         color: "primary",
         icon: "ri-search-line",
-        title: "Manually scan avatar stores for new avatars",
+        description: "Manually scan avatar stores for new avatars",
         callback: async () => {
           this.logger.showInfo("Scanning avatar stores...");
           await this.manualScan();
         },
       },
       {
-        label: "Clear Cache",
+        title: "Clear Cache",
         color: "danger",
         icon: "ri-delete-bin-line",
-        title: "Clear all processed avatars and reset stats",
+        description: "Clear all processed avatars and reset stats",
         callback: async () => {
           if (
             confirm(
@@ -347,7 +347,7 @@ class AvatarLogPlugin extends CustomModule {
 
     const results = {
       avatarId,
-      providers: {},
+      providers: {} as any,
     };
 
     // Send to each enabled provider
