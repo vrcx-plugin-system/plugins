@@ -2619,6 +2619,9 @@ class PluginManagerUIPlugin extends CustomModule {
           settingDef.markers || []
         );
 
+      case SettingType.TIMESPAN:
+        return this.createTimespanInput(plugin, key, currentValue);
+
       case SettingType.CUSTOM:
         return this.createCustomInput(plugin, key, currentValue);
 
@@ -2951,6 +2954,60 @@ class PluginManagerUIPlugin extends CustomModule {
     container.appendChild(slider);
     container.appendChild(valueDisplay);
 
+    return container;
+  }
+
+  createTimespanInput(plugin, key, currentValue) {
+    const container = document.createElement("div");
+    container.style.cssText = "display: flex; align-items: center; gap: 8px; width: 100%;";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "el-input__inner";
+    input.style.cssText = "flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 14px;";
+    
+    // Display current value in human-readable format
+    const displayValue = this.utils?.formatTimespan ? this.utils.formatTimespan(currentValue) : `${currentValue}ms`;
+    input.value = displayValue;
+    input.placeholder = "e.g., 1h 20m, 00:50.100, or 5000";
+
+    const valueLabel = document.createElement("span");
+    valueLabel.style.cssText = "color: #909090; font-size: 12px; min-width: 80px;";
+    valueLabel.textContent = `(${currentValue}ms)`;
+
+    this.registerListener(input, "blur", (e) => {
+      try {
+        const inputValue = (e.target as HTMLInputElement).value;
+        const parsedMs = this.utils?.parseTimespan ? this.utils.parseTimespan(inputValue) : parseInt(inputValue, 10);
+        
+        if (isNaN(parsedMs) || parsedMs < 0) {
+          this.logger.showWarning("Invalid timespan format");
+          input.value = displayValue;
+          return;
+        }
+
+        plugin.settings.store[key] = parsedMs;
+        
+        // Update display
+        const newDisplay = this.utils?.formatTimespan ? this.utils.formatTimespan(parsedMs) : `${parsedMs}ms`;
+        input.value = newDisplay;
+        valueLabel.textContent = `(${parsedMs}ms)`;
+        
+        this.logger.log(`Timespan ${key} changed to ${parsedMs}ms (${newDisplay})`);
+      } catch (error) {
+        this.logger.error(`Error updating timespan ${key}:`, error);
+        input.value = displayValue;
+      }
+    });
+
+    this.registerListener(input, "keydown", (e) => {
+      if ((e as KeyboardEvent).key === "Enter") {
+        input.blur();
+      }
+    });
+
+    container.appendChild(input);
+    container.appendChild(valueLabel);
     return container;
   }
 

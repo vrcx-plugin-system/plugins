@@ -85,15 +85,14 @@ class TagManagerPlugin extends CustomModule {
         ],
       },
       updateInterval: {
-        type: SettingType.NUMBER,
-        description: "How often to reload tags (default: 1 hour in ms)",
+        type: SettingType.TIMESPAN,
+        description: "How often to reload tags",
         category: "timing",
         default: 3600000,
       },
       initialDelay: {
-        type: SettingType.NUMBER,
-        description:
-          "Delay before first tag load after login (default: 5 seconds in ms)",
+        type: SettingType.TIMESPAN,
+        description: "Delay before first tag load after login",
         category: "timing",
         default: 5000,
       },

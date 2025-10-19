@@ -74,8 +74,8 @@ class TemplatePlugin extends CustomModule {
 
     this.settings = this.defineSettings({
       updateInterval: {
-        type: SettingType.NUMBER,
-        description: "How often to update in milliseconds",
+        type: SettingType.TIMESPAN,
+        description: "How often to update",
         category: "general",
         default: 60000,
       },

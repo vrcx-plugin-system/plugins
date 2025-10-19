@@ -185,6 +185,7 @@ interface SettingTypeEnum {
   BOOLEAN: 'boolean';
   SELECT: 'select';
   SLIDER: 'slider';
+  TIMESPAN: 'timespan';
   COMPONENT: 'component';
   CUSTOM: 'custom';
 }
@@ -234,7 +235,10 @@ interface CustomJS {
 
 interface ModuleUtils {
   isEmpty(v: any): boolean;
+  decodeUnicode(str: string): string;
   timeToText(ms: number): string;
+  parseTimespan(input: string | number): number;
+  formatTimespan(ms: number): string;
   getTimestamp(now?: Date | null): string;
   formatDateTime(now?: Date | null): string;
   copyToClipboard(text: string, description?: string): Promise<boolean>;

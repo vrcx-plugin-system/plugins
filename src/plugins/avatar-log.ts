@@ -158,8 +158,8 @@ class AvatarLogPlugin extends CustomModule {
         default: 5,
       },
       queueDelay: {
-        type: SettingType.NUMBER,
-        description: "Delay between processing batches (milliseconds)",
+        type: SettingType.TIMESPAN,
+        description: "Delay between processing batches",
         category: "performance",
         default: 2000,
       },

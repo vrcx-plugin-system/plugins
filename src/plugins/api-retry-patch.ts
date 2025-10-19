@@ -56,13 +56,13 @@ class ApiRetryPatchPlugin extends CustomModule {
         default: 3,
       },
       baseDelay: {
-        type: SettingType.NUMBER,
-        description: "Base delay between retries (ms)",
+        type: SettingType.TIMESPAN,
+        description: "Base delay between retries",
         default: 1000,
       },
       maxDelay: {
-        type: SettingType.NUMBER,
-        description: "Maximum delay between retries (ms)",
+        type: SettingType.TIMESPAN,
+        description: "Maximum delay between retries",
         default: 10000,
       },
       useJitter: {

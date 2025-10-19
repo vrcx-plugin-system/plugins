@@ -35,13 +35,13 @@ class SelfInviteOnBlockedPlayerPlugin extends CustomModule {
 
     this.settings = this.defineSettings({
       delayMs: {
-        type: SettingType.NUMBER,
-        description: "Delay before creating self-invite (milliseconds)",
+        type: SettingType.TIMESPAN,
+        description: "Delay before creating self-invite",
         default: 1000,
       },
       cooldownMs: {
-        type: SettingType.NUMBER,
-        description: "Minimum time between self-invites (milliseconds)",
+        type: SettingType.TIMESPAN,
+        description: "Minimum time between self-invites",
         default: 30000,
       },
       showNotification: {

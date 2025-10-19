@@ -71,15 +71,14 @@ Oculus ID: {oculus_id}`;
 
     this.settings = this.defineSettings({
       updateInterval: {
-        type: SettingType.NUMBER,
-        description: "How often to update bio (default: 2 hours in ms)",
+        type: SettingType.TIMESPAN,
+        description: "How often to update bio",
         category: "timing",
         default: 7200000,
       },
       initialDelay: {
-        type: SettingType.NUMBER,
-        description:
-          "Delay before first update after login (default: 20 seconds in ms)",
+        type: SettingType.TIMESPAN,
+        description: "Delay before first update after login",
         category: "timing",
         default: 20000,
       },
@@ -99,7 +98,7 @@ Oculus ID: {oculus_id}`;
       },
       appId: {
         type: SettingType.STRING,
-        description: "Steam app ID for VRChat (default: 438100)",
+        description: "Steam app ID for VRChat",
         category: "steam",
         default: "438100",
       },
