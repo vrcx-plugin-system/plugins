@@ -1,13 +1,21 @@
 // 
 class AvatarLogPlugin extends CustomModule {
+  processedAvatars: Set<string>;
+  pendingQueue: Set<string>;
+  isProcessing: boolean;
+  rateLimits: any;
+  stats: any;
+
   constructor() {
     super({
       name: "📸 Avatar Logger",
       description:
         "Logs and submits avatar IDs to various avatar database providers (avtrDB, NSVR, PAW, VRCDB, VRCWB)",
-      authors: [
-      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
-    ],
+      authors: [        {
+          name: "Bluscream",
+          description: "VRCX Plugin System Maintainer",
+          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
+        }      ],
       tags: ["Logger", "Database", "Integration"],
       dependencies: [],
     });
@@ -80,6 +88,8 @@ class AvatarLogPlugin extends CustomModule {
 
   async load() {
     this.logger.log("📦 Loading Avatar Logger...");
+
+    const SettingType = window.customjs.types.SettingType;
 
     // Define category metadata
     this.categories = this.defineSettingsCategories({

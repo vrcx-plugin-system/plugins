@@ -7,9 +7,11 @@ class TagManagerPlugin extends CustomModule {
     super({
       name: "🏷️ Tag Manager",
       description: "Custom user tags management with URL-based loading",
-      authors: [
-      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
-    ],
+      authors: [        {
+          name: "Bluscream",
+          description: "VRCX Plugin System Maintainer",
+          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
+        }      ],
       tags: ["Social", "Enhancement"],
       dependencies: [],
     });

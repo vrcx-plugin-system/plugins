@@ -50,9 +50,11 @@ class InviteMessageApiPlugin extends CustomModule {
       name: "✉️ Invite Message API",
       description:
         "API for managing and rotating custom invite messages with cooldown tracking",
-      authors: [
-      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
-    ],
+      authors: [        {
+          name: "Bluscream",
+          description: "VRCX Plugin System Maintainer",
+          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
+        }      ],
       tags: ["API", "Social", "Library"],
       dependencies: [],
     });

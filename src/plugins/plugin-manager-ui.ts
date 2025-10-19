@@ -14,13 +14,11 @@ class PluginManagerUIPlugin extends CustomModule {
       name: "🧩 Plugin Manager UI",
       description:
         "Visual UI for managing VRCX custom plugins - Equicord inspired",
-      authors: [
-        {
+      authors: [        {
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }
-      ],
+        }      ],
       tags: ["UI", "Core", "Settings"],
       dependencies: ["nav-menu-api", "dialog-api", "plugin-analyzer"],
     });
@@ -1279,16 +1277,50 @@ class PluginManagerUIPlugin extends CustomModule {
 
     const meta = document.createElement("div");
     meta.style.cssText =
-      "font-size: 11px; color: #909090; font-family: monospace;";
-    const author = plugin.metadata?.authors?.[0]?.name
-      ? `by ${plugin.metadata.authors[0].name}`
-      : "";
-    const buildDate = plugin.metadata?.build
-      ? ` • ${this.formatBuildDate(plugin.metadata.build)}`
-      : "";
+      "font-size: 11px; color: #909090; font-family: monospace; display: flex; align-items: center; gap: 4px;";
+    
+    // Create author section
+    const authorInfo = plugin.metadata?.authors?.[0];
+    if (authorInfo?.name) {
+      const byText = document.createTextNode("by ");
+      meta.appendChild(byText);
+      
+      if (authorInfo.userId) {
+        // Make author name clickable if userId exists
+        const authorLink = document.createElement("span");
+        authorLink.textContent = authorInfo.name;
+        authorLink.style.cssText = "color: #409eff; cursor: pointer; text-decoration: underline;";
+        authorLink.title = `${authorInfo.description || 'Click to view profile'}`;
+        
+        this.registerListener(authorLink, "click", (e) => {
+          e.stopPropagation();
+          try {
+            if (window.$pinia?.user?.showUserDialog) {
+              window.$pinia.user.showUserDialog(authorInfo.userId);
+              this.logger.log(`Opening user dialog for: ${authorInfo.name} (${authorInfo.userId})`);
+            } else {
+              this.logger.showWarning("User dialog not available");
+            }
+          } catch (error) {
+            this.logger.error("Error opening user dialog:", error);
+          }
+        });
+        
+        meta.appendChild(authorLink);
+      } else {
+        // No userId, just show author name
+        const authorText = document.createTextNode(authorInfo.name);
+        meta.appendChild(authorText);
+      }
+    }
+    
+    // Build date
+    if (plugin.metadata?.build) {
+      const buildText = document.createTextNode(` • ${this.formatBuildDate(plugin.metadata.build)}`);
+      meta.appendChild(buildText);
+    }
 
     // Show repository source if available
-    let repoSource = "";
     if (plugin.metadata?.url) {
         let result = null;
         for (const repo of window.customjs.repos || []) {
@@ -1300,12 +1332,11 @@ class PluginManagerUIPlugin extends CustomModule {
             }
           }
         }
-      if (result) {
-        repoSource = ` • 📦 ${result.repo.data?.name || "Repository"}`;
-      }
+        if (result) {
+          const repoText = document.createTextNode(` • 📦 ${result.repo.data?.name || "Repository"}`);
+          meta.appendChild(repoText);
+        }
     }
-
-    meta.textContent = author + buildDate + repoSource;
 
     nameSection.appendChild(name);
     nameSection.appendChild(meta);
@@ -1747,7 +1778,8 @@ class PluginManagerUIPlugin extends CustomModule {
       }
 
       const statusMsg = plugin.enabled ? "enabled" : "disabled";
-      this.logger.showSuccess(`${plugin.getDisplayName()} ${statusMsg}`);
+      const displayName = (plugin as any).getDisplayName ? (plugin as any).getDisplayName() : plugin.metadata.name;
+      this.logger.showSuccess(`${displayName} ${statusMsg}`);
 
       // Refresh after toggle completes
       setTimeout(() => this.refreshPluginGrid(), 200);

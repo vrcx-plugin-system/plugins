@@ -10,14 +10,20 @@
  * - Option to show notification
  */
 class SelfInviteOnBlockedPlayerPlugin extends CustomModule {
+  lastBlockedPlayerJoin: any;
+  inviteCreated: boolean;
+  utils: any;
+
   constructor() {
     super({
       name: "🚫 Self Invite on Blocked Player",
       description:
         "Automatically creates a self-invite to a new instance when a blocked player joins your current instance",
-      authors: [
-      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
-    ],
+      authors: [        {
+          name: "Bluscream",
+          description: "VRCX Plugin System Maintainer",
+          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
+        }      ],
       tags: ["Automation", "Security"],
       dependencies: [],
     });

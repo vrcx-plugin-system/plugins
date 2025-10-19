@@ -17,9 +17,11 @@ class BioSymbolsPatchPlugin extends CustomModule {
       name: "🔤 Bio Symbols Patch",
       description:
         "Patches replaceBioSymbols function to handle non-string inputs safely",
-      authors: [
-      {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
-    ],
+      authors: [        {
+          name: "Bluscream",
+          description: "VRCX Plugin System Maintainer",
+          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
+        }      ],
       tags: ["Bugfix", "Utility", "Patch", "Fix"],
       dependencies: [],
     });

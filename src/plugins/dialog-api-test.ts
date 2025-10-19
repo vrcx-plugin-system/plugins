@@ -6,9 +6,11 @@ class DialogApiTestPlugin extends CustomModule {
     super({
       name: "🧪 Dialog API Test",
       description: "Test plugin to demonstrate Dialog API functionality",
-      authors: [
-        {          name: "Bluscream",          description: "VRCX Plugin System Maintainer",          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",        }
-      ],
+      authors: [        {
+          name: "Bluscream",
+          description: "VRCX Plugin System Maintainer",
+          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
+        }      ],
       tags: ["Test", "Example", "Dialog"],
       dependencies: [],
     });
