@@ -126,12 +126,8 @@ class DialogApiPlugin extends CustomModule {
     };
   }
 
-  showConfirmDialog(title: string, message: string, type: "info" | "warning" | "error" = "info", confirmText: string = "Confirm", cancelText: string = "Cancel"): boolean {
-    (async () => {
-      return await this.showConfirmDialogAsync(title, message, type, confirmText, cancelText);
-    })();
-    return false;
-  }
+  // Note: This plugin inherits showConfirmDialog from CustomModule base class
+  // The base implementation calls this plugin's showConfirmDialogAsync method
 
   /**
    * Show confirmation dialog using Element Plus or fallback to native confirm

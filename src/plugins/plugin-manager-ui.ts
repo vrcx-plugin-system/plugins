@@ -1963,12 +1963,12 @@ class PluginManagerUIPlugin extends CustomModule {
       return;
     }
 
-    if (!await this.showConfirmDialog(
+    if (!(await this.showConfirmDialog(
       'Remove Plugin',
       'Are you sure you want to remove this plugin?\n\nNote: Code will remain in memory until VRCX restart.',
       'Remove',
       'Cancel'
-    )) {
+    ))) {
       this.logger.log("  → User cancelled removal");
       return;
     }
