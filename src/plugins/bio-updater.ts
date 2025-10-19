@@ -282,7 +282,7 @@ Oculus ID: {oculus_id}`;
       // Get tagged users count
       let taggedUsersCount = 0;
       if (this.tagManager?.findTaggedUsers) {
-        const taggedUsers = this.tagManager.findTaggedUsers(false);
+        const taggedUsers = await this.tagManager.findTaggedUsers(false);
         taggedUsersCount = Object.values(taggedUsers).reduce(
           (sum: number, store: any) => sum + Object.keys(store).length,
           0

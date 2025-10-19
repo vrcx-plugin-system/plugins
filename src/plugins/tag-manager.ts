@@ -38,7 +38,7 @@ class TagManagerPlugin extends CustomModule {
         description: "Search all stores for tagged users and print to console",
         callback: async () => {
           this.logger.showInfo("Searching for tagged users...");
-          const result = this.findTaggedUsers(true);
+          const result = await this.findTaggedUsers(true);
           const total = Object.values(result).reduce(
             (sum: number, store: any) => sum + Object.keys(store).length,
             0
@@ -296,15 +296,16 @@ class TagManagerPlugin extends CustomModule {
     }
 
     // Check friends and blocked players for tags
-    this.checkFriendsAndBlockedForTags();
+    await this.checkFriendsAndBlockedForTags();
   }
 
   /**
    * Find all tagged users across all VRCX stores
    * @param {boolean} print - Whether to print findings to console (default: false)
+   * @param {boolean} copy - Whether to copy CSV to clipboard (default: false)
    * @returns {Object} Dictionary of tagged users by store type
    */
-  findTaggedUsers(print = false, copy = false) {
+  async findTaggedUsers(print = false, copy = false) {
     const result = {
       friends: {},
       blocked: {},
@@ -487,12 +488,15 @@ class TagManagerPlugin extends CustomModule {
             .map((v) => `"${v}"`).join(",");
           csv += row + "\n";
         }
-        if (window.navigator?.clipboard) {
-          window.navigator.clipboard.writeText(csv);
-          this.logger.log("Tagged users copied to clipboard as CSV");
+        
+        const success = await window.customjs.utils.copyToClipboard(csv, "Tagged users CSV");
+        if (success) {
+          this.logger.showSuccess(`Copied ${allEntries.length} tagged users to clipboard as CSV`);
+        } else {
+          this.logger.showWarning("Failed to copy tagged users to clipboard");
         }
       } catch (e) {
-        this.logger.warn("Failed to copy tagged users to clipboard");
+        this.logger.showWarning("Failed to copy tagged users to clipboard");
       }
     }
 
@@ -532,8 +536,8 @@ class TagManagerPlugin extends CustomModule {
   /**
    * Legacy method for backwards compatibility
    */
-  checkFriendsAndBlockedForTags() {
-    this.findTaggedUsers(true);
+  async checkFriendsAndBlockedForTags() {
+    await this.findTaggedUsers(true);
   }
 
   startPeriodicUpdates() {
