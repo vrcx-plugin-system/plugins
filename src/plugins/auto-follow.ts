@@ -41,9 +41,7 @@ class AutoFollowPlugin extends CustomModule {
       }
     ],
       tags: ["Automation", "Social"],
-      dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",
-      ],
+      dependencies: ["context-menu-api"],
     });
 
     // Auto-follow state

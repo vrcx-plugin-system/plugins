@@ -10,9 +10,7 @@ class TestLoggerPlugin extends CustomModule {
       }
     ],
       tags: ["Debug", "Utility"],
-      dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
-      ],
+      dependencies: ["nav-menu-api"],
     });
 
     this.navMenuApi = null;

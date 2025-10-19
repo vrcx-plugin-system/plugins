@@ -13,9 +13,7 @@ class DevToolsButtonPlugin extends CustomModule {
       }
     ],
       tags: ["Utility", "Developer", "Button"],
-      dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
-      ],
+      dependencies: ["nav-menu-api"],
     });
 
     this.navMenuApi = null;

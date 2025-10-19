@@ -12,9 +12,7 @@ class PluginAnalyzerPlugin extends CustomModule {
         }
       ],
       tags: ["Tool", "Utility", "Analysis"],
-      dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/dialog-api.js",
-      ],
+      dependencies: ["dialog-api"],
     });
   }
 

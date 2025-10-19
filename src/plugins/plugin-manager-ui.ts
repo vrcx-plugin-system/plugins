@@ -20,11 +20,7 @@ class PluginManagerUIPlugin extends CustomModule {
       }
     ],
       tags: ["UI", "Core", "Settings"],
-      dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/dialog-api.js",
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/plugin-analyzer.js",
-      ],
+      dependencies: ["nav-menu-api", "dialog-api", "plugin-analyzer"],
     });
 
     this.settingsModal = null;

@@ -14,9 +14,7 @@ class ProtocolLinksPlugin extends CustomModule {
       }
     ],
       tags: ["Utility", "Integration"],
-      dependencies: [
-        "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",
-      ],
+      dependencies: ["context-menu-api"],
     });
   }
 
