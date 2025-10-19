@@ -18,10 +18,8 @@ class RetryAutoLoginPlugin extends CustomModule {
     });
 
     this.checkIntervalId = null;
-  }
 
-  getActionButtons() {
-    return [
+    this.actionButtons = [
       {
         label: "Retry Login Now",
         color: "primary",

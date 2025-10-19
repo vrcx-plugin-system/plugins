@@ -17,14 +17,8 @@ class TagManagerPlugin extends CustomModule {
     });
 
     this.loadedTags = new Map();
-  }
 
-  /**
-   * Define custom action buttons for the plugin manager UI
-   * @returns {Array} Array of button definitions
-   */
-  getActionButtons() {
-    return [
+    this.actionButtons = [
       {
         label: "Refresh Tags",
         color: "success",

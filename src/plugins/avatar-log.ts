@@ -49,14 +49,8 @@ class AvatarLogPlugin extends CustomModule {
     };
 
     this.logger.log("🎭 Avatar Logger initialized");
-  }
 
-  /**
-   * Define custom action buttons for the plugin manager UI
-   * @returns {Array} Array of button definitions
-   */
-  getActionButtons() {
-    return [
+    this.actionButtons = [
       {
         label: "Scan Stores",
         color: "primary",

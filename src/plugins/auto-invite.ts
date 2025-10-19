@@ -32,14 +32,8 @@ class AutoInvitePlugin extends CustomModule {
 
     // Tracking
     this.gameLogHookRetries = 0;
-  }
 
-  /**
-   * Define custom action buttons for the plugin manager UI
-   * @returns {Array} Array of button definitions
-   */
-  getActionButtons() {
-    return [
+    this.actionButtons = [
       {
         label: "Clear All",
         color: "warning",

@@ -17,14 +17,8 @@ class BioChangeNotifierPlugin extends CustomModule {
     });
 
     this.feedStore = null;
-  }
 
-  /**
-   * Define custom action buttons for the plugin manager UI
-   * @returns {Array} Array of button definitions
-   */
-  getActionButtons() {
-    return [
+    this.actionButtons = [
       {
         label: "Open Bio Feed",
         color: "primary",

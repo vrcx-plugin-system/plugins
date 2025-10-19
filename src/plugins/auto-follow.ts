@@ -56,14 +56,8 @@ class AutoFollowPlugin extends CustomModule {
     this.autoFollowUsers = new Map(); // Map<userId, {user, lastLocation}>
     this.lastRequestedFrom = new Map(); // Map<userId, lastRequestedLocation>
     this.checkInterval = 10000; // Check every 10 seconds
-  }
 
-  /**
-   * Define custom action buttons for the plugin manager UI
-   * @returns {Array} Array of button definitions
-   */
-  getActionButtons() {
-    return [
+    this.actionButtons = [
       {
         label: "Clear All",
         color: "warning",
