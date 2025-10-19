@@ -8,11 +8,11 @@ class RegistryOverridesPlugin extends CustomModule {
       name: "⚙️ Registry Overrides",
       description:
         "VRChat registry settings management with event-based triggers (disabled by default)",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Game", "Config", "Automation"],
       dependencies: [],
     });

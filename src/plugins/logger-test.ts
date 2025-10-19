@@ -7,11 +7,11 @@ class TestLoggerPlugin extends CustomModule {
     super({
       name: "🧪 Logger Tester",
       description: "Test different VRCX notification and logging methods",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Debug", "Utility"],
       dependencies: ["nav-menu-api"],
     });

@@ -16,11 +16,11 @@ class InvisiblePlayersMonitorPlugin extends CustomModule {
       name: "👻 Invisible Players Monitor",
       description:
         "Detects and notifies when potentially invisible players are in your instance",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Monitor", "Security"],
       dependencies: [],
     });

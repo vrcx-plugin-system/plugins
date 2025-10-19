@@ -9,11 +9,11 @@ class BioUpdaterPlugin extends CustomModule {
       name: "📝 Bio Updater",
       description:
         "Automatic bio updating with user statistics and custom templates",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Automation", "Social"],
       dependencies: [],
     });

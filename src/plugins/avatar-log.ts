@@ -11,11 +11,11 @@ class AvatarLogPlugin extends CustomModule {
       name: "📸 Avatar Logger",
       description:
         "Logs and submits avatar IDs to various avatar database providers (avtrDB, NSVR, PAW, VRCDB, VRCWB)",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Logger", "Database", "Integration"],
       dependencies: [],
     });

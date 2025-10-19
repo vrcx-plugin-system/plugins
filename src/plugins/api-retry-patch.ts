@@ -28,11 +28,11 @@ class ApiRetryPatchPlugin extends CustomModule {
       name: "🔄 API Retry Patch",
       description:
         "Automatically retries failed API requests for transient network errors",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Network", "API", "Utility", "Patch", "Fix"],
       dependencies: [],
     });

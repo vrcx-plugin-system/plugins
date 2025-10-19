@@ -10,11 +10,11 @@ class NavMenuTestPlugin extends CustomModule {
       name: "🧪 Nav Menu API Test",
       description:
         "Test plugin to verify nav-menu-api functionality with extensive debug logging",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Debug", "Experimental"],
       dependencies: ["nav-menu-api"],
     });

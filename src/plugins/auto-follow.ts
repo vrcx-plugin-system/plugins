@@ -43,11 +43,11 @@ class AutoFollowPlugin extends CustomModule {
       name: "👥 Auto Follow",
       description:
         "Automatically sends you invites when followed users join worlds (or requests invites for private instances)",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Automation", "Social"],
       dependencies: ["context-menu-api"],
     });

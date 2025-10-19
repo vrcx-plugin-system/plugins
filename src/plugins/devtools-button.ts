@@ -7,11 +7,11 @@ class DevToolsButtonPlugin extends CustomModule {
       name: "🔧 DevTools Button",
       description:
         "Adds a button to the navigation menu to open browser DevTools",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Utility", "Developer", "Button"],
       dependencies: ["nav-menu-api"],
     });

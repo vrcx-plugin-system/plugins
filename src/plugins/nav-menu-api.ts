@@ -10,11 +10,11 @@ class NavMenuApiPlugin extends CustomModule {
     super({
       name: "🧭 Navigation Menu API",
       description: "API for adding custom navigation menu items to VRCX",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["API", "Core", "Navigation", "Library"],
       dependencies: [],
     });

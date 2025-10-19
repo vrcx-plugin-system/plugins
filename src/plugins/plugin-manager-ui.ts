@@ -14,11 +14,11 @@ class PluginManagerUIPlugin extends CustomModule {
       name: "🧩 Plugin Manager UI",
       description:
         "Visual UI for managing VRCX custom plugins - Equicord inspired",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+      }],
       tags: ["UI", "Core", "Settings"],
       dependencies: ["nav-menu-api", "dialog-api", "plugin-analyzer"],
     });
@@ -364,9 +364,47 @@ class PluginManagerUIPlugin extends CustomModule {
 
     const repoMeta = document.createElement("div");
     repoMeta.style.cssText =
-      "font-size: 11px; color: #909090; margin-bottom: 2px;";
-    const author = repo.data?.authors?.[0]?.name || "Unknown";
-    repoMeta.innerHTML = `<span style="color: #6c757d;">by</span> ${author}`;
+      "font-size: 11px; color: #909090; margin-bottom: 2px; display: flex; align-items: center; gap: 4px;";
+    
+    const authorInfo = repo.data?.authors?.[0];
+    if (authorInfo?.name) {
+      const byText = document.createTextNode("by ");
+      const bySpan = document.createElement("span");
+      bySpan.style.cssText = "color: #6c757d;";
+      bySpan.appendChild(byText);
+      repoMeta.appendChild(bySpan);
+      
+      if (authorInfo.userId) {
+        // Make author name clickable if userId exists
+        const authorLink = document.createElement("span");
+        authorLink.textContent = authorInfo.name;
+        authorLink.style.cssText = "color: #409eff; cursor: pointer; text-decoration: underline;";
+        authorLink.title = `${authorInfo.description || 'Click to view profile'}`;
+        
+        this.registerListener(authorLink, "click", (e) => {
+          e.stopPropagation();
+          try {
+            if (window.$pinia?.user?.showUserDialog) {
+              window.$pinia.user.showUserDialog(authorInfo.userId);
+              this.logger.log(`Opening user dialog for: ${authorInfo.name} (${authorInfo.userId})`);
+            } else {
+              this.logger.showWarning("User dialog not available");
+            }
+          } catch (error) {
+            this.logger.error("Error opening user dialog:", error);
+          }
+        });
+        
+        repoMeta.appendChild(authorLink);
+      } else {
+        // No userId, just show author name
+        const authorText = document.createTextNode(authorInfo.name);
+        repoMeta.appendChild(authorText);
+      }
+    } else {
+      const unknownText = document.createTextNode("by Unknown");
+      repoMeta.appendChild(unknownText);
+    }
 
     const repoStats = document.createElement("div");
     repoStats.style.cssText =
@@ -1759,8 +1797,11 @@ class PluginManagerUIPlugin extends CustomModule {
           this.logger.showError(`Failed to load plugin: ${loadResult.message}`);
         }
 
-        // Refresh grid
-        setTimeout(() => this.refreshPluginGrid(), 500);
+        // Refresh grid and clear toggling state
+        setTimeout(() => {
+          this.togglingPlugins.delete(pluginId);
+          this.refreshPluginGrid();
+        }, 500);
         return;
       }
 
@@ -1877,8 +1918,9 @@ class PluginManagerUIPlugin extends CustomModule {
     } else {
       this.logger.log("  → Plugin has no configurable settings");
       // Show message that no settings are available
+      const displayName = (plugin as any).getDisplayName ? (plugin as any).getDisplayName() : plugin.metadata.name;
       this.logger.showInfo(
-        `${plugin.getDisplayName()} has no configurable settings`
+        `${displayName} has no configurable settings`
       );
     }
   }
@@ -2034,9 +2076,10 @@ class PluginManagerUIPlugin extends CustomModule {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
     `;
+    const displayName = (plugin as any).getDisplayName ? (plugin as any).getDisplayName() : plugin.metadata.name;
     header.innerHTML = `
       <h3 style="margin: 0; font-size: 20px; font-weight: 600;">
-        <i class="ri-settings-3-line"></i> ${plugin.getDisplayName()} Settings
+        <i class="ri-settings-3-line"></i> ${displayName} Settings
       </h3>
       <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">
         Configure plugin settings • Changes are saved automatically
@@ -2099,9 +2142,10 @@ class PluginManagerUIPlugin extends CustomModule {
     });
 
     this.registerListener(resetBtn, "click", async () => {
+      const displayName = (plugin as any).getDisplayName ? (plugin as any).getDisplayName() : plugin.metadata.name;
       if (
         confirm(
-          `Reset all settings for "${plugin.getDisplayName()}" to their default values?`
+          `Reset all settings for "${displayName}" to their default values?`
         )
       ) {
         // Reset settings using new API if available

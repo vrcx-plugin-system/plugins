@@ -15,11 +15,11 @@ class AutoInvitePlugin extends CustomModule {
       name: "📨 Auto Invite Manager",
       description:
         "Automatic user invitation system with location tracking and custom messages",
-      authors: [        {
+      authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }      ],
+        }],
       tags: ["Automation", "Social"],
       dependencies: ["context-menu-api"],
     });
