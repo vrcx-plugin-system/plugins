@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class DebugPlugin extends Plugin {
+// 
+class DebugPlugin extends CustomModule {
   constructor() {
     super({
       name: "🐛 Debug Plugin",
@@ -36,29 +34,19 @@ class DebugPlugin extends Plugin {
 
       // Plugin helper functions
       getUserTag: (userId) =>
-        window.customjs.pluginManager
-          .getPlugin("tag-manager")
-          ?.getUserTag(userId),
+        (window.customjs.getModule("tag-manager") as any)?.getUserTag(userId),
       clearProcessedMenus: () =>
-        window.customjs.pluginManager
-          .getPlugin("context-menu-api")
-          ?.clearProcessedMenus(),
+        (window.customjs.getModule("context-menu-api") as any)?.clearProcessedMenus(),
       triggerRegistryEvent: (event) =>
-        window.customjs.pluginManager
-          .getPlugin("registry-overrides")
-          ?.triggerEvent(event),
+        (window.customjs.getModule("registry-overrides") as any)?.triggerEvent(event),
       refreshTags: () =>
-        window.customjs.pluginManager.getPlugin("tag-manager")?.refreshTags(),
+        (window.customjs.getModule("tag-manager") as any)?.refreshTags(),
       getLoadedTagsCount: () =>
-        window.customjs.pluginManager
-          .getPlugin("tag-manager")
-          ?.getLoadedTagsCount(),
+        (window.customjs.getModule("tag-manager") as any)?.getLoadedTagsCount(),
       getActiveTagsCount: () =>
-        window.customjs.pluginManager
-          .getPlugin("tag-manager")
-          ?.getActiveTagsCount(),
-      getPluginManager: () => window.customjs?.pluginManager,
-      getPluginList: () => window.customjs?.pluginManager?.getPluginList(),
+        (window.customjs.getModule("tag-manager") as any)?.getActiveTagsCount(),
+      getModules: () => window.customjs.modules,
+      getRepos: () => window.customjs.repos,
 
       // Advanced inspection functions
       inspectPlugin: (id) => this.inspectPlugin(id),
@@ -151,7 +139,7 @@ class DebugPlugin extends Plugin {
    * Get plugin by ID
    */
   getPlugin(id) {
-    return window.customjs.pluginManager.getPlugin(id);
+    return window.customjs.getModule(id);
   }
 
   /**
@@ -244,13 +232,11 @@ class DebugPlugin extends Plugin {
    * @param {object} options.root - Root object to search (default: window)
    * @returns {Array} Array of results with path and value
    */
-  searchVariable(searchTerm, options = {}) {
-    const {
-      maxDepth = 5,
-      caseSensitive = false,
-      exactMatch = false,
-      root = window,
-    } = options;
+  searchVariable(searchTerm: any, options: any = {}) {
+    const maxDepth = options.maxDepth || 5;
+    const caseSensitive = options.caseSensitive || false;
+    const exactMatch = options.exactMatch || false;
+    const root = options.root || window;
 
     const results = [];
     const visited = new WeakSet();
@@ -357,5 +343,5 @@ class DebugPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = DebugPlugin;

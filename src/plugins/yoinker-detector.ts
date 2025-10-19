@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class YoinkerDetectorPlugin extends Plugin {
+// 
+class YoinkerDetectorPlugin extends CustomModule {
   constructor() {
     super({
       name: "🚨 Yoinker Detector",
@@ -639,5 +637,5 @@ class YoinkerDetectorPlugin extends Plugin {
   }
 }
 
-// Make plugin class available for PluginLoader to instantiate
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = YoinkerDetectorPlugin;

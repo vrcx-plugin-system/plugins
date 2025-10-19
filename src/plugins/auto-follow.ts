@@ -1,6 +1,4 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
+// 
 /**
  * Auto Follow Plugin
  * Automatic location tracking system that follows selected users
@@ -31,7 +29,7 @@
  * Example:
  * Set in plugin settings: "Can I join you in {worldName}?"
  */
-class AutoFollowPlugin extends Plugin {
+class AutoFollowPlugin extends CustomModule {
   constructor() {
     super({
       name: "👥 Auto Follow",
@@ -122,7 +120,7 @@ class AutoFollowPlugin extends Plugin {
     this.utils = window.customjs.utils;
 
     // Wait for dependencies
-    this.contextMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.contextMenuApi = await window.customjs.waitForModule(
       "context-menu-api"
     );
 
@@ -678,5 +676,5 @@ class AutoFollowPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = AutoFollowPlugin;

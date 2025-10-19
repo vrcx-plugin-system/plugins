@@ -1,6 +1,4 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
+// 
 /**
  * User Badge Pipeline Patch Plugin
  * Adds support for the 'user-badge-assigned' pipeline event type
@@ -8,7 +6,7 @@
  * Fixes the error: "Unknown pipeline type {type: 'user-badge-assigned', content: {...}}"
  * This happens when VRChat sends badge assignment notifications that VRCX doesn't handle yet
  */
-class UserBadgePipelinePatchPlugin extends Plugin {
+class UserBadgePipelinePatchPlugin extends CustomModule {
   constructor() {
     super({
       name: "🎖️ User Badge Pipeline Patch",
@@ -244,5 +242,5 @@ class UserBadgePipelinePatchPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = UserBadgePipelinePatchPlugin;

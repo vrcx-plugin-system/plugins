@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class DevToolsButtonPlugin extends Plugin {
+// 
+class DevToolsButtonPlugin extends CustomModule {
   navMenuApi: any;
 
   constructor() {
@@ -29,7 +27,7 @@ class DevToolsButtonPlugin extends Plugin {
   }
 
   async start() {
-    this.navMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.navMenuApi = await window.customjs.waitForModule(
       "nav-menu-api"
     );
 

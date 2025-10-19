@@ -1,5 +1,6 @@
 /**
- * TypeScript definitions for VRCX Plugin System
+ * TypeScript definitions for VRCX Custom Modules
+ * These definitions allow modules to be written without @ts-nocheck
  */
 
 /**
@@ -12,6 +13,9 @@ interface ModuleAuthor {
   avatarUrl?: string;
 }
 
+/**
+ * Custom action button for Plugin Manager UI
+ */
 declare class CustomActionButton {
   title: string;
   color: "primary" | "success" | "warning" | "danger" | "info";
@@ -28,33 +32,42 @@ declare class CustomActionButton {
   });
 }
 
-declare class Plugin {
-  metadata: PluginMetadata;
+/**
+ * CustomModule - Base class for user modules
+ */
+declare class CustomModule {
+  metadata: ModuleMetadata;
   enabled: boolean;
   loaded: boolean;
   started: boolean;
-  logger: PluginLogger;
-  resources: PluginResources;
-  settings?: PluginSettings;
+  logger: ModuleLogger;
+  resources: ModuleResources;
+  settings?: ModuleSettings;
   categories?: Record<string, SettingCategory>;
   dependencies: string[];
   logColor: string;
   actionButtons: CustomActionButton[];
+  repository?: any;
 
-  constructor(metadata: PluginMetadata);
+  constructor(metadata: Partial<ModuleMetadata>);
   
   load?(): Promise<void> | void;
   start?(): Promise<void> | void;
   stop(): Promise<void>;
   onLogin?(currentUser: any): Promise<void> | void;
-  toggle?(): Promise<void>;
+  enable(): Promise<boolean>;
+  disable(): Promise<boolean>;
+  toggle(): Promise<boolean>;
   
   get(key: string, defaultValue?: any): any;
-  set(key: string, value: any): void;
-  getConfig(key: string, defaultValue?: any): any;
-  setConfig(key: string, value: any): void;
+  set(key: string, value: any): boolean;
+  deleteSetting(key: string): boolean;
+  hasSetting(key: string): boolean;
+  getAllSettingKeys(): string[];
+  getAllSettings(): Record<string, any>;
+  clearAllSettings(): void;
   
-  defineSettings(settings: Record<string, SettingDefinition>): PluginSettings;
+  defineSettings(settings: Record<string, SettingDefinition>): ModuleSettings;
   defineSettingsCategories(categories: Record<string, SettingCategory>): Record<string, SettingCategory>;
   
   registerPreHook(functionPath: string, callback: (args: any[]) => void): void;
@@ -64,8 +77,11 @@ declare class Plugin {
   
   registerTimer(timer: number | NodeJS.Timeout): number | NodeJS.Timeout;
   registerObserver(observer: MutationObserver | IntersectionObserver | ResizeObserver): any;
-  registerListener(target: EventTarget, event: string, callback: EventListener, options?: AddEventListenerOptions): void;
-  subscribe(storeName: string, callback: (state: any) => void): void;
+  registerListener(target: EventTarget, event: string, callback: EventListener, options?: AddEventListenerOptions): {element: EventTarget; event: string; handler: EventListener};
+  registerSubscription(unsubscribe: () => void): () => void;
+  registerResource(unsubscribe: () => void): () => void;
+  cleanupResources(): void;
+  subscribe(storeName: string, callback: (state: any) => void): (() => void) | null;
   
   on(eventName: string, callback: (data: any) => void): void;
   emit(eventName: string, data?: any): void;
@@ -76,44 +92,74 @@ declare class Plugin {
 }
 
 /**
- * Plugin metadata - uses ModuleAuthor array for multi-author support
+ * Module metadata - uses ModuleAuthor array for multi-author support
  */
-interface PluginMetadata {
+interface ModuleMetadata {
+  id?: string;
   name: string;
   description: string;
-  authors: ModuleAuthor[];   // Required - array of authors
-  build?: string;  // Optional - managed by repo.json
+  authors: ModuleAuthor[];
+  build?: string;
+  url?: string | null;
   dependencies?: string[];
   tags?: string[];
 }
 
-interface PluginLogger {
+interface ModuleLogger {
   log(...args: any[]): void;
+  logInfo(...args: any[]): void;
+  logWarn(...args: any[]): void;
+  logWarning(...args: any[]): void;
+  logError(...args: any[]): void;
   warn(...args: any[]): void;
   error(...args: any[]): void;
   showSuccess(message: string): void;
   showInfo(message: string): void;
   showWarning(message: string): void;
+  showWarn(message: string): void;
   showError(message: string): void;
+  notifyInfo(message: string): void;
+  notifySuccess(message: string): void;
+  notifyWarning(message: string): void;
+  notifyError(message: string): void;
+  notifyDesktop(message: string, title?: string): Promise<void>;
+  notifyVR(message: string, title?: string): Promise<void>;
+  notifyAll(message: string): Promise<void>;
+  addFeed(entry: any): void;
+  addGameLog(entry: any): void;
+  addFriendLog(entry: any): void;
+  addNotificationLog(entry: any): void;
+  alert(message: string): void;
 }
 
-interface PluginResources {
+interface ModuleResources {
   timers: Set<number | NodeJS.Timeout>;
   observers: Set<any>;
-  listeners: Set<{ target: EventTarget; event: string; callback: EventListener }>;
+  listeners: Map<EventTarget, Array<{event: string; handler: EventListener; options?: AddEventListenerOptions}>>;
   subscriptions: Set<() => void>;
+  hooks?: Set<{type: string; functionPath: string; callback: Function}>;
 }
 
-interface PluginSettings {
+interface ModuleSettings {
   store: Record<string, any>;
-  definitions: Record<string, SettingDefinition>;
+  plain: Record<string, any>;
+  def: Record<string, SettingDefinition>;
+  pluginName: string;
+  onChange(key: string, callback: Function): void;
+  offChange(key: string, callback: Function): void;
+  reset(key: string): void;
+  resetAll(): void;
+  getVisibleSettings(): Record<string, SettingDefinition>;
+  getHiddenSettings(): Record<string, SettingDefinition>;
+  getSettingsByCategory(): Record<string, Record<string, SettingDefinition>>;
+  getCategorySettings(categoryKey: string): Record<string, SettingDefinition>;
 }
 
 interface SettingDefinition {
   type: SettingType;
   description: string;
   category?: string;
-  default: any;
+  default?: any;
   placeholder?: string;
   hidden?: boolean;
   markers?: number[];
@@ -132,68 +178,69 @@ interface SelectOption {
   default?: boolean;
 }
 
-enum SettingType {
-  STRING = "STRING",
-  NUMBER = "NUMBER",
-  BOOLEAN = "BOOLEAN",
-  SELECT = "SELECT",
-  SLIDER = "SLIDER"
+interface SettingTypeEnum {
+  STRING: 'string';
+  NUMBER: 'number';
+  BIGINT: 'bigint';
+  BOOLEAN: 'boolean';
+  SELECT: 'select';
+  SLIDER: 'slider';
+  COMPONENT: 'component';
+  CUSTOM: 'custom';
 }
 
+type SettingType = SettingTypeEnum[keyof SettingTypeEnum];
+
 interface CustomJS {
-  plugins: Plugin[];
-  pluginManager: PluginManager;
+  modules: CustomModule[];
+  plugins: CustomModule[];
+  repos: any[];
   events: Record<string, Array<(data: any) => void>>;
   hooks: {
-    pre: Record<string, Array<(args: any[]) => void>>;
-    post: Record<string, Array<(result: any, args: any[]) => void>>;
-    void: Record<string, Array<(args: any[]) => void>>;
-    replace: Record<string, Array<(originalFunc: Function, ...args: any[]) => any>>;
+    pre: Record<string, Array<{plugin: CustomModule; callback: (args: any[]) => void}>>;
+    post: Record<string, Array<{plugin: CustomModule; callback: (result: any, args: any[]) => void}>>;
+    void: Record<string, Array<{plugin: CustomModule; callback: (args: any[]) => void}>>;
+    replace: Record<string, Array<{plugin: CustomModule; callback: (originalFunc: Function, ...args: any[]) => any}>>;
   };
   functions: Record<string, Function>;
+  subscriptions: Map<string, Set<() => void>>;
   classes: {
     Logger: any;
     ConfigManager: any;
     SettingsStore: any;
-    Plugin: typeof Plugin;
-    PluginLoader: any;
-    PluginManager: any;
+    Module: any;
+    CoreModule: any;
+    CustomModule: typeof CustomModule;
     CustomActionButton: typeof CustomActionButton;
-    PluginRepo: any;
-    PluginRepoManager: any;
+    ModuleRepository: any;
   };
-  utils?: PluginUtils;
+  utils?: ModuleUtils;
   debug?: any;
-  SettingType: typeof SettingType;
-  definePluginSettings?: Function;
-  __LAST_PLUGIN_CLASS__?: typeof Plugin;
+  SettingType: SettingTypeEnum;
+  definePluginSettings?: (definition: Record<string, SettingDefinition>, plugin: CustomModule) => ModuleSettings;
+  __LAST_PLUGIN_CLASS__?: typeof CustomModule;
   coreModules?: Map<string, any>;
   configManager?: any;
-  repoManager?: any;
-  core_modules?: Map<string, any>;
+  getModule?: (idOrUrl: string) => CustomModule | undefined;
+  waitForModule?: (moduleId: string, timeout?: number) => Promise<CustomModule>;
+  getRepo?: (url: string) => any;
+  loadModule?: (url: string) => Promise<{success: boolean; message?: string; module?: CustomModule}>;
+  unloadModule?: (idOrUrl: string) => Promise<{success: boolean; message?: string}>;
+  reloadModule?: (idOrUrl: string) => Promise<{success: boolean; message?: string}>;
+  addRepository?: (url: string, saveConfig?: boolean) => Promise<{success: boolean; message: string; repo?: any}>;
+  removeRepository?: (url: string) => boolean;
 }
 
-interface PluginManager {
-  loadPlugin(url: string): Promise<Plugin>;
-  getPlugin(id: string): Plugin | undefined;
-  waitForPlugin(id: string, timeout?: number): Promise<Plugin>;
-  getPluginList(): Plugin[];
-  failedUrls?: Map<string, any>;
-  getPluginConfig?(): Record<string, boolean>;
-  savePluginConfig?(config: Record<string, boolean>): void;
-  reloadPlugin?(id: string): Promise<void>;
-  removePlugin?(id: string): Promise<void>;
-  loader?: any;
-}
-
-interface PluginUtils {
-  getTimestamp(): number;
-  showSuccess(message: string): void;
-  showInfo(message: string): void;
-  showWarning(message: string): void;
-  showError(message: string): void;
-  hexToRgba?(hex: string, alpha: number): string;
-  copyToClipboard?(text: string, label?: string): void;
+interface ModuleUtils {
+  isEmpty(v: any): boolean;
+  timeToText(ms: number): string;
+  getTimestamp(now?: Date | null): string;
+  formatDateTime(now?: Date | null): string;
+  copyToClipboard(text: string, description?: string): Promise<boolean>;
+  saveBio(bio?: string, bioLinks?: any): Promise<any>;
+  getLocationObject(loc: any): Promise<any>;
+  hexToRgba(hex: string, alpha: number): string;
+  darkenColor(hex: string, percent: number): string;
   [key: string]: any;
 }
 
@@ -201,8 +248,15 @@ interface Window {
   customjs: CustomJS;
   $pinia?: any;
   $app?: any;
-  AppApi?: any;
+  AppApi?: {
+    ShowDevTools(): void;
+    SendIpc(event: string, data: any): void;
+    DesktopNotification(title: string, message: string): Promise<void>;
+    XSNotification(title: string, message: string, duration: number, volume: number, icon: string): Promise<void>;
+    OVRTNotification(flag1: boolean, flag2: boolean, title: string, message: string, duration: number, volume: number, icon: string | null): Promise<void>;
+    ReadConfigFileSafe(): Promise<string>;
+    WriteConfigFile(content: string): Promise<void>;
+  };
   request?: any;
+  database?: any;
 }
-
-declare const window: Window;

@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class StartGameButtonPlugin extends Plugin {
+// 
+class StartGameButtonPlugin extends CustomModule {
   navMenuApi: any;
 
   constructor() {
@@ -59,7 +57,7 @@ class StartGameButtonPlugin extends Plugin {
   }
 
   async start() {
-    this.navMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.navMenuApi = await window.customjs.waitForModule(
       "nav-menu-api"
     );
 

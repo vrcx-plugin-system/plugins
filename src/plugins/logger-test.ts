@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class TestLoggerPlugin extends Plugin {
+// 
+class TestLoggerPlugin extends CustomModule {
   constructor() {
     super({
       name: "🧪 Logger Tester",
@@ -27,7 +25,7 @@ class TestLoggerPlugin extends Plugin {
   }
 
   async start() {
-    this.navMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.navMenuApi = await window.customjs.waitForModule(
       "nav-menu-api"
     );
 

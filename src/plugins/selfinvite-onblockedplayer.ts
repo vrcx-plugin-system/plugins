@@ -1,6 +1,4 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
+// 
 /**
  * Self Invite On Blocked Player Plugin
  *
@@ -11,7 +9,7 @@
  * - Configurable delay before inviting
  * - Option to show notification
  */
-class SelfInviteOnBlockedPlayerPlugin extends Plugin {
+class SelfInviteOnBlockedPlayerPlugin extends CustomModule {
   constructor() {
     super({
       name: "🚫 Self Invite on Blocked Player",
@@ -325,5 +323,5 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = SelfInviteOnBlockedPlayerPlugin;

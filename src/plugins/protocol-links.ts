@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class ProtocolLinksPlugin extends Plugin {
+// 
+class ProtocolLinksPlugin extends CustomModule {
   utils: any;
   contextMenuApi: any;
 
@@ -32,7 +30,7 @@ class ProtocolLinksPlugin extends Plugin {
     this.utils = (window as any).customjs.utils;
 
     // Wait for dependencies
-    this.contextMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.contextMenuApi = await window.customjs.waitForModule(
       "context-menu-api"
     );
 
@@ -241,5 +239,5 @@ class ProtocolLinksPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = ProtocolLinksPlugin;

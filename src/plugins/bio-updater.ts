@@ -1,7 +1,9 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
+class BioUpdaterPlugin extends CustomModule {
+  updateTimerId: number | null;
+  utils: any;
+  autoInvite: any;
+  tagManager: any;
 
-class BioUpdaterPlugin extends Plugin {
   constructor() {
     super({
       name: "📝 Bio Updater",
@@ -156,10 +158,10 @@ Oculus ID: {oculus_id}`;
     this.utils = window.customjs.utils;
 
     // Wait for dependencies
-    this.autoInvite = await window.customjs.pluginManager.waitForPlugin(
+    this.autoInvite = await window.customjs.waitForModule(
       "auto-invite"
     );
-    this.tagManager = await window.customjs.pluginManager.waitForPlugin(
+    this.tagManager = await window.customjs.waitForModule(
       "tag-manager"
     );
 
@@ -179,8 +181,8 @@ Oculus ID: {oculus_id}`;
     this.updateTimerId = this.registerTimer(
       setInterval(async () => {
         await this.updateBio();
-      }, updateInterval)
-    );
+      }, updateInterval) as any
+    ) as any;
 
     this.logger.log(
       `Bio update timer registered (interval: ${updateInterval}ms)`
@@ -262,13 +264,13 @@ Oculus ID: {oculus_id}`;
         window.$pinia?.favorite?.favoriteFriends?.values() || []
       );
       const group1 = favs.filter(
-        (friend) => friend.groupKey === "friend:group_1"
+        (friend: any) => friend.groupKey === "friend:group_1"
       );
       const group2 = favs.filter(
-        (friend) => friend.groupKey === "friend:group_2"
+        (friend: any) => friend.groupKey === "friend:group_2"
       );
       const group3 = favs.filter(
-        (friend) => friend.groupKey === "friend:group_3"
+        (friend: any) => friend.groupKey === "friend:group_3"
       );
 
       // Apply template with replacements
@@ -283,29 +285,29 @@ Oculus ID: {oculus_id}`;
       if (this.tagManager?.findTaggedUsers) {
         const taggedUsers = this.tagManager.findTaggedUsers(false);
         taggedUsersCount = Object.values(taggedUsers).reduce(
-          (sum, store) => sum + Object.keys(store).length,
+          (sum: number, store: any) => sum + Object.keys(store).length,
           0
-        );
+        ) as number;
       }
 
       const newBio = bioTemplate
-        .replace("{last_activity}", this.timeToText(now - last_activity))
+        .replace("{last_activity}", this.timeToText((now - (last_activity as any)) as any))
         .replace("{playtime}", playTimeText)
         .replace("{date_joined}", currentUser.date_joined ?? "Unknown")
         .replace("{friends}", currentUser.friends.length ?? "?")
         .replace(
           "{blocked}",
-          moderations.filter((item) => item.type === "block").length ?? "?"
+          moderations.filter((item: any) => item.type === "block").length ?? "?"
         )
         .replace(
           "{muted}",
-          moderations.filter((item) => item.type === "mute").length ?? "?"
+          moderations.filter((item: any) => item.type === "mute").length ?? "?"
         )
         .replace("{now}", this.formatDateTime())
-        .replace("{group1}", group1.map((f) => f.name).join(", "))
-        .replace("{group2}", group2.map((f) => f.name).join(", "))
-        .replace("{group3}", group3.map((f) => f.name).join(", "))
-        .replace("{autojoin}", group2.map((f) => f.name).join(", ")) // Alias for group2
+        .replace("{group1}", group1.map((f: any) => f.name).join(", "))
+        .replace("{group2}", group2.map((f: any) => f.name).join(", "))
+        .replace("{group3}", group3.map((f: any) => f.name).join(", "))
+        .replace("{autojoin}", group2.map((f: any) => f.name).join(", ")) // Alias for group2
         .replace("{autoinvite}", autoInviteUsers.join(", ") ?? "")
         .replace(
           "{autoinviteprefix}",
@@ -449,5 +451,5 @@ Oculus ID: {oculus_id}`;
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = BioUpdaterPlugin;

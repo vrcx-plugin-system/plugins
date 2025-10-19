@@ -1,6 +1,4 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
+// 
 /**
  * Invite Message API Plugin
  *
@@ -9,7 +7,7 @@
  * Usage Examples:
  *
  * // Get the plugin instance
- * const inviteApi = window.customjs.pluginManager.getPlugin("invite-message-api");
+ * const inviteApi = window.customjs.getModule("invite-message-api");
  *
  * // Request an invite message (will find a message with 0 cooldown and update it)
  * const result = await inviteApi.requestInviteMessage("Join me at the cool world!");
@@ -46,7 +44,7 @@
  * const forced = await inviteApi.requestInviteMessage("New text", true);
  */
 
-class InviteMessageApiPlugin extends Plugin {
+class InviteMessageApiPlugin extends CustomModule {
   constructor() {
     super({
       name: "✉️ Invite Message API",
@@ -755,5 +753,5 @@ class InviteMessageApiPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = InviteMessageApiPlugin;

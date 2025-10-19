@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class NavMenuApiPlugin extends Plugin {
+// 
+class NavMenuApiPlugin extends CustomModule {
   constructor() {
     super({
       name: "🧭 Navigation Menu API",
@@ -613,5 +611,5 @@ class NavMenuApiPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = NavMenuApiPlugin;

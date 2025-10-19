@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class AvatarLogPlugin extends Plugin {
+// 
+class AvatarLogPlugin extends CustomModule {
   constructor() {
     super({
       name: "📸 Avatar Logger",
@@ -738,5 +736,5 @@ class AvatarLogPlugin extends Plugin {
   }
 }
 
-// Make plugin class available for PluginLoader to instantiate
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = AvatarLogPlugin;

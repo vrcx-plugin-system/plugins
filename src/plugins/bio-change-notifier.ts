@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class BioChangeNotifierPlugin extends Plugin {
+// 
+class BioChangeNotifierPlugin extends CustomModule {
   constructor() {
     super({
       name: "🔔 Bio Change Notifier",
@@ -584,5 +582,5 @@ class BioChangeNotifierPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = BioChangeNotifierPlugin;

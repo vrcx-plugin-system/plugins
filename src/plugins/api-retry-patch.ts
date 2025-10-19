@@ -1,6 +1,4 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
+// 
 /**
  * API Retry Patch Plugin
  * Patches VRChat API request methods to add automatic retry logic for transient errors
@@ -17,7 +15,7 @@
  * - maxDelay: Maximum delay in milliseconds (default: 10000)
  * - useJitter: Add random jitter to delays (default: true)
  */
-class ApiRetryPatchPlugin extends Plugin {
+class ApiRetryPatchPlugin extends CustomModule {
   originalMethods: Map<string, Function>;
   retryStats: {
     totalRetries: number;
@@ -423,5 +421,5 @@ class ApiRetryPatchPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = ApiRetryPatchPlugin;

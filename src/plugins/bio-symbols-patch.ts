@@ -1,6 +1,4 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
+// 
 /**
  * Bio Symbols Patch Plugin
  * Patches the replaceBioSymbols function to handle non-string inputs
@@ -8,7 +6,7 @@
  * Fixes the error: "a.replace is not a function"
  * This happens when the function receives a non-string value (object, array, etc)
  */
-class BioSymbolsPatchPlugin extends Plugin {
+class BioSymbolsPatchPlugin extends CustomModule {
   originalFunction: Function | null;
   originalUtils: any;
   patched: boolean;
@@ -337,5 +335,5 @@ class BioSymbolsPatchPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = BioSymbolsPatchPlugin;

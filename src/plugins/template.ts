@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class TemplatePlugin extends Plugin {
+// 
+class TemplatePlugin extends CustomModule {
   constructor() {
     // Call parent constructor with metadata
     // Note: ID is auto-derived from filename (template.js -> template)
@@ -44,7 +42,7 @@ class TemplatePlugin extends Plugin {
     // window.customjs.template = this;
 
     // ✅ NEW WAY (Recommended): Access plugins via PluginManager
-    // Other plugins should use: window.customjs.pluginManager.getPlugin("template")
+    // Other plugins should use: window.customjs.getModule("template")
 
     // You can still expose specific utility methods if really needed
     // window.customjs.templateMethod = () => this.doSomething();
@@ -208,10 +206,10 @@ class TemplatePlugin extends Plugin {
     this.utils = window.customjs.utils;
 
     // Wait for dependencies
-    this.contextMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.contextMenuApi = await window.customjs.waitForModule(
       "context-menu-api"
     );
-    this.navMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.navMenuApi = await window.customjs.waitForModule(
       "nav-menu-api"
     );
 
@@ -527,5 +525,5 @@ class TemplatePlugin extends Plugin {
   }
 }
 
-// Make plugin class available for PluginLoader to instantiate
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = TemplatePlugin;

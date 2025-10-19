@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class TagManagerPlugin extends Plugin {
+// 
+class TagManagerPlugin extends CustomModule {
   constructor() {
     super({
       name: "🏷️ Tag Manager",
@@ -672,5 +670,5 @@ class TagManagerPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = TagManagerPlugin;

@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class RegistryOverridesPlugin extends Plugin {
+// 
+class RegistryOverridesPlugin extends CustomModule {
   eventHandlers: Map<string, Function>;
   _lastGameRunning: boolean;
 
@@ -232,5 +230,5 @@ class RegistryOverridesPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = RegistryOverridesPlugin;

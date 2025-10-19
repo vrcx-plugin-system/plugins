@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class AutoDisableUntrustedURLsPlugin extends Plugin {
+// 
+class AutoDisableUntrustedURLsPlugin extends CustomModule {
   _lastGameRunning: boolean;
 
   constructor() {
@@ -173,5 +171,5 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = AutoDisableUntrustedURLsPlugin;

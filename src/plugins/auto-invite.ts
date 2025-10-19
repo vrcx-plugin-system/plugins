@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class AutoInvitePlugin extends Plugin {
+// 
+class AutoInvitePlugin extends CustomModule {
   constructor() {
     super({
       name: "📨 Auto Invite Manager",
@@ -95,7 +93,7 @@ class AutoInvitePlugin extends Plugin {
     this.utils = window.customjs.utils;
 
     // Wait for dependencies
-    this.contextMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.contextMenuApi = await window.customjs.waitForModule(
       "context-menu-api"
     );
 
@@ -575,5 +573,5 @@ class AutoInvitePlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = AutoInvitePlugin;

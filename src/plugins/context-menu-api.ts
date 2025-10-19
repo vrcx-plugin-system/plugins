@@ -1,7 +1,5 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
-class ContextMenuApiPlugin extends Plugin {
+// 
+class ContextMenuApiPlugin extends CustomModule {
   constructor() {
     super({
       name: "📋 Context Menu API",
@@ -583,5 +581,5 @@ class ContextMenuApiPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = ContextMenuApiPlugin;

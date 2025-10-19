@@ -1,7 +1,12 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
+// 
+class PluginManagerUIPlugin extends CustomModule {
+  settingsModal: HTMLElement | null;
+  searchValue: { value: string; filter: string };
+  togglingPlugins: Set<string>;
+  utils: any;
+  navMenuApi: any;
+  pluginGridContainer?: HTMLElement;
 
-class PluginManagerUIPlugin extends Plugin {
   constructor() {
     super({
       name: "🧩 Plugin Manager UI",
@@ -19,8 +24,8 @@ class PluginManagerUIPlugin extends Plugin {
     });
 
     this.settingsModal = null;
-    this.searchValue = { value: "", filter: "all" }; // all, enabled, disabled, core, failed, available
-    this.togglingPlugins = new Set(); // Track plugins currently being toggled
+    this.searchValue = { value: "", filter: "all" };
+    this.togglingPlugins = new Set();
   }
 
   async load() {
@@ -31,7 +36,7 @@ class PluginManagerUIPlugin extends Plugin {
   async start() {
     this.utils = window.customjs.utils;
 
-    this.navMenuApi = await window.customjs.pluginManager.waitForPlugin(
+    this.navMenuApi = await window.customjs.waitForModule(
       "nav-menu-api"
     );
 
@@ -165,11 +170,11 @@ class PluginManagerUIPlugin extends Plugin {
 
     // Get plugin data
     const allPlugins = window.customjs?.plugins || [];
-    const coreModules = window.customjs?.core_modules || [];
-    const failedUrls = window.customjs?.pluginManager?.failedUrls || new Set();
-    const repoManager = window.customjs?.repoManager;
-    const repoCount = repoManager?.getAllRepositories()?.length || 0;
-    const enabledRepoCount = repoManager?.getEnabledRepositories()?.length || 0;
+    const coreModules = window.customjs?.coreModules || [];
+    const failedUrls = new Set();
+    
+    const repoCount = (window.customjs.repos || []).length;
+    const enabledRepoCount = (window.customjs.repos || []).filter(r => r.enabled).length;
 
     const enabledCount = allPlugins.filter((p) => p.enabled).length;
     const startedCount = allPlugins.filter((p) => p.started).length;
@@ -182,7 +187,7 @@ class PluginManagerUIPlugin extends Plugin {
         color: "#9c27b0",
       },
       { label: "Plugins", value: allPlugins.length, color: "#28a745" },
-      { label: "Core Modules", value: coreModules.length, color: "#28a745" },
+      { label: "Core Modules", value: coreModules instanceof Map ? coreModules.size : (coreModules as any[]).length, color: "#28a745" },
     ];
 
     stats.forEach((stat) => {
@@ -302,16 +307,7 @@ class PluginManagerUIPlugin extends Plugin {
   renderRepositoryList(container) {
     container.innerHTML = "";
 
-    const repoManager = window.customjs?.repoManager;
-    if (!repoManager) {
-      const noRepoManager = document.createElement("div");
-      noRepoManager.style.cssText = "padding: 10px; color: #dc3545;";
-      noRepoManager.textContent = "⚠️ Repository manager not available";
-      container.appendChild(noRepoManager);
-      return;
-    }
-
-    const repositories = repoManager.getAllRepositories();
+    const repositories = window.customjs.repos || [];
 
     if (repositories.length === 0) {
       const noRepos = document.createElement("div");
@@ -457,25 +453,21 @@ class PluginManagerUIPlugin extends Plugin {
     this.logger.log(`📦 User requested to add repository: ${url}`);
 
     if (!url) {
-      this.logger.showWarn("Please enter a repository URL");
+      this.logger.showWarning("Please enter a repository URL");
       return;
     }
 
     if (!url.endsWith(".json")) {
-      this.logger.showWarn("Repository URL must end with .json");
+      this.logger.showWarning("Repository URL must end with .json");
       return;
     }
 
-    const repoManager = window.customjs?.repoManager;
-    if (!repoManager) {
-      this.logger.showError("Repository manager not available");
-      return;
-    }
+    
 
     try {
       this.logger.log(`  → Adding repository via RepoManager...`);
       this.logger.showInfo("Adding repository...");
-      const result = await repoManager.addRepository(url);
+      const result = await window.customjs.addRepository(url);
 
       if (result.success) {
         this.logger.showSuccess(
@@ -507,14 +499,17 @@ class PluginManagerUIPlugin extends Plugin {
       `🔘 User toggled repository: ${url} (${enabled ? "enable" : "disable"})`
     );
 
-    const repoManager = window.customjs?.repoManager;
-    if (!repoManager) {
-      this.logger.showError("Repository manager not available");
-      return;
-    }
+    
 
     try {
-      const success = repoManager.setRepositoryEnabled(url, enabled);
+      const repo = window.customjs.getRepo(url);
+      if (repo) {
+        repo.enabled = enabled;
+        const config = window.customjs.configManager.get('repositories') || {};
+        config[url] = enabled;
+        window.customjs.configManager.set('repositories', config);
+      }
+      const success = !!repo;
 
       if (success) {
         this.logger.showSuccess(
@@ -543,11 +538,7 @@ class PluginManagerUIPlugin extends Plugin {
   async handleRefreshRepository(url, button) {
     this.logger.log(`🔄 User clicked refresh for repository: ${url}`);
 
-    const repoManager = window.customjs?.repoManager;
-    if (!repoManager) {
-      this.logger.showError("Repository manager not available");
-      return;
-    }
+    
 
     const originalHTML = button.innerHTML;
     try {
@@ -555,7 +546,8 @@ class PluginManagerUIPlugin extends Plugin {
       button.innerHTML = '<i class="ri-loader-4-line ri-spin"></i>';
 
       this.logger.log(`  → Refreshing repository...`);
-      const success = await repoManager.refreshRepository(url);
+      const repo = window.customjs.getRepo(url);
+      const success = repo ? await repo.fetch() : false;
 
       if (success) {
         button.innerHTML = '<i class="ri-check-line"></i>';
@@ -596,11 +588,7 @@ class PluginManagerUIPlugin extends Plugin {
   async handleRefreshRepositories(button) {
     this.logger.log(`🔄 User clicked refresh all repositories`);
 
-    const repoManager = window.customjs?.repoManager;
-    if (!repoManager) {
-      this.logger.showError("Repository manager not available");
-      return;
-    }
+    
 
     const originalHTML = button.innerHTML;
     try {
@@ -609,7 +597,8 @@ class PluginManagerUIPlugin extends Plugin {
         '<i class="ri-loader-4-line ri-spin"></i> Refreshing...';
 
       this.logger.log(`  → Refreshing all repositories...`);
-      await repoManager.refreshAllRepositories();
+      const repos = window.customjs.repos || [];
+      await Promise.all(repos.map(r => r.fetch()));
 
       button.innerHTML = '<i class="ri-check-line"></i> Refreshed!';
       this.logger.showSuccess("All repositories refreshed");
@@ -645,15 +634,11 @@ class PluginManagerUIPlugin extends Plugin {
       return;
     }
 
-    const repoManager = window.customjs?.repoManager;
-    if (!repoManager) {
-      this.logger.showError("Repository manager not available");
-      return;
-    }
+    
 
     try {
       this.logger.log(`  → Removing repository...`);
-      const success = repoManager.removeRepository(url);
+      const success = window.customjs.removeRepository(url);
 
       if (success) {
         this.logger.showSuccess("Repository removed");
@@ -757,7 +742,7 @@ class PluginManagerUIPlugin extends Plugin {
         button.innerHTML = '<i class="ri-information-line"></i> No settings';
         button.className = "el-button el-button--warning";
 
-        this.logger.showWarn(
+        this.logger.showWarning(
           "No settings found to import from VRChat config.json"
         );
 
@@ -880,7 +865,7 @@ class PluginManagerUIPlugin extends Plugin {
     searchInput.value = this.searchValue.value;
 
     this.registerListener(searchInput, "input", (e) => {
-      this.searchValue.value = e.target.value.toLowerCase();
+      this.searchValue.value = (e.target as HTMLInputElement).value.toLowerCase();
       this.logger.log(
         `🔍 User changed search query to: "${this.searchValue.value}"`
       );
@@ -913,7 +898,7 @@ class PluginManagerUIPlugin extends Plugin {
     });
 
     this.registerListener(filterSelect, "change", (e) => {
-      this.searchValue.filter = e.target.value;
+      this.searchValue.filter = (e.target as HTMLInputElement).value;
       this.logger.log(`🔽 User changed filter to: ${this.searchValue.filter}`);
       this.refreshPluginGrid();
     });
@@ -994,7 +979,7 @@ class PluginManagerUIPlugin extends Plugin {
 
       if (input) {
         this.registerListener(input, "keypress", async (e) => {
-          if (e.key === "Enter") {
+          if ((e as KeyboardEvent).key === "Enter") {
             await this.handleLoadPlugin(input, status);
           }
         });
@@ -1019,8 +1004,8 @@ class PluginManagerUIPlugin extends Plugin {
     status.style.color = "#007bff";
 
     try {
-      this.logger.log(`  → Adding plugin via PluginManager...`);
-      const result = await window.customjs.pluginManager.addPlugin(url);
+      this.logger.log(`  → Loading module from URL...`);
+      const result = await window.customjs.loadModule(url);
 
       if (result.success) {
         status.textContent = `✅ Plugin loaded successfully!`;
@@ -1051,13 +1036,13 @@ class PluginManagerUIPlugin extends Plugin {
 
       // Get all plugins (loaded) and plugins from config (including disabled)
       const loadedPlugins = window.customjs?.plugins || [];
-      const coreModules = window.customjs?.core_modules || [];
-      const failedUrls =
-        window.customjs?.pluginManager?.failedUrls || new Set();
-      const repoManager = window.customjs?.repoManager;
+      const coreModules = window.customjs?.coreModules || new Map();
+      const failedUrls = new Set();
+      const repos = window.customjs.repos || [];
+      
 
       this.logger.log(
-        `  → Loaded plugins: ${loadedPlugins.length}, Core modules: ${coreModules.length}, Failed: ${failedUrls.size}`
+        `  → Loaded plugins: ${loadedPlugins.length}, Core modules: ${coreModules instanceof Map ? coreModules.size : (coreModules as any[]).length}, Failed: ${failedUrls.size}`
       );
 
       // Get plugin config to include disabled plugins
@@ -1066,8 +1051,8 @@ class PluginManagerUIPlugin extends Plugin {
       // Start with plugins from repositories (this gives us rich metadata)
       let allPlugins = [];
 
-      if (repoManager) {
-        const repoPlugins = repoManager.getAllPlugins();
+      if (repos.length > 0) {
+        const repoPlugins = (window.customjs.repos || []).flatMap(r => r.enabled ? r.getModules() : []);
 
         // Create plugin objects from repo data
         allPlugins = repoPlugins.map((repoPlugin) => {
@@ -1195,11 +1180,10 @@ class PluginManagerUIPlugin extends Plugin {
       plugins = [];
     } else if (filter === "available") {
       // Show plugins from repos that aren't installed
-      const repoManager = window.customjs?.repoManager;
-      if (repoManager) {
+      
+      if (window.customjs.repos && window.customjs.repos.length > 0) {
         const installedUrls = new Set(allPlugins.map((p) => p.metadata.url));
-        const availablePlugins = repoManager
-          .getAllPlugins()
+        const availablePlugins = (window.customjs.repos || []).flatMap(r => r.enabled ? r.getModules() : [])
           .filter((repoPlugin) => !installedUrls.has(repoPlugin.url))
           .map((repoPlugin) => ({
             metadata: repoPlugin,
@@ -1272,12 +1256,18 @@ class PluginManagerUIPlugin extends Plugin {
     // Show repository source if available
     let repoSource = "";
     if (plugin.metadata?.url) {
-      const repoManager = window.customjs?.repoManager;
-      if (repoManager) {
-        const result = repoManager.findPluginByUrl(plugin.metadata.url);
-        if (result) {
-          repoSource = ` • 📦 ${result.repo.data?.name || "Repository"}`;
+        let result = null;
+        for (const repo of window.customjs.repos || []) {
+          if (repo.enabled) {
+            const module = repo.getModuleByUrl(plugin.metadata.url);
+            if (module) {
+              result = { module, repo };
+              break;
+            }
+          }
         }
+      if (result) {
+        repoSource = ` • 📦 ${result.repo.data?.name || "Repository"}`;
       }
     }
 
@@ -1666,12 +1656,12 @@ class PluginManagerUIPlugin extends Plugin {
     this.togglingPlugins.add(pluginId);
 
     try {
-      const plugin = window.customjs.pluginManager.getPlugin(pluginId);
+      const plugin = window.customjs.getModule(pluginId);
 
       if (!plugin) {
         // Plugin not loaded - it's a disabled plugin stub
         // Find the plugin URL from config
-        const config = window.customjs.pluginManager.getPluginConfig();
+        const config = window.customjs.configManager.getPluginConfig();
         const pluginUrl = Object.keys(config).find((url) => {
           const urlParts = url.split("/");
           const filename = urlParts[urlParts.length - 1];
@@ -1692,10 +1682,10 @@ class PluginManagerUIPlugin extends Plugin {
         this.logger.showInfo(`Enabling plugin...`);
 
         config[pluginUrl] = true;
-        window.customjs.pluginManager.savePluginConfig(config);
+        window.customjs.configManager.setPluginConfig(config);
 
         // Load the plugin
-        const loadResult = await window.customjs.pluginManager.reloadPlugin(
+        const loadResult = await window.customjs.reloadModule(
           pluginUrl
         );
 
@@ -1719,10 +1709,10 @@ class PluginManagerUIPlugin extends Plugin {
       );
 
       // Update plugin config and save
-      if (plugin.metadata.url && window.customjs.pluginManager) {
-        const config = window.customjs.pluginManager.getPluginConfig();
+      if (plugin.metadata.url && window.customjs.configManager) {
+        const config = window.customjs.configManager.getPluginConfig();
         config[plugin.metadata.url] = plugin.enabled;
-        window.customjs.pluginManager.savePluginConfig(config);
+        window.customjs.configManager.setPluginConfig(config);
       }
 
       const statusMsg = plugin.enabled ? "enabled" : "disabled";
@@ -1746,7 +1736,7 @@ class PluginManagerUIPlugin extends Plugin {
 
     if (!pluginUrl) {
       this.logger.warn("No URL available for reload");
-      this.logger.showWarn("Plugin URL not available");
+      this.logger.showWarning("Plugin URL not available");
       return;
     }
 
@@ -1755,15 +1745,15 @@ class PluginManagerUIPlugin extends Plugin {
       this.logger.showInfo("Reloading plugin...");
 
       // Check if plugin is disabled in config
-      const config = window.customjs.pluginManager.getPluginConfig();
+      const config = window.customjs.configManager.getPluginConfig();
       if (config[pluginUrl] === false) {
         // Enable it first
         this.logger.log("Plugin is disabled, enabling before reload");
         config[pluginUrl] = true;
-        window.customjs.pluginManager.savePluginConfig(config);
+        window.customjs.configManager.setPluginConfig(config);
       }
 
-      const result = await window.customjs.pluginManager.reloadPlugin(
+      const result = await window.customjs.reloadModule(
         pluginUrl
       );
 
@@ -1786,7 +1776,7 @@ class PluginManagerUIPlugin extends Plugin {
 
     if (!pluginUrl) {
       this.logger.warn("No URL available for analysis");
-      this.logger.showWarn("Plugin URL not available");
+      this.logger.showWarning("Plugin URL not available");
       return;
     }
 
@@ -1794,15 +1784,15 @@ class PluginManagerUIPlugin extends Plugin {
       this.logger.log(`  → Analyzing plugin: ${pluginUrl}`);
       this.logger.showInfo("Analyzing plugin code...");
 
-      // Access PluginLoader through pluginManager
-      const loader = window.customjs?.pluginManager?.loader;
-      if (!loader || !loader.extractPluginMetadata) {
-        this.logger.error("PluginLoader.extractPluginMetadata not available");
+      // Use CustomModule static method
+      const CustomModuleClass = window.customjs.classes.CustomModule as any;
+      if (!CustomModuleClass?.fetchMetadata) {
+        this.logger.error("CustomModule.fetchMetadata not available");
         this.logger.showError("Analysis feature not available");
         return;
       }
 
-      const metadata = await loader.extractPluginMetadata(pluginUrl, true);
+      const metadata = await CustomModuleClass.fetchMetadata(pluginUrl);
 
       if (metadata) {
         this.logger.log("Plugin analysis complete", metadata);
@@ -1947,14 +1937,14 @@ class PluginManagerUIPlugin extends Plugin {
     if (metadata.tags && metadata.tags.length > 0) {
       sections.push({
         title: "Tags",
-        data: { Tags: metadata.tags.join(", ") },
+        data: { "Tag List": metadata.tags.join(", ") } as any,
       });
     }
 
     if (metadata.dependencies && metadata.dependencies.length > 0) {
       sections.push({
         title: "Dependencies",
-        data: { Count: metadata.dependencies.length },
+        data: { "Dependency Count": metadata.dependencies.length } as any,
       });
     }
 
@@ -2085,7 +2075,7 @@ class PluginManagerUIPlugin extends Plugin {
 
     if (!pluginUrl) {
       this.logger.warn("No URL available for removal");
-      this.logger.showWarn("Plugin URL not available");
+      this.logger.showWarning("Plugin URL not available");
       return;
     }
 
@@ -2101,7 +2091,7 @@ class PluginManagerUIPlugin extends Plugin {
     try {
       this.logger.log(`  → Removing plugin from ${pluginUrl}`);
 
-      const result = await window.customjs.pluginManager.removePlugin(
+      const result = await window.customjs.unloadModule(
         pluginUrl
       );
 
@@ -2125,7 +2115,7 @@ class PluginManagerUIPlugin extends Plugin {
     this.logger.log(`📥 User clicked install for plugin: ${pluginUrl}`);
 
     if (!pluginUrl) {
-      this.logger.showWarn("No URL available for installation");
+      this.logger.showWarning("No URL available for installation");
       return;
     }
 
@@ -2136,7 +2126,7 @@ class PluginManagerUIPlugin extends Plugin {
         '<i class="ri-loader-4-line ri-spin"></i> Installing...';
 
       this.logger.log(`  → Installing plugin from ${pluginUrl}`);
-      const result = await window.customjs.pluginManager.addPlugin(pluginUrl);
+      const result = await window.customjs.loadModule(pluginUrl);
 
       if (result.success) {
         button.innerHTML = '<i class="ri-check-line"></i> Installed!';
@@ -2171,11 +2161,8 @@ class PluginManagerUIPlugin extends Plugin {
       this.logger.log(`Retrying failed plugin: ${url}`);
       this.logger.showInfo("Retrying plugin load...");
 
-      // Remove from failed set
-      window.customjs.pluginManager.failedUrls.delete(url);
-
       // Try loading again
-      const result = await window.customjs.pluginManager.addPlugin(url);
+      const result = await window.customjs.loadModule(url);
 
       if (result.success) {
         this.logger.showSuccess("Plugin loaded successfully!");
@@ -2578,7 +2565,7 @@ class PluginManagerUIPlugin extends Plugin {
 
       const varDesc = document.createElement("span");
       varDesc.style.cssText = "color: #909090; flex: 1;";
-      varDesc.textContent = description;
+      varDesc.textContent = description as string;
 
       varItem.appendChild(varPlaceholder);
       varItem.appendChild(varDesc);
@@ -2762,13 +2749,11 @@ class PluginManagerUIPlugin extends Plugin {
     return input;
   }
 
-  createMultilineTextarea(plugin, key, value, options = {}) {
-    const {
-      placeholder = "",
-      maxLines = 30,
-      minLines = 3,
-      validateJson = false,
-    } = options;
+  createMultilineTextarea(plugin: any, key: any, value: any, options: any = {}) {
+    const placeholder = options.placeholder || "";
+    const maxLines = options.maxLines || 30;
+    const minLines = options.minLines || 3;
+    const validateJson = options.validateJson || false;
 
     const container = document.createElement("div");
     container.style.cssText = "width: 100%;";
@@ -2937,10 +2922,10 @@ class PluginManagerUIPlugin extends Plugin {
 
     const slider = document.createElement("input");
     slider.type = "range";
-    slider.min = markers[0] ?? 0;
-    slider.max = markers[markers.length - 1] ?? 1;
-    slider.step = markers.length > 1 ? markers[1] - markers[0] : 0.1;
-    slider.value = currentValue ?? markers[0] ?? 0;
+    slider.min = String(markers[0] ?? 0);
+    slider.max = String(markers[markers.length - 1] ?? 1);
+    slider.step = String(markers.length > 1 ? markers[1] - markers[0] : 0.1);
+    slider.value = String(currentValue ?? markers[0] ?? 0);
     slider.style.cssText = "width: 100%; cursor: pointer;";
 
     const valueDisplay = document.createElement("div");
@@ -3013,11 +2998,11 @@ class PluginManagerUIPlugin extends Plugin {
 
       // Format: "Jan 15, 2024 14:30"
       const options = {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+        year: "numeric" as const,
+        month: "short" as const,
+        day: "numeric" as const,
+        hour: "2-digit" as const,
+        minute: "2-digit" as const,
       };
       return date.toLocaleString("en-US", options);
     } catch (error) {

@@ -1,6 +1,4 @@
-// @ts-nocheck
-// TODO: Remove @ts-nocheck and fix type definitions properly
-
+// 
 /**
  * Invisible Players Monitor Plugin
  *
@@ -10,7 +8,9 @@
  * - Configurable notification settings
  * - Modifies instance display name to show invisible player count
  */
-class InvisiblePlayersMonitorPlugin extends Plugin {
+class InvisiblePlayersMonitorPlugin extends CustomModule {
+  lastInvisiblePlayers: Number;
+
   constructor() {
     super({
       name: "👻 Invisible Players Monitor",
@@ -103,9 +103,9 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
 
   setupInstanceMonitoring() {
     // Wait for plugin manager to be available
-    const waitForPluginManager = setInterval(() => {
-      if (window.customjs?.pluginManager?.registerPostHook) {
-        clearInterval(waitForPluginManager);
+    const waitForHooks = setInterval(() => {
+      if (window.customjs?.modules) {
+        clearInterval(waitForHooks);
 
         // Use hook system to monitor getInstance calls
         this.registerPostHook(
@@ -126,7 +126,7 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
 
     // Clear interval after 10 seconds if not found
     setTimeout(() => {
-      clearInterval(waitForPluginManager);
+      clearInterval(waitForHooks);
     }, 10000);
   }
 
@@ -208,5 +208,5 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
   }
 }
 
-// Export plugin class for PluginLoader
+// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = InvisiblePlayersMonitorPlugin;
