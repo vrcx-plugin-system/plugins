@@ -4,7 +4,7 @@ class StartGameButtonPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🎮 Start Game Button",
+      name: "Start Game Button 🎮",
       description:
         "Adds a button to the navigation menu to start VRChat with VRCX settings",
       authors: [{
