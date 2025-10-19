@@ -1241,11 +1241,7 @@ class PluginManagerUIPlugin extends CustomModule {
     const name = document.createElement("div");
     name.style.cssText =
       "font-size: 16px; font-weight: 600; color: #e8e8e8; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
-    const displayName = plugin.getDisplayName ? plugin.getDisplayName() : (plugin.metadata?.name || "Unknown Plugin");
-    const decodedName = displayName.replace(/\\u\{([0-9A-Fa-f]+)\}/g, (match, code) => {
-      return String.fromCodePoint(parseInt(code, 16));
-    });
-    name.textContent = decodedName;
+    name.textContent = plugin.getDisplayName ? plugin.getDisplayName() : (plugin.metadata?.name || "Unknown Plugin");
 
     const meta = document.createElement("div");
     meta.style.cssText =
@@ -1346,11 +1342,7 @@ class PluginManagerUIPlugin extends CustomModule {
     const description = document.createElement("div");
     description.style.cssText =
       "font-size: 13px; color: #b0b0b0; line-height: 1.4; margin-bottom: 12px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;";
-    const displayDesc = plugin.getDisplayDescription ? plugin.getDisplayDescription() : (plugin.metadata?.description || "No description available");
-    const decodedDesc = displayDesc.replace(/\\u\{([0-9A-Fa-f]+)\}/g, (match, code) => {
-      return String.fromCodePoint(parseInt(code, 16));
-    });
-    description.textContent = decodedDesc;
+    description.textContent = plugin.getDisplayDescription ? plugin.getDisplayDescription() : (plugin.metadata?.description || "No description available");
 
     // Tags as badges
     const badgesContainer = document.createElement("div");
@@ -1721,7 +1713,7 @@ class PluginManagerUIPlugin extends CustomModule {
       }
 
       const statusMsg = plugin.enabled ? "enabled" : "disabled";
-      this.logger.showSuccess(`${plugin.metadata.name} ${statusMsg}`);
+      this.logger.showSuccess(`${plugin.getDisplayName()} ${statusMsg}`);
 
       // Refresh after toggle completes
       setTimeout(() => this.refreshPluginGrid(), 200);
@@ -2070,7 +2062,7 @@ class PluginManagerUIPlugin extends CustomModule {
       this.logger.log("  → Plugin has no configurable settings");
       // Show message that no settings are available
       this.logger.showInfo(
-        `${plugin.metadata.name} has no configurable settings`
+        `${plugin.getDisplayName()} has no configurable settings`
       );
     }
   }
@@ -2228,7 +2220,7 @@ class PluginManagerUIPlugin extends CustomModule {
     `;
     header.innerHTML = `
       <h3 style="margin: 0; font-size: 20px; font-weight: 600;">
-        <i class="ri-settings-3-line"></i> ${plugin.metadata.name} Settings
+        <i class="ri-settings-3-line"></i> ${plugin.getDisplayName()} Settings
       </h3>
       <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">
         Configure plugin settings • Changes are saved automatically
@@ -2293,7 +2285,7 @@ class PluginManagerUIPlugin extends CustomModule {
     this.registerListener(resetBtn, "click", async () => {
       if (
         confirm(
-          `Reset all settings for "${plugin.metadata.name}" to their default values?`
+          `Reset all settings for "${plugin.getDisplayName()}" to their default values?`
         )
       ) {
         // Reset settings using new API if available
