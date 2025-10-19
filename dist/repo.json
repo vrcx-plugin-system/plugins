@@ -7,7 +7,7 @@
       "description": "Repository maintainer"
     }
   ],
-  "build": "1760765814078",
+  "build": "1760846678287",
   "url": "https://github.com/vrcx-plugin-system/plugins",
   "plugins": [
     {
@@ -19,7 +19,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/user-badge-pipeline-patch.js",
       "tags": [
         "Bugfix",
@@ -38,7 +38,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/start-game-button.js",
       "tags": [
         "Utility",
@@ -56,7 +56,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/tag-manager.js",
       "tags": [
         "Social",
@@ -73,7 +73,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/debug.js",
       "tags": [],
       "enabled": false
@@ -87,7 +87,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-follow.js",
       "tags": [
         "Automation",
@@ -104,7 +104,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/monitor-invisibleplayers.js",
       "tags": [
         "Monitor",
@@ -121,7 +121,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/template.js",
       "tags": [],
       "enabled": false
@@ -135,7 +135,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",
       "tags": [
         "API",
@@ -154,7 +154,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-updater.js",
       "tags": [
         "Automation",
@@ -171,7 +171,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-invite.js",
       "tags": [
         "Automation",
@@ -188,7 +188,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/avatar-log.js",
       "tags": [
         "Logger",
@@ -206,7 +206,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765666",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/api-retry-patch.js",
       "tags": [
         "Network",
@@ -218,6 +218,23 @@
       "enabled": true
     },
     {
+      "id": "bio-change-notifier",
+      "name": "\\u{1F514} Bio Change Notifier",
+      "description": "Get notified when friends change their bio with a detailed diff view",
+      "authors": [
+        {
+          "name": "Bluscream"
+        }
+      ],
+      "build": "1760844638",
+      "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-change-notifier.js",
+      "tags": [
+        "Notifications",
+        "Social"
+      ],
+      "enabled": false
+    },
+    {
       "id": "protocol-links",
       "name": "\\u{1F517} VRCX Protocol Links",
       "description": "Adds context menu items to copy VRCX protocol links for users, avatars, worlds, groups, and instances",
@@ -226,7 +243,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/protocol-links.js",
       "tags": [
         "Utility",
@@ -243,7 +260,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-symbols-patch.js",
       "tags": [
         "Bugfix",
@@ -262,7 +279,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/devtools-button.js",
       "tags": [
         "Utility",
@@ -280,7 +297,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/yoinker-detector.js",
       "tags": [
         "Security",
@@ -298,7 +315,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/selfinvite-onblockedplayer.js",
       "tags": [
         "Automation",
@@ -315,7 +332,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-disable-untrusted-urls.js",
       "tags": [
         "Security",
@@ -332,7 +349,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765757",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/plugin-manager-ui.js",
       "tags": [
         "UI",
@@ -350,7 +367,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/logger-test.js",
       "tags": [
         "Debug",
@@ -367,7 +384,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-test.js",
       "tags": [
         "Debug",
@@ -384,7 +401,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
       "tags": [
         "API",
@@ -403,7 +420,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/registry-overrides.js",
       "tags": [
         "Game",
@@ -421,7 +438,7 @@
           "name": "Bluscream"
         }
       ],
-      "build": "1760765667",
+      "build": "1760768627",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/invite-message-api.js",
       "tags": [
         "API",
