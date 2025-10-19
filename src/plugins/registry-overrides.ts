@@ -23,7 +23,7 @@ class RegistryOverridesPlugin extends CustomModule {
   }
 
   async load() {
-    const SettingType = window.customjs.SettingType;
+    const SettingType = window.customjs.types.SettingType;
 
     // Define settings using new system
     // VRC_ALLOW_UNTRUSTED_URL has been moved to auto-disable-untrusted-urls.js

@@ -31,7 +31,7 @@ class SelfInviteOnBlockedPlayerPlugin extends CustomModule {
 
   async load() {
     // Define settings using new Equicord-style system
-    const SettingType = window.customjs.SettingType;
+    const SettingType = window.customjs.types.SettingType;
 
     this.settings = this.defineSettings({
       delayMs: {

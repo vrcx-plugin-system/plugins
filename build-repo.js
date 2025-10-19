@@ -62,10 +62,18 @@ function extractPluginMetadata(filePath, fileName) {
       metadata.name = nameMatch[1];
     }
 
-    // Extract description (handles minified code)
+    // Extract description (handles minified code) and decode Unicode escapes
     const descMatch = content.match(/description:\s*["']([^"']+)["']/);
     if (descMatch) {
-      metadata.description = descMatch[1];
+      let description = descMatch[1];
+      // Decode Unicode escape sequences
+      description = description.replace(
+        /\\u\{([0-9A-Fa-f]+)\}/g,
+        (match, code) => {
+          return String.fromCodePoint(parseInt(code, 16));
+        }
+      );
+      metadata.description = description;
     }
 
     // Extract authors array

@@ -47,7 +47,7 @@ class ApiRetryPatchPlugin extends CustomModule {
   }
 
   async load() {
-    const SettingType = window.customjs.SettingType;
+    const SettingType = window.customjs.types.SettingType;
 
     this.settings = this.defineSettings({
       maxRetries: {

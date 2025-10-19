@@ -57,7 +57,7 @@ class TagManagerPlugin extends CustomModule {
 
   async load() {
     // Define settings using new Equicord-style system
-    const SettingType = window.customjs.SettingType;
+    const SettingType = window.customjs.types.SettingType;
 
     // Define category metadata
     this.categories = this.defineSettingsCategories({

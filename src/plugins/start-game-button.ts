@@ -22,7 +22,7 @@ class StartGameButtonPlugin extends CustomModule {
   }
 
   async load() {
-    const SettingType = window.customjs.SettingType;
+    const SettingType = window.customjs.types.SettingType;
 
     this.categories = this.defineSettingsCategories({
       launch: {

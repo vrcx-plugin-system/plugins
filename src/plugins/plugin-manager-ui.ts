@@ -169,7 +169,7 @@ class PluginManagerUIPlugin extends CustomModule {
       "display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 6px; margin-bottom: 10px;";
 
     // Get plugin data
-    const allPlugins = window.customjs?.plugins || [];
+    const allPlugins = window.customjs?.modules || [];
     const coreModules = window.customjs?.coreModules || [];
     const failedUrls = new Set();
     
@@ -1035,7 +1035,7 @@ class PluginManagerUIPlugin extends CustomModule {
       gridContainer.innerHTML = "";
 
       // Get all plugins (loaded) and plugins from config (including disabled)
-      const loadedPlugins = window.customjs?.plugins || [];
+      const loadedPlugins = window.customjs?.modules || [];
       const coreModules = window.customjs?.coreModules || new Map();
       const failedUrls = new Set();
       const repos = window.customjs.repos || [];
@@ -1241,7 +1241,11 @@ class PluginManagerUIPlugin extends CustomModule {
     const name = document.createElement("div");
     name.style.cssText =
       "font-size: 16px; font-weight: 600; color: #e8e8e8; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
-    name.textContent = plugin.metadata?.name || "Unknown Plugin";
+    const displayName = plugin.getDisplayName ? plugin.getDisplayName() : (plugin.metadata?.name || "Unknown Plugin");
+    const decodedName = displayName.replace(/\\u\{([0-9A-Fa-f]+)\}/g, (match, code) => {
+      return String.fromCodePoint(parseInt(code, 16));
+    });
+    name.textContent = decodedName;
 
     const meta = document.createElement("div");
     meta.style.cssText =
@@ -1342,8 +1346,11 @@ class PluginManagerUIPlugin extends CustomModule {
     const description = document.createElement("div");
     description.style.cssText =
       "font-size: 13px; color: #b0b0b0; line-height: 1.4; margin-bottom: 12px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;";
-    description.textContent =
-      plugin.metadata?.description || "No description available";
+    const displayDesc = plugin.getDisplayDescription ? plugin.getDisplayDescription() : (plugin.metadata?.description || "No description available");
+    const decodedDesc = displayDesc.replace(/\\u\{([0-9A-Fa-f]+)\}/g, (match, code) => {
+      return String.fromCodePoint(parseInt(code, 16));
+    });
+    description.textContent = decodedDesc;
 
     // Tags as badges
     const badgesContainer = document.createElement("div");
@@ -1684,10 +1691,8 @@ class PluginManagerUIPlugin extends CustomModule {
         config[pluginUrl] = true;
         window.customjs.configManager.setPluginConfig(config);
 
-        // Load the plugin
-        const loadResult = await window.customjs.reloadModule(
-          pluginUrl
-        );
+        // Load the plugin (use loadModule since it's not loaded yet)
+        const loadResult = await window.customjs.loadModule(pluginUrl);
 
         if (loadResult.success) {
           this.logger.log(`Plugin ${pluginId} enabled and loaded`);
@@ -2580,7 +2585,7 @@ class PluginManagerUIPlugin extends CustomModule {
 
   createInputForSetting(plugin, key, settingDef) {
     const currentValue = plugin.settings.store[key];
-    const SettingType = window.customjs.SettingType;
+    const SettingType = window.customjs.types.SettingType;
 
     switch (settingDef.type) {
       case SettingType.BOOLEAN:

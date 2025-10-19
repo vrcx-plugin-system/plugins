@@ -193,7 +193,6 @@ type SettingType = SettingTypeEnum[keyof SettingTypeEnum];
 
 interface CustomJS {
   modules: CustomModule[];
-  plugins: CustomModule[];
   repos: any[];
   events: Record<string, Array<(data: any) => void>>;
   hooks: {
@@ -216,7 +215,9 @@ interface CustomJS {
   };
   utils?: ModuleUtils;
   debug?: any;
-  SettingType: SettingTypeEnum;
+  types: {
+    SettingType: SettingTypeEnum;
+  };
   definePluginSettings?: (definition: Record<string, SettingDefinition>, plugin: CustomModule) => ModuleSettings;
   __LAST_PLUGIN_CLASS__?: typeof CustomModule;
   coreModules?: Map<string, any>;

@@ -58,7 +58,7 @@ class TemplatePlugin extends CustomModule {
 
     // METHOD 2 (RECOMMENDED): Equicord-style settings
     // Define all settings in one object with metadata, type safety, and category support
-    const SettingType = window.customjs.SettingType;
+    const SettingType = window.customjs.types.SettingType;
 
     // Optional: Define category metadata for better UI organization
     this.categories = this.defineSettingsCategories({

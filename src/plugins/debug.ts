@@ -96,7 +96,7 @@ class DebugPlugin extends CustomModule {
 
   printDebugInfo() {
     this.logger.log("=== DEBUG INFO ===");
-    this.logger.log(`Plugins loaded: ${window.customjs.plugins.length}`);
+    this.logger.log(`Modules loaded: ${window.customjs.modules.length}`);
     this.logger.log(
       `Events registered: ${Object.keys(window.customjs.events).length}`
     );
@@ -110,7 +110,7 @@ class DebugPlugin extends CustomModule {
     );
 
     // List all plugins
-    window.customjs.plugins.forEach((plugin) => {
+    window.customjs.modules.forEach((plugin) => {
       this.logger.log(
         `  - ${plugin.metadata.name} (build: ${plugin.metadata.build}) (${
           plugin.enabled ? "enabled" : "disabled"
@@ -125,7 +125,7 @@ class DebugPlugin extends CustomModule {
    * List all registered plugins
    */
   listPlugins() {
-    return window.customjs.plugins.map((p) => ({
+    return window.customjs.modules.map((p) => ({
       id: p.metadata.id,
       name: p.metadata.name,
       build: p.metadata.build,
@@ -201,7 +201,7 @@ class DebugPlugin extends CustomModule {
       window.AppApi.ShowDevTools();
     }
 
-    const plugin = window.customjs?.plugins?.find((p) => p.metadata.id === id);
+    const plugin = window.customjs?.modules?.find((p) => p.metadata.id === id);
     if (plugin) {
       // Intentional console output for debug inspection
       console.group(`Plugin: ${plugin.metadata.name}`); // eslint-disable-line no-console
