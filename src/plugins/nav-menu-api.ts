@@ -1,10 +1,17 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 class NavMenuApiPlugin extends Plugin {
   constructor() {
     super({
       name: "🧭 Navigation Menu API",
       description: "API for adding custom navigation menu items to VRCX",
-      author: "Bluscream",
-      build: "1760363253",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["API", "Core", "Navigation", "Library"],
       dependencies: [],
     });

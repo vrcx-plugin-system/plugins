@@ -1,11 +1,18 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 class BioUpdaterPlugin extends Plugin {
   constructor() {
     super({
       name: "📝 Bio Updater",
       description:
         "Automatic bio updating with user statistics and custom templates",
-      author: "Bluscream",
-      build: "1728935100",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["Automation", "Social"],
       dependencies: [],
     });

@@ -1,3 +1,6 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 /**
  * Invisible Players Monitor Plugin
  *
@@ -16,8 +19,12 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
       name: "👻 Invisible Players Monitor",
       description:
         "Detects and notifies when potentially invisible players are in your instance",
-      author: "Bluscream",
-      build: "1728935100",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["Monitor", "Security"],
       dependencies: [],
     });

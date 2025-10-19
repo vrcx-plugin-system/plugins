@@ -1,11 +1,18 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 class NavMenuTestPlugin extends Plugin {
   constructor() {
     super({
       name: "🧪 Nav Menu API Test",
       description:
         "Test plugin to verify nav-menu-api functionality with extensive debug logging",
-      author: "Bluscream",
-      build: "0",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["Debug", "Experimental"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",

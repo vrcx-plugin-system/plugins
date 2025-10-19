@@ -42,7 +42,7 @@ function extractPluginMetadata(filePath, fileName) {
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(" "),
       description: "",
-      author: "Unknown",
+      authors: [{ name: "Unknown" }],
       build: "?",
       url: `${BASE_URL}/${fileName}`,
       tags: [],
@@ -61,10 +61,35 @@ function extractPluginMetadata(filePath, fileName) {
       metadata.description = descMatch[1];
     }
 
-    // Extract author
-    const authorMatch = content.match(/author:\s*["']([^"']+)["']/);
-    if (authorMatch) {
-      metadata.author = authorMatch[1];
+    // Extract authors array
+    const authorsMatch = content.match(/authors:\s*\[([\s\S]*?)\]/);
+    if (authorsMatch) {
+      try {
+        // Parse the authors array from minified code
+        const authorsCode = authorsMatch[1];
+        const authors = [];
+
+        // Extract author objects
+        const authorObjMatches = authorsCode.matchAll(
+          /\{\s*name:\s*["']([^"']+)["'](?:[^}]*?description:\s*["']([^"']*?)["'])?(?:[^}]*?userId:\s*["']([^"']*?)["'])?(?:[^}]*?avatarUrl:\s*["']([^"']*?)["'])?\s*\}/g
+        );
+
+        for (const match of authorObjMatches) {
+          const author = { name: match[1] };
+          if (match[2]) author.description = match[2];
+          if (match[3]) author.userId = match[3];
+          if (match[4]) author.avatarUrl = match[4];
+          authors.push(author);
+        }
+
+        if (authors.length > 0) {
+          metadata.authors = authors;
+        }
+      } catch (e) {
+        console.warn(
+          `  ⚠ Failed to parse authors for ${pluginId}, using default`
+        );
+      }
     }
 
     // Extract build
@@ -131,7 +156,12 @@ function buildRepository() {
   const repository = {
     name: "VRCX Plugin Repository",
     description: "Default repository for VRCX plugins",
-    author: "Bluscream",
+    authors: [
+      {
+        name: "Bluscream",
+        description: "Repository maintainer",
+      }
+    ],
     build: Date.now().toString(),
     url: "https://github.com/vrcx-plugin-system/plugins",
     plugins: plugins,

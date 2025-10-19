@@ -2,6 +2,16 @@
  * TypeScript definitions for VRCX Plugin System
  */
 
+/**
+ * Author information for modules and plugins
+ */
+interface ModuleAuthor {
+  name: string;
+  description?: string;
+  userId?: string;
+  avatarUrl?: string;
+}
+
 declare class Plugin {
   metadata: PluginMetadata;
   enabled: boolean;
@@ -11,13 +21,16 @@ declare class Plugin {
   resources: PluginResources;
   settings?: PluginSettings;
   categories?: Record<string, SettingCategory>;
+  dependencies: string[];
+  logColor: string;
 
   constructor(metadata: PluginMetadata);
   
   load?(): Promise<void> | void;
   start?(): Promise<void> | void;
-  stop?(): Promise<void> | void;
+  stop(): Promise<void>;
   onLogin?(currentUser: any): Promise<void> | void;
+  toggle?(): Promise<void>;
   
   get(key: string, defaultValue?: any): any;
   set(key: string, value: any): void;
@@ -39,12 +52,19 @@ declare class Plugin {
   
   on(eventName: string, callback: (data: any) => void): void;
   emit(eventName: string, data?: any): void;
+  
+  log(message: string, ...args: any[]): void;
+  warn(message: string, ...args: any[]): void;
+  error(message: string, ...args: any[]): void;
 }
 
+/**
+ * Plugin metadata - uses ModuleAuthor array for multi-author support
+ */
 interface PluginMetadata {
   name: string;
   description: string;
-  author: string;
+  authors: ModuleAuthor[];   // Required - array of authors
   build: string;
   dependencies?: string[];
   tags?: string[];
@@ -118,6 +138,10 @@ interface CustomJS {
   debug?: any;
   SettingType: typeof SettingType;
   __LAST_PLUGIN_CLASS__?: typeof Plugin;
+  coreModules?: Map<string, any>;
+  configManager?: any;
+  repoManager?: any;
+  core_modules?: Map<string, any>;
 }
 
 interface PluginManager {
@@ -125,6 +149,12 @@ interface PluginManager {
   getPlugin(id: string): Plugin | undefined;
   waitForPlugin(id: string, timeout?: number): Promise<Plugin>;
   getPluginList(): Plugin[];
+  failedUrls?: Map<string, any>;
+  getPluginConfig?(): Record<string, boolean>;
+  savePluginConfig?(config: Record<string, boolean>): void;
+  reloadPlugin?(id: string): Promise<void>;
+  removePlugin?(id: string): Promise<void>;
+  loader?: any;
 }
 
 interface PluginUtils {
@@ -133,6 +163,9 @@ interface PluginUtils {
   showInfo(message: string): void;
   showWarning(message: string): void;
   showError(message: string): void;
+  hexToRgba?(hex: string, alpha: number): string;
+  copyToClipboard?(text: string, label?: string): void;
+  [key: string]: any;
 }
 
 interface Window {

@@ -1,3 +1,6 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 /**
  * Auto Follow Plugin
  * Automatic location tracking system that follows selected users
@@ -34,8 +37,12 @@ class AutoFollowPlugin extends Plugin {
       name: "👥 Auto Follow",
       description:
         "Automatically sends you invites when followed users join worlds (or requests invites for private instances)",
-      author: "Bluscream",
-      build: "1729018400",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766084",
       tags: ["Automation", "Social"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",

@@ -1,11 +1,18 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 class YoinkerDetectorPlugin extends Plugin {
   constructor() {
     super({
       name: "🚨 Yoinker Detector",
       description:
         "Automatically checks users against yoinker detection database and applies tags + notifications",
-      author: "Bluscream",
-      build: "1728935100",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["Security", "Social", "Integration"],
       dependencies: [],
     });

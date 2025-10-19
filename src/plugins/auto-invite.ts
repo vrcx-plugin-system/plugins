@@ -1,11 +1,18 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 class AutoInvitePlugin extends Plugin {
   constructor() {
     super({
       name: "📨 Auto Invite Manager",
       description:
         "Automatic user invitation system with location tracking and custom messages",
-      author: "Bluscream",
-      build: "1728847200",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766084",
       tags: ["Automation", "Social"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",

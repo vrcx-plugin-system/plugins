@@ -46,6 +46,8 @@ Generate only the repo.json file:
 npm run build:repo
 ```
 
+**Note:** The build system automatically updates each plugin's `build` timestamp based on the file's last modified date.
+
 ### Creating a New Plugin
 
 1. Create a new `.ts` file in the `src/plugins/` directory
@@ -61,8 +63,13 @@ class MyPlugin extends Plugin {
     super({
       name: "My Plugin",
       description: "Description of my plugin",
-      author: "Your Name",
-      build: "1234567890",
+      authors: [
+        {
+          name: "Your Name",
+          description: "Plugin developer",
+        },
+      ],
+      build: "1234567890", // Auto-updated on build based on file modification time
       tags: ["Utility"],
       dependencies: [],
     });
@@ -162,10 +169,11 @@ this.subscribe("STORE_NAME", (state) => {});
 
 The build process:
 
-1. Compiles each TypeScript file in `src/plugins/` to JavaScript
-2. Minifies the output (in production mode)
-3. Outputs to `dist/`
-4. Generates `dist/repo.json` with plugin metadata
+1. Updates each plugin's `build` timestamp to match file modification time
+2. Compiles each TypeScript file in `src/plugins/` to JavaScript
+3. Minifies the output (in production mode)
+4. Outputs to `dist/`
+5. Generates `dist/repo.json` with plugin metadata
 
 ## Clean Build
 

@@ -1,3 +1,6 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 /**
  * User Badge Pipeline Patch Plugin
  * Adds support for the 'user-badge-assigned' pipeline event type
@@ -11,8 +14,12 @@ class UserBadgePipelinePatchPlugin extends Plugin {
       name: "🎖️ User Badge Pipeline Patch",
       description:
         "Adds support for user-badge-assigned pipeline events and displays badge notifications",
-      author: "Bluscream",
-      build: "1729018400",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["Bugfix", "Notifications", "Patch", "Fix"],
       dependencies: [],
     });

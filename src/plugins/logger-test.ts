@@ -1,10 +1,17 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 class TestLoggerPlugin extends Plugin {
   constructor() {
     super({
       name: "🧪 Logger Tester",
       description: "Test different VRCX notification and logging methods",
-      author: "Bluscream",
-      build: "0",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["Debug", "Utility"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",

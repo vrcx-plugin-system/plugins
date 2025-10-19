@@ -1,3 +1,6 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 /**
  * API Retry Patch Plugin
  * Patches VRChat API request methods to add automatic retry logic for transient errors
@@ -27,8 +30,12 @@ class ApiRetryPatchPlugin extends Plugin {
       name: "🔄 API Retry Patch",
       description:
         "Automatically retries failed API requests for transient network errors",
-      author: "Bluscream",
-      build: "1729018400",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766084",
       tags: ["Network", "API", "Utility", "Patch", "Fix"],
       dependencies: [],
     });

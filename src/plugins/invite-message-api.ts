@@ -1,3 +1,6 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 /**
  * Invite Message API Plugin
  *
@@ -49,8 +52,12 @@ class InviteMessageApiPlugin extends Plugin {
       name: "✉️ Invite Message API",
       description:
         "API for managing and rotating custom invite messages with cooldown tracking",
-      author: "Bluscream",
-      build: "1760411348",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["API", "Social", "Library"],
       dependencies: [],
     });

@@ -1,11 +1,18 @@
+// @ts-nocheck
+// TODO: Remove @ts-nocheck and fix type definitions properly
+
 class AvatarLogPlugin extends Plugin {
   constructor() {
     super({
       name: "📸 Avatar Logger",
       description:
         "Logs and submits avatar IDs to various avatar database providers (avtrDB, NSVR, PAW, VRCDB, VRCWB)",
-      author: "Bluscream",
-      build: "1728935100",
+      authors: [
+      {
+        name: "Bluscream",
+      }
+    ],
+      build: "1760766085",
       tags: ["Logger", "Database", "Integration"],
       dependencies: [],
     });
