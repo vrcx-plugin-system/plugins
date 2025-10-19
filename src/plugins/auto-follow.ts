@@ -42,7 +42,7 @@ class AutoFollowPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847187",
+      build: "1760847215",
       tags: ["Automation", "Social"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",

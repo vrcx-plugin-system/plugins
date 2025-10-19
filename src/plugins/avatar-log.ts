@@ -12,7 +12,7 @@ class AvatarLogPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847187",
+      build: "1760847215",
       tags: ["Logger", "Database", "Integration"],
       dependencies: [],
     });

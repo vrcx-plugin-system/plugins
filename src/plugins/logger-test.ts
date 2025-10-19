@@ -11,7 +11,7 @@ class TestLoggerPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847187",
+      build: "1760847215",
       tags: ["Debug", "Utility"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",

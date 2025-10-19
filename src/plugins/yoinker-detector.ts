@@ -12,7 +12,7 @@ class YoinkerDetectorPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847188",
+      build: "1760847215",
       tags: ["Security", "Social", "Integration"],
       dependencies: [],
     });

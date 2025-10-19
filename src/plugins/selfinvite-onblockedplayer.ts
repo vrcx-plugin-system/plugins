@@ -25,7 +25,7 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847188",
+      build: "1760847215",
       tags: ["Automation", "Security"],
       dependencies: [],
     });

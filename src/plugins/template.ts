@@ -14,7 +14,7 @@ class TemplatePlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847188",
+      build: "1760847215",
       dependencies: [
         // Always include plugin.js as first dependency
         // List URLs of other plugins this depends on (optional)

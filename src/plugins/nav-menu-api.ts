@@ -11,7 +11,7 @@ class NavMenuApiPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847207",
+      build: "1760847215",
       tags: ["API", "Core", "Navigation", "Library"],
       dependencies: [],
     });
