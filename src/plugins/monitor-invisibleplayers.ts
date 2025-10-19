@@ -24,7 +24,7 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847215",
+      build: "1760847330",
       tags: ["Monitor", "Security"],
       dependencies: [],
     });

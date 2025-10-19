@@ -12,7 +12,7 @@ class NavMenuTestPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847215",
+      build: "1760847330",
       tags: ["Debug", "Experimental"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",

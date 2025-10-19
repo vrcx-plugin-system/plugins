@@ -15,7 +15,7 @@ class RegistryOverridesPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847215",
+      build: "1760847330",
       tags: ["Game", "Config", "Automation"],
       dependencies: [],
     });

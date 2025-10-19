@@ -11,7 +11,7 @@ class NavMenuApiPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847215",
+      build: "1760848093",
       tags: ["API", "Core", "Navigation", "Library"],
       dependencies: [],
     });
@@ -605,6 +605,11 @@ class NavMenuApiPlugin extends Plugin {
   renderAllItems() {
     this.customItems.forEach((item) => {
       this.renderItem(item);
+      
+      // Also create content containers if not already created
+      if (item.content && this.contentParent && !this.contentContainers.has(item.id)) {
+        this.createContentContainer(item.id, item.content);
+      }
     });
   }
 }
