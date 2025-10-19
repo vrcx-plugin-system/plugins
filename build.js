@@ -52,10 +52,15 @@ async function buildPlugin(fileName) {
       logLevel: "warning",
     });
 
-    const stats = fs.statSync(outputFile);
-    const sizeKB = (stats.size / 1024).toFixed(2);
+    const newFileStats = fs.statSync(outputFile);
+    const newFileSizeKB = (stats.size / 1024).toFixed(2);
+    const oldFileStats = fs.statSync(inputFile);
+    const oldFileSizeKB = (oldFileStats.size / 1024).toFixed(2);
+
     console.log(
-      `  ✓ ${fileName} → ${outputFile.split(path.sep).pop()} (${sizeKB} KB)`
+      `  ✓ ${fileName} → ${outputFile
+        .split(path.sep)
+        .pop()} (${oldFileSizeKB}KB->${newFileSizeKB}KB)`
     );
     return true;
   } catch (error) {
