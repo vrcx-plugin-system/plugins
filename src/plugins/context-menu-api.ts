@@ -11,7 +11,6 @@ class ContextMenuApiPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847330",
       tags: ["API", "Core", "Context", "Library"],
       dependencies: [],
     });

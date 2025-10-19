@@ -1,12 +1,12 @@
 /**
  * Build script for VRCX plugins
  * Compiles TypeScript plugins from src/ to minified JavaScript in dist/
- * Automatically updates build timestamps based on file modification time
+ *
+ * Note: Build timestamps are managed in repo.json during the build-repo step,
+ * not written to individual plugin files.
  *
  * Flags:
  *   --dev                    Build in development mode (no minification)
- *   --no-timestamp           Skip updating build timestamps
- *   --skip-timestamp         Skip updating build timestamps (alias)
  */
 
 const fs = require("fs");
@@ -17,9 +17,6 @@ const { build } = require("esbuild");
 const SRC_DIR = path.join(__dirname, "src", "plugins");
 const DIST_DIR = path.join(__dirname, "dist");
 const isDev = process.argv.includes("--dev");
-const skipTimestamp =
-  process.argv.includes("--no-timestamp") ||
-  process.argv.includes("--skip-timestamp");
 
 // Ensure directories exist
 if (!fs.existsSync(SRC_DIR)) {
@@ -33,61 +30,14 @@ if (!fs.existsSync(DIST_DIR)) {
 }
 
 /**
- * Update build timestamp in plugin source file based on last modified date
- */
-function updateBuildTimestamp(filePath) {
-  try {
-    // Get file's last modified time
-    const stats = fs.statSync(filePath);
-    const lastModified = stats.mtime;
-    const unixTimestamp = Math.floor(lastModified.getTime() / 1000);
-
-    // Read file content
-    let content = fs.readFileSync(filePath, "utf8");
-
-    // Update build timestamp if found
-    const buildRegex = /build:\s*["'](\d+)["']/;
-    const match = content.match(buildRegex);
-
-    if (match) {
-      const oldTimestamp = match[1];
-      // Only update if timestamp is different
-      if (oldTimestamp !== unixTimestamp.toString()) {
-        content = content.replace(buildRegex, `build: "${unixTimestamp}"`);
-        fs.writeFileSync(filePath, content, "utf8");
-        return { updated: true, timestamp: unixTimestamp };
-      }
-    }
-
-    return { updated: false, timestamp: unixTimestamp };
-  } catch (error) {
-    console.error(
-      `  ⚠ Failed to update timestamp for ${path.basename(filePath)}: ${
-        error.message
-      }`
-    );
-    return { updated: false, timestamp: null };
-  }
-}
-
-/**
  * Build a single plugin
+ * Note: Build timestamps are now managed in repo.json, not in plugin source files
  */
 async function buildPlugin(fileName) {
   const inputFile = path.join(SRC_DIR, fileName);
   const outputFile = path.join(DIST_DIR, fileName.replace(/\.ts$/, ".js"));
 
   try {
-    // Update build timestamp based on file modification time (if enabled)
-    let updated = false;
-    let timestamp = null;
-
-    if (!skipTimestamp) {
-      const result = updateBuildTimestamp(inputFile);
-      updated = result?.updated || false;
-      timestamp = result?.timestamp || null;
-    }
-
     await build({
       entryPoints: [inputFile],
       outfile: outputFile,
@@ -104,11 +54,8 @@ async function buildPlugin(fileName) {
 
     const stats = fs.statSync(outputFile);
     const sizeKB = (stats.size / 1024).toFixed(2);
-    const timestampNote = updated ? ` [build: ${timestamp}]` : "";
     console.log(
-      `  ✓ ${fileName} → ${outputFile
-        .split(path.sep)
-        .pop()} (${sizeKB} KB)${timestampNote}`
+      `  ✓ ${fileName} → ${outputFile.split(path.sep).pop()} (${sizeKB} KB)`
     );
     return true;
   } catch (error) {
@@ -122,8 +69,7 @@ async function buildPlugin(fileName) {
  */
 async function buildAll() {
   const mode = isDev ? "development" : "production";
-  const timestampStatus = skipTimestamp ? " [timestamp updates disabled]" : "";
-  console.log(`🔨 Building plugins (${mode} mode)${timestampStatus}...\n`);
+  console.log(`🔨 Building plugins (${mode} mode)...\n`);
 
   // Read all TypeScript files in src directory
   const files = fs.readdirSync(SRC_DIR);

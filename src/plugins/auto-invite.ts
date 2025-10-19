@@ -12,7 +12,6 @@ class AutoInvitePlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847330",
       tags: ["Automation", "Social"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",

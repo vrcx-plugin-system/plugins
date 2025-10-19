@@ -34,6 +34,10 @@ function extractPluginMetadata(filePath, fileName) {
     const content = fs.readFileSync(filePath, "utf8");
     const pluginId = fileName.replace(".js", "");
 
+    // Get file modification time for build timestamp
+    const stats = fs.statSync(filePath);
+    const buildTimestamp = Math.floor(stats.mtimeMs / 1000).toString();
+
     // Extract constructor metadata
     const metadata = {
       id: pluginId,
@@ -43,7 +47,7 @@ function extractPluginMetadata(filePath, fileName) {
         .join(" "),
       description: "",
       authors: [{ name: "Unknown" }],
-      build: "?",
+      build: buildTimestamp, // Use file modification time
       url: `${BASE_URL}/${fileName}`,
       tags: [],
       enabled: DEFAULT_ENABLED.includes(pluginId),
@@ -92,11 +96,8 @@ function extractPluginMetadata(filePath, fileName) {
       }
     }
 
-    // Extract build
-    const buildMatch = content.match(/build:\s*["']([^"']+)["']/);
-    if (buildMatch) {
-      metadata.build = buildMatch[1];
-    }
+    // Note: build field is no longer extracted from plugin source
+    // It's generated from file modification time above
 
     // Extract tags
     const tagsMatch = content.match(/tags:\s*\[([^\]]+)\]/);
@@ -160,7 +161,7 @@ function buildRepository() {
       {
         name: "Bluscream",
         description: "Repository maintainer",
-      }
+      },
     ],
     build: Date.now().toString(),
     url: "https://github.com/vrcx-plugin-system/plugins",

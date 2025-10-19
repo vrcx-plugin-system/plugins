@@ -65,7 +65,7 @@ interface PluginMetadata {
   name: string;
   description: string;
   authors: ModuleAuthor[];   // Required - array of authors
-  build: string;
+  build?: string;  // Optional - managed by repo.json
   dependencies?: string[];
   tags?: string[];
 }

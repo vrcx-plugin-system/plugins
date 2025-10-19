@@ -12,7 +12,6 @@ class DebugPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847330",
       dependencies: [],
     });
   }

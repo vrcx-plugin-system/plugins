@@ -10,9 +10,6 @@
  * - Automatically creates self-invite to new instance of same world
  * - Configurable delay before inviting
  * - Option to show notification
- *
- * @author Bluscream
- * @version 1.1.0
  */
 class SelfInviteOnBlockedPlayerPlugin extends Plugin {
   constructor() {
@@ -25,7 +22,6 @@ class SelfInviteOnBlockedPlayerPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847330",
       tags: ["Automation", "Security"],
       dependencies: [],
     });

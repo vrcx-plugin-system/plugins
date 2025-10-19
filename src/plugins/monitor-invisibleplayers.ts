@@ -9,9 +9,6 @@
  * - Shows notifications when invisible players are detected
  * - Configurable notification settings
  * - Modifies instance display name to show invisible player count
- *
- * @author Bluscream
- * @version 1.0.0
  */
 class InvisiblePlayersMonitorPlugin extends Plugin {
   constructor() {
@@ -24,7 +21,6 @@ class InvisiblePlayersMonitorPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847330",
       tags: ["Monitor", "Security"],
       dependencies: [],
     });

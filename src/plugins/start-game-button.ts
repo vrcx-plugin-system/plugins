@@ -14,7 +14,6 @@ class StartGameButtonPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760847330",
       tags: ["Utility", "Game", "Button"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
