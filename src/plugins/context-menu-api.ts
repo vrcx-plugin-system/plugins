@@ -16,7 +16,7 @@ class ContextMenuApiPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["API", "Core", "Context", "Library"],
-      dependencies: [],
+      required_dependencies: [],
     });
 
     this.menuTypes = ["user", "world", "avatar", "group", "instance"];

@@ -60,7 +60,7 @@ class InviteMessageApiPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["API", "Social", "Library"],
-      dependencies: [],
+      required_dependencies: [],
     });
 
     // Cache for message stores

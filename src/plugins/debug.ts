@@ -10,7 +10,7 @@ class DebugPlugin extends CustomModule {
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
-      dependencies: [],
+      required_dependencies: [],
     });
   }
 

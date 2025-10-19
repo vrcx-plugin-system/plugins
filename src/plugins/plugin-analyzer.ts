@@ -12,7 +12,7 @@ class PluginAnalyzerPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Tool", "Utility", "Analysis"],
-      dependencies: ["dialog-api"],
+      required_dependencies: ["dialog-api"],
     });
   }
 

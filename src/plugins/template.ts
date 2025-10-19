@@ -19,7 +19,7 @@ class TemplatePlugin extends CustomModule {
           description: "VRCX Plugin System Maintainer",
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
-      dependencies: [
+      required_dependencies: [
         // Always include plugin.js as first dependency
         // List URLs of other plugins this depends on (optional)
         // "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/utils.js",

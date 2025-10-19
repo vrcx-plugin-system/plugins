@@ -13,7 +13,7 @@ class StartGameButtonPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Utility", "Game", "Button"],
-      dependencies: ["nav-menu-api"],
+      required_dependencies: ["nav-menu-api"],
     });
 
     this.navMenuApi = null;

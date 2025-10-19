@@ -17,7 +17,7 @@ class AvatarLogPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Logger", "Database", "Integration"],
-      dependencies: [],
+      required_dependencies: [],
     });
 
     // Track processed avatars to avoid duplicates

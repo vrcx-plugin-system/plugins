@@ -21,7 +21,7 @@ class AutoInvitePlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Automation", "Social"],
-      dependencies: ["context-menu-api"],
+      required_dependencies: ["context-menu-api"],
     });
 
     // Auto-invite state

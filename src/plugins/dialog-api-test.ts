@@ -12,7 +12,7 @@ class DialogApiTestPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Test", "Example", "Dialog"],
-      dependencies: [],
+      required_dependencies: [],
     });
   }
 

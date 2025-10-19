@@ -14,7 +14,7 @@ class RetryAutoLoginPlugin extends CustomModule {
         }
       ],
       tags: ["Utility", "Automation", "Login"],
-      dependencies: [],
+      required_dependencies: [],
     });
 
     this.checkIntervalId = null;

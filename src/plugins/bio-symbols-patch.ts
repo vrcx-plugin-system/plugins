@@ -23,7 +23,7 @@ class BioSymbolsPatchPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Bugfix", "Utility", "Patch", "Fix"],
-      dependencies: [],
+      required_dependencies: [],
     });
 
     this.originalFunction = null;

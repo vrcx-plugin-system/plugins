@@ -13,7 +13,7 @@ class AutoDisableUntrustedURLsPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Security", "Automation"],
-      dependencies: [],
+      required_dependencies: [],
     });
 
     // Track last game running state

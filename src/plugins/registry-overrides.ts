@@ -14,7 +14,7 @@ class RegistryOverridesPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Game", "Config", "Automation"],
-      dependencies: [],
+      required_dependencies: [],
     });
 
     // Map of event names to handlers

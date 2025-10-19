@@ -20,7 +20,8 @@ class PluginManagerUIPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
       }],
       tags: ["UI", "Core", "Settings"],
-      dependencies: ["nav-menu-api", "dialog-api", "plugin-analyzer"],
+      required_dependencies: ["nav-menu-api", "dialog-api"],
+      optional_dependencies: ["plugin-analyzer"],
     });
 
     this.settingsModal = null;
