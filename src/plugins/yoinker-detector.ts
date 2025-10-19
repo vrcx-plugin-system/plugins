@@ -43,11 +43,12 @@ class YoinkerDetectorPlugin extends CustomModule {
         icon: "ri-delete-bin-line",
         description: "Clear all processed users, cache, and reset stats",
         callback: async () => {
-          if (
-            confirm(
-              "Clear all processed users, cache, and stats?\n\nThis cannot be undone!"
-            )
-          ) {
+          if (await this.showConfirmDialog(
+            'Clear All Data',
+            'Clear all processed users, cache, and stats?\n\nThis cannot be undone!',
+            'Clear All',
+            'Cancel'
+          )) {
             this.clearCache();
             this.logger.showSuccess("Cache cleared successfully!");
           }

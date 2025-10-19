@@ -147,44 +147,6 @@ class StartGameButtonPlugin extends CustomModule {
   }
 
   /**
-   * Show confirmation dialog using Element Plus or fallback to native confirm
-   * @param title - Dialog title
-   * @param message - Dialog message
-   * @returns True if confirmed, false if cancelled
-   */
-  async showConfirmDialog(title: string, message: string): Promise<boolean> {
-    try {
-      // Try Element Plus $confirm (Vue global properties)
-      const $confirm = (window as any).$app?.config?.globalProperties?.$confirm;
-      if ($confirm) {
-        try {
-          await $confirm(message, title, {
-            confirmButtonText: "Launch",
-            cancelButtonText: "Cancel",
-            type: "info",
-          });
-          return true; // User confirmed
-        } catch (error) {
-          // User cancelled or closed dialog
-          return false;
-        }
-      }
-
-      // Fallback to native browser confirm
-      this.logger.log(
-        "Using native confirm dialog (Element Plus not available)"
-      );
-      const fullMessage = `${title}\n\n${message}`;
-      return confirm(fullMessage);
-    } catch (error: any) {
-      this.logger.warn(`Error showing confirm dialog: ${error.message}`);
-      // Fallback to native confirm on any error
-      const fullMessage = `${title}\n\n${message}`;
-      return confirm(fullMessage);
-    }
-  }
-
-  /**
    * Helper to get config value from VRCX's config repository
    * @param key - Config key
    * @returns Config value or null

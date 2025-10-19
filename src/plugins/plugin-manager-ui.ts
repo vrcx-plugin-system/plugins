@@ -709,9 +709,12 @@ class PluginManagerUIPlugin extends CustomModule {
   async handleRemoveRepository(url) {
     this.logger.log(`🗑️ User clicked remove for repository: ${url}`);
 
-    if (
-      !confirm(`Are you sure you want to remove this repository?\n\n${url}`)
-    ) {
+    if (!(await this.showConfirmDialog(
+      'Remove Repository',
+      `Are you sure you want to remove this repository?\n\n${url}`,
+      'Remove',
+      'Cancel'
+    ))) {
       this.logger.log("  → User cancelled removal");
       return;
     }
@@ -1960,11 +1963,12 @@ class PluginManagerUIPlugin extends CustomModule {
       return;
     }
 
-    if (
-      !confirm(
-        `Are you sure you want to remove this plugin?\n\nNote: Code will remain in memory until VRCX restart.`
-      )
-    ) {
+    if (!await this.showConfirmDialog(
+      'Remove Plugin',
+      'Are you sure you want to remove this plugin?\n\nNote: Code will remain in memory until VRCX restart.',
+      'Remove',
+      'Cancel'
+    )) {
       this.logger.log("  → User cancelled removal");
       return;
     }
@@ -2175,11 +2179,12 @@ class PluginManagerUIPlugin extends CustomModule {
 
     this.registerListener(resetBtn, "click", async () => {
       const displayName = (plugin as any).getDisplayName ? (plugin as any).getDisplayName() : plugin.metadata.name;
-      if (
-        confirm(
-          `Reset all settings for "${displayName}" to their default values?`
-        )
-      ) {
+      if (await this.showConfirmDialog(
+        'Reset Settings',
+        `Reset all settings for "${displayName}" to their default values?`,
+        'Reset',
+        'Cancel'
+      )) {
         // Reset settings using new API if available
         if (plugin.settings?.resetAll) {
           plugin.settings.resetAll();

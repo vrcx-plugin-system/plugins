@@ -45,7 +45,7 @@ class AutoInvitePlugin extends CustomModule {
             this.logger.showInfo("Auto Invite list is already empty");
             return;
           }
-          if (confirm(`Remove all ${count} user(s) from Auto Invite list?`)) {
+          if (await this.showConfirmDialog('Clear Auto Invite List', `Remove all ${count} user(s) from Auto Invite list?`, 'Remove All', 'Cancel')) {
             this.clearAllAutoInvites();
           }
         },

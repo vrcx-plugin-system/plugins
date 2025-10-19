@@ -71,6 +71,9 @@ declare class CustomModule {
   defineSettings(settings: Record<string, SettingDefinition>): ModuleSettings;
   defineSettingsCategories(categories: Record<string, SettingCategory>): Record<string, SettingCategory>;
   
+  showConfirmDialog(title: string, message: string, confirmText?: string, cancelText?: string): Promise<boolean>;
+  showAlertDialog(title: string, message: string, confirmText?: string): Promise<void>;
+  
   registerPreHook(functionPath: string, callback: (args: any[]) => void): void;
   registerPostHook(functionPath: string, callback: (result: any, args: any[]) => void): void;
   registerVoidHook(functionPath: string, callback: (args: any[]) => void): void;

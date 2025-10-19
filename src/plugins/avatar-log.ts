@@ -67,11 +67,12 @@ class AvatarLogPlugin extends CustomModule {
         icon: "ri-delete-bin-line",
         description: "Clear all processed avatars and reset stats",
         callback: async () => {
-          if (
-            confirm(
-              "Clear all processed avatars and reset stats?\n\nThis cannot be undone!"
-            )
-          ) {
+          if (await this.showConfirmDialog(
+            'Clear All Data',
+            'Clear all processed avatars and reset stats?\n\nThis cannot be undone!',
+            'Clear All',
+            'Cancel'
+          )) {
             this.clearProcessedAvatars();
             this.logger.showSuccess("Cache cleared successfully!");
           }

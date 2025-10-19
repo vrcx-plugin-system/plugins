@@ -126,6 +126,51 @@ class DialogApiPlugin extends CustomModule {
     };
   }
 
+  showConfirmDialog(title: string, message: string, type: "info" | "warning" | "error" = "info", confirmText: string = "Confirm", cancelText: string = "Cancel"): boolean {
+    (async () => {
+      return await this.showConfirmDialogAsync(title, message, type, confirmText, cancelText);
+    })();
+    return false;
+  }
+
+  /**
+   * Show confirmation dialog using Element Plus or fallback to native confirm
+   * @param title - Dialog title
+   * @param message - Dialog message
+   * @returns True if confirmed, false if cancelled
+   */
+  async showConfirmDialogAsync(title: string, message: string, type: "info" | "warning" | "error" = "info", confirmText: string = "Confirm", cancelText: string = "Cancel"): Promise<boolean> {
+    try {
+      // Try Element Plus $confirm (Vue global properties)
+      const $confirm = (window as any).$app?.config?.globalProperties?.$confirm;
+      if ($confirm) {
+        try {
+          await $confirm(message, title, {
+            confirmButtonText: confirmText,
+            cancelButtonText: cancelText,
+            type: type,
+          });
+          return true; // User confirmed
+        } catch (error) {
+          // User cancelled or closed dialog
+          return false;
+        }
+      }
+
+      // Fallback to native browser confirm
+      this.logger.log(
+        "Using native confirm dialog (Element Plus not available)"
+      );
+      const fullMessage = `${title}\n\n${message}`;
+      return confirm(fullMessage);
+    } catch (error: any) {
+      this.logger.warn(`Error showing confirm dialog: ${error.message}`);
+      // Fallback to native confirm on any error
+      const fullMessage = `${title}\n\n${message}`;
+      return confirm(fullMessage);
+    }
+  }
+
   /**
    * Show a dialog
    */

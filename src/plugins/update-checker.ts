@@ -358,30 +358,24 @@ class UpdateCheckerPlugin extends CustomModule {
             this.logger.showInfo('New VRCX Plugin System update available: ' + release.tag_name);
         }
         
-        const dialogApi = (window as any).customjs?.getModule('dialog-api');
-        if (dialogApi) {
-            const result = await (dialogApi as any).showConfirm({
-                title: '🔄 VRCX Plugin System Update Available',
-                message: message,
-                confirmText: 'View Release',
-                cancelText: 'Dismiss',
-                width: 500
-            });
-            
-            if (result) {
-                if (this.settings.store.openReleasePageOnUpdate || manual) {
-                    window.open(release.html_url, '_blank');
-                }
-            } else {
-                // User dismissed - add to dismissed list
-                const dismissed = JSON.parse(this.settings.store.dismissedCoreVersions || '[]');
-                if (!dismissed.includes(release.tag_name)) {
-                    dismissed.push(release.tag_name);
-                    this.settings.store.dismissedCoreVersions = JSON.stringify(dismissed);
-                }
+        const result = await this.showConfirmDialog(
+            '🔄 VRCX Plugin System Update Available',
+            message,
+            'View Release',
+            'Dismiss'
+        );
+        
+        if (result) {
+            if (this.settings.store.openReleasePageOnUpdate || manual) {
+                window.open(release.html_url, '_blank');
             }
-        } else if (this.settings.store.openReleasePageOnUpdate) {
-            window.open(release.html_url, '_blank');
+        } else {
+            // User dismissed - add to dismissed list
+            const dismissed = JSON.parse(this.settings.store.dismissedCoreVersions || '[]');
+            if (!dismissed.includes(release.tag_name)) {
+                dismissed.push(release.tag_name);
+                this.settings.store.dismissedCoreVersions = JSON.stringify(dismissed);
+            }
         }
     }
 
@@ -509,13 +503,12 @@ class UpdateCheckerPlugin extends CustomModule {
             await this.applyPluginUpdates(updates);
         } else {
             // Ask for confirmation
-            const result = await (dialogApi as any).showConfirm({
-                title: '🔄 Plugin Updates Available',
-                message: `The following plugins have updates available:\n\n${updateList}\n\nWould you like to update them now?`,
-                confirmText: 'Update All',
-                cancelText: 'Skip',
-                width: 500
-            });
+            const result = await this.showConfirmDialog(
+                '🔄 Plugin Updates Available',
+                `The following plugins have updates available:\n\n${updateList}\n\nWould you like to update them now?`,
+                'Update All',
+                'Skip'
+            );
             
             if (result) {
                 await this.applyPluginUpdates(updates);
@@ -562,12 +555,11 @@ class UpdateCheckerPlugin extends CustomModule {
             `• ${p.name} (${p.version || 'unknown'})\n  From: ${p.repoName}\n  ${p.description || 'No description'}`
         ).join('\n\n');
         
-        await (dialogApi as any).showAlert({
-            title: '✨ New Plugins Discovered',
-            message: `${newPlugins.length} new plugin(s) have been found in your repositories:\n\n${pluginList}\n\nYou can enable them from the Plugin Manager.`,
-            confirmText: 'OK',
-            width: 600
-        });
+        await this.showAlertDialog(
+            '✨ New Plugins Discovered',
+            `${newPlugins.length} new plugin(s) have been found in your repositories:\n\n${pluginList}\n\nYou can enable them from the Plugin Manager.`,
+            'OK'
+        );
     }
 
     private showRateLimitStatus(): void {
