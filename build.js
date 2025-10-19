@@ -109,7 +109,8 @@ async function buildAll() {
   // Build repo.json after building plugins
   console.log(`\n🔄 Building repository metadata...`);
   try {
-    require("./build-repo.js");
+    const buildRepository = require("./build-repo.js");
+    buildRepository();
   } catch (error) {
     console.error(`❌ Failed to build repo.json: ${error.message}`);
   }
