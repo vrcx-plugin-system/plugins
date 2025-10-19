@@ -52,10 +52,8 @@ async function buildPlugin(fileName) {
       logLevel: "warning",
     });
 
-    const newFileStats = fs.statSync(outputFile);
-    const newFileSizeKB = (stats.size / 1024).toFixed(2);
-    const oldFileStats = fs.statSync(inputFile);
-    const oldFileSizeKB = (oldFileStats.size / 1024).toFixed(2);
+    const newFileSizeKB = (fs.statSync(outputFile).size / 1024).toFixed(2);
+    const oldFileSizeKB = (fs.statSync(inputFile).size / 1024).toFixed(2);
 
     console.log(
       `  ✓ ${fileName} → ${outputFile
