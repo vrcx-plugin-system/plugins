@@ -609,3 +609,5 @@ class UpdateCheckerPlugin extends CustomModule {
         return 0;
     }
 }
+
+(window as any).customjs.__LAST_PLUGIN_CLASS__ = UpdateCheckerPlugin;
