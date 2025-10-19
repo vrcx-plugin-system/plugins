@@ -11,7 +11,7 @@ class TemplatePlugin extends CustomModule {
     // Call parent constructor with metadata
     // Note: ID is auto-derived from filename (template.js -> template)
     super({
-      name: "📄 Template Plugin",
+      name: "Template Plugin 📄",
       description:
         "Example plugin demonstrating all available features and lifecycle events",
       authors: [{

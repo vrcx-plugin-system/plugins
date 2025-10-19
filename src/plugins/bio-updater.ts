@@ -6,7 +6,7 @@ class BioUpdaterPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "📝 Bio Updater",
+      name: "Bio Updater 📝",
       description:
         "Automatic bio updating with user statistics and custom templates",
       authors: [{

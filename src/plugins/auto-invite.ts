@@ -12,7 +12,7 @@ class AutoInvitePlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "📨 Auto Invite Manager",
+      name: "Auto Invite 📨",
       description:
         "Automatic user invitation system with location tracking and custom messages",
       authors: [{

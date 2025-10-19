@@ -8,7 +8,7 @@ class ContextMenuApiPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "📋 Context Menu API",
+      name: "Context Menu API 📋",
       description: "Custom context menu management for VRCX dialogs",
       authors: [{
           name: "Bluscream",

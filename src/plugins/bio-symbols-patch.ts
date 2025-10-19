@@ -14,7 +14,7 @@ class BioSymbolsPatchPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🔤 Bio Symbols Patch",
+      name: "Bio Symbols Patch 🔤",
       description:
         "Patches replaceBioSymbols function to handle non-string inputs safely",
       authors: [{

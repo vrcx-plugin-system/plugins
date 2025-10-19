@@ -11,7 +11,7 @@ class PluginManagerUIPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🧩 Plugin Manager UI",
+      name: "Plugin Manager UI 🧩",
       description:
         "Visual UI for managing VRCX custom plugins - Equicord inspired",
       authors: [{

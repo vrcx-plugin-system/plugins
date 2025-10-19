@@ -40,7 +40,7 @@ class AutoFollowPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "👥 Auto Follow",
+      name: "Auto Follow 👥",
       description:
         "Automatically sends you invites when followed users join worlds (or requests invites for private instances)",
       authors: [{

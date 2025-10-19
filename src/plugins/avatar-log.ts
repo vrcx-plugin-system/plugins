@@ -8,7 +8,7 @@ class AvatarLogPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "📸 Avatar Logger",
+      name: "Avatar Logger 📸",
       description:
         "Logs and submits avatar IDs to various avatar database providers (avtrDB, NSVR, PAW, VRCDB, VRCWB)",
       authors: [{

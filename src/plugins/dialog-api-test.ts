@@ -4,7 +4,7 @@ class DialogApiTestPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🧪 Dialog API Test",
+      name: "Dialog API Test 🧪",
       description: "Test plugin to demonstrate Dialog API functionality",
       authors: [{
           name: "Bluscream",

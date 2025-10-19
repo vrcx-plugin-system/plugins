@@ -16,7 +16,7 @@ class SelfInviteOnBlockedPlayerPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🚫 Self Invite on Blocked Player",
+      name: "Self Invite on Blocked Player 🚫",
       description:
         "Automatically creates a self-invite to a new instance when a blocked player joins your current instance",
       authors: [{

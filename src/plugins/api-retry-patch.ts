@@ -25,7 +25,7 @@ class ApiRetryPatchPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🔄 API Retry Patch",
+      name: "API Retry Patch 🔄",
       description:
         "Automatically retries failed API requests for transient network errors",
       authors: [{

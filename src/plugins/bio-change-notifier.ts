@@ -4,7 +4,7 @@ class BioChangeNotifierPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🔔 Bio Change Notifier",
+      name: "Bio Change Notifier 🔔",
       description:
         "Get notified when friends change their bio with a detailed diff view",
       authors: [{

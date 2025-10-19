@@ -4,7 +4,7 @@ class PluginAnalyzerPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🔍 Plugin Analyzer",
+      name: "Plugin Analyzer 🔍",
       description: "Analyzes plugin code and shows detailed metadata and statistics",
       authors: [{
           name: "Bluscream",

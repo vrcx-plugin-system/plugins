@@ -6,7 +6,7 @@ class DialogApiPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "💬 Dialog API",
+      name: "Dialog API 💬",
       description: "API for creating and showing custom dialogs in VRCX",
       authors: [{
           name: "Bluscream",

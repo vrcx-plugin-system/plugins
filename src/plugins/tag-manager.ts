@@ -5,7 +5,7 @@ class TagManagerPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🏷️ Tag Manager",
+      name: "Tag Manager 🏷️",
       description: "Custom user tags management with URL-based loading",
       authors: [{
           name: "Bluscream",

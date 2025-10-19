@@ -5,9 +5,9 @@ class ProtocolLinksPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🔗 VRCX Protocol Links",
+      name: "VRCX Protocol Links 🔗",
       description:
-        "Adds context menu items to copy VRCX protocol links for users, avatars, worlds, groups, and instances",
+        "Adds context menu items to copy VRCX protocol links for users, avatars, worlds, groups and instances",
       authors: [{
           name: "Bluscream",
           description: "VRCX Plugin System Maintainer",

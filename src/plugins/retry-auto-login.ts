@@ -4,7 +4,7 @@ class RetryAutoLoginPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🔑 Retry Auto Login",
+      name: "Retry Auto Login 🔑",
       description: "Automatically retries login with saved credentials if logged out",
       authors: [
         {

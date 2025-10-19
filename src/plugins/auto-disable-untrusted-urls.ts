@@ -4,7 +4,7 @@ class AutoDisableUntrustedURLsPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🛡️ Auto Disable Untrusted URLs",
+      name: "Auto Disable Untrusted URLs 🛡️",
       description:
         "Automatically disables VRChat's untrusted URL feature for security (enables in private instances)",
       authors: [{

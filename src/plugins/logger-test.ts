@@ -5,7 +5,7 @@ class TestLoggerPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "🧪 Logger Tester",
+      name: "Logger Tester 🧪",
       description: "Test different VRCX notification and logging methods",
       authors: [{
           name: "Bluscream",

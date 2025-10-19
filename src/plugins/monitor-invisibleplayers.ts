@@ -13,7 +13,7 @@ class InvisiblePlayersMonitorPlugin extends CustomModule {
 
   constructor() {
     super({
-      name: "👻 Invisible Players Monitor",
+      name: "Invisible Players Monitor 👻",
       description:
         "Detects and notifies when potentially invisible players are in your instance",
       authors: [{

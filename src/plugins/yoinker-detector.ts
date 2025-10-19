@@ -2,7 +2,7 @@
 class YoinkerDetectorPlugin extends CustomModule {
   constructor() {
     super({
-      name: "🚨 Yoinker Detector",
+      name: "Yoinker Detector 🚨",
       description:
         "Automatically checks users against yoinker detection database and applies tags + notifications",
       authors: [{
