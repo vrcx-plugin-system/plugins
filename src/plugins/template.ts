@@ -1,5 +1,12 @@
 // 
 class TemplatePlugin extends CustomModule {
+  counter: number;
+  timerInterval: any;
+  exampleData: any;
+  utils: any;
+  contextMenuApi: any;
+  navMenuApi: any;
+
   constructor() {
     // Call parent constructor with metadata
     // Note: ID is auto-derived from filename (template.js -> template)

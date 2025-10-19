@@ -22,12 +22,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/user-badge-pipeline-patch.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/user-badge-pipeline-patch.ts",
-      "tags": [
-        "Bugfix",
-        "Notifications",
-        "Patch",
-        "Fix"
-      ],
+      "tags": ["Bugfix", "Notifications", "Patch", "Fix"],
       "enabled": true
     },
     {
@@ -42,16 +37,12 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/start-game-button.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/start-game-button.ts",
-      "tags": [
-        "Utility",
-        "Game",
-        "Button"
-      ],
+      "tags": ["Utility", "Game", "Button"],
       "enabled": false
     },
     {
       "id": "tag-manager",
-      "name": "\\u{1F3F7}\\uFE0F Tag Manager",
+      "name": "\\u{1F3F7}\\{uFE0F} Tag Manager",
       "description": "Custom user tags management with URL-based loading",
       "authors": [
         {
@@ -61,10 +52,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/tag-manager.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/tag-manager.ts",
-      "tags": [
-        "Social",
-        "Enhancement"
-      ],
+      "tags": ["Social", "Enhancement"],
       "enabled": false
     },
     {
@@ -94,10 +82,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-follow.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/auto-follow.ts",
-      "tags": [
-        "Automation",
-        "Social"
-      ],
+      "tags": ["Automation", "Social"],
       "enabled": false
     },
     {
@@ -112,10 +97,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/monitor-invisibleplayers.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/monitor-invisibleplayers.ts",
-      "tags": [
-        "Monitor",
-        "Security"
-      ],
+      "tags": ["Monitor", "Security"],
       "enabled": false
     },
     {
@@ -145,12 +127,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/context-menu-api.ts",
-      "tags": [
-        "API",
-        "Core",
-        "Context",
-        "Library"
-      ],
+      "tags": ["API", "Core", "Context", "Library"],
       "enabled": true
     },
     {
@@ -165,10 +142,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-updater.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/bio-updater.ts",
-      "tags": [
-        "Automation",
-        "Social"
-      ],
+      "tags": ["Automation", "Social"],
       "enabled": false
     },
     {
@@ -183,10 +157,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-invite.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/auto-invite.ts",
-      "tags": [
-        "Automation",
-        "Social"
-      ],
+      "tags": ["Automation", "Social"],
       "enabled": false
     },
     {
@@ -201,11 +172,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/avatar-log.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/avatar-log.ts",
-      "tags": [
-        "Logger",
-        "Database",
-        "Integration"
-      ],
+      "tags": ["Logger", "Database", "Integration"],
       "enabled": false
     },
     {
@@ -220,13 +187,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/api-retry-patch.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/api-retry-patch.ts",
-      "tags": [
-        "Network",
-        "API",
-        "Utility",
-        "Patch",
-        "Fix"
-      ],
+      "tags": ["Network", "API", "Utility", "Patch", "Fix"],
       "enabled": true
     },
     {
@@ -241,10 +202,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-change-notifier.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/bio-change-notifier.ts",
-      "tags": [
-        "Notifications",
-        "Social"
-      ],
+      "tags": ["Notifications", "Social"],
       "enabled": false
     },
     {
@@ -259,10 +217,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/protocol-links.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/protocol-links.ts",
-      "tags": [
-        "Utility",
-        "Integration"
-      ],
+      "tags": ["Utility", "Integration"],
       "enabled": false
     },
     {
@@ -277,12 +232,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/bio-symbols-patch.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/bio-symbols-patch.ts",
-      "tags": [
-        "Bugfix",
-        "Utility",
-        "Patch",
-        "Fix"
-      ],
+      "tags": ["Bugfix", "Utility", "Patch", "Fix"],
       "enabled": true
     },
     {
@@ -297,11 +247,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/devtools-button.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/devtools-button.ts",
-      "tags": [
-        "Utility",
-        "Developer",
-        "Button"
-      ],
+      "tags": ["Utility", "Developer", "Button"],
       "enabled": false
     },
     {
@@ -316,11 +262,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/yoinker-detector.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/yoinker-detector.ts",
-      "tags": [
-        "Security",
-        "Social",
-        "Integration"
-      ],
+      "tags": ["Security", "Social", "Integration"],
       "enabled": false
     },
     {
@@ -335,10 +277,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/selfinvite-onblockedplayer.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/selfinvite-onblockedplayer.ts",
-      "tags": [
-        "Automation",
-        "Security"
-      ],
+      "tags": ["Automation", "Security"],
       "enabled": false
     },
     {
@@ -353,10 +292,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/auto-disable-untrusted-urls.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/auto-disable-untrusted-urls.ts",
-      "tags": [
-        "Security",
-        "Automation"
-      ],
+      "tags": ["Security", "Automation"],
       "enabled": false
     },
     {
@@ -371,11 +307,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/plugin-manager-ui.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/plugin-manager-ui.ts",
-      "tags": [
-        "UI",
-        "Core",
-        "Settings"
-      ],
+      "tags": ["UI", "Core", "Settings"],
       "enabled": true
     },
     {
@@ -390,10 +322,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/logger-test.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/logger-test.ts",
-      "tags": [
-        "Debug",
-        "Utility"
-      ],
+      "tags": ["Debug", "Utility"],
       "enabled": false
     },
     {
@@ -408,10 +337,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-test.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/nav-menu-test.ts",
-      "tags": [
-        "Debug",
-        "Experimental"
-      ],
+      "tags": ["Debug", "Experimental"],
       "enabled": false
     },
     {
@@ -426,12 +352,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/nav-menu-api.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/nav-menu-api.ts",
-      "tags": [
-        "API",
-        "Core",
-        "Navigation",
-        "Library"
-      ],
+      "tags": ["API", "Core", "Navigation", "Library"],
       "enabled": true
     },
     {
@@ -446,11 +367,7 @@
       "build": "1760849507",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/registry-overrides.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/registry-overrides.ts",
-      "tags": [
-        "Game",
-        "Config",
-        "Automation"
-      ],
+      "tags": ["Game", "Config", "Automation"],
       "enabled": false
     },
     {
@@ -465,11 +382,7 @@
       "build": "1760849506",
       "url": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/invite-message-api.js",
       "sourceUrl": "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/src/plugins/invite-message-api.ts",
-      "tags": [
-        "API",
-        "Social",
-        "Library"
-      ],
+      "tags": ["API", "Social", "Library"],
       "enabled": true
     }
   ]

@@ -1,5 +1,8 @@
 // 
 class TagManagerPlugin extends CustomModule {
+  loadedTags: Map<string, Set<any>>;
+  utils: any;
+
   constructor() {
     super({
       name: "🏷️ Tag Manager",
@@ -13,7 +16,6 @@ class TagManagerPlugin extends CustomModule {
       dependencies: [],
     });
 
-    // Map of URL -> Set of tag objects
     this.loadedTags = new Map();
   }
 
