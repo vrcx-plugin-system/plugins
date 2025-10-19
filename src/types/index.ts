@@ -44,7 +44,8 @@ declare class CustomModule {
   resources: ModuleResources;
   settings?: ModuleSettings;
   categories?: Record<string, SettingCategory>;
-  dependencies: string[];
+  required_dependencies: string[];
+  optional_dependencies: string[];
   logColor: string;
   actionButtons: CustomActionButton[];
   repository?: any;
@@ -101,7 +102,8 @@ interface ModuleMetadata {
   authors: ModuleAuthor[];
   build?: string;
   url?: string | null;
-  dependencies?: string[];
+  required_dependencies?: string[];
+  optional_dependencies?: string[];
   tags?: string[];
 }
 
@@ -165,6 +167,9 @@ interface SettingDefinition {
   markers?: number[];
   options?: SelectOption[];
   variables?: Record<string, string>;
+  label?: string;
+  min?: number;
+  max?: number;
 }
 
 interface SettingCategory {

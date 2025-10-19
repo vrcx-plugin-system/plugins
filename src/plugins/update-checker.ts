@@ -52,7 +52,7 @@ class UpdateCheckerPlugin extends CustomModule {
             }],
             description: 'Automatically checks for updates to VRCX core system and plugins with hot-reload support',
             tags: ['Utility', 'Updates', 'Automation'],
-            required_dependencies: ['dialog-api', 'logger']
+            required_dependencies: ['dialog-api']
         });
 
         this.actionButtons = [
@@ -228,7 +228,8 @@ class UpdateCheckerPlugin extends CustomModule {
                 this.logger.warn('Failed to parse repository info from sourceUrl');
             }
         } catch (error) {
-            this.logger.error('Error parsing repository info:', error);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            this.logger.error(`Error parsing repository info: ${errorMsg}`);
         }
     }
 
@@ -457,7 +458,8 @@ class UpdateCheckerPlugin extends CustomModule {
                         }
                     }
                 } catch (error) {
-                    this.logger.error(`Failed to check repository ${repo.url}:`, error);
+                    const errorMsg = error instanceof Error ? error.message : String(error);
+                    this.logger.error(`Failed to check repository ${repo.url}: ${errorMsg}`);
                 }
             }
             
@@ -539,7 +541,8 @@ class UpdateCheckerPlugin extends CustomModule {
                 }
             } catch (error) {
                 failCount++;
-                this.logger.error(`Failed to update ${update.name}:`, error);
+                const errorMsg = error instanceof Error ? error.message : String(error);
+                this.logger.error(`Failed to update ${update.name}: ${errorMsg}`);
             }
         }
         
