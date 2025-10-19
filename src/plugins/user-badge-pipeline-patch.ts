@@ -19,7 +19,7 @@ class UserBadgePipelinePatchPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760846455",
+      build: "1760847188",
       tags: ["Bugfix", "Notifications", "Patch", "Fix"],
       dependencies: [],
     });

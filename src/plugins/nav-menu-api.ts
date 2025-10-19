@@ -11,7 +11,7 @@ class NavMenuApiPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760846455",
+      build: "1760847207",
       tags: ["API", "Core", "Navigation", "Library"],
       dependencies: [],
     });
@@ -481,22 +481,52 @@ class NavMenuApiPlugin extends Plugin {
 
       // If item has content, treat as tab - manage active state and switch content
       if (item.content) {
-        // Remove active class from all custom menu items
-        this.customItems.forEach((_, itemId) => {
-          const el = this.navMenu?.querySelector(
-            `[data-custom-nav-item="${itemId}"]`
-          );
-          if (el) {
-            el.classList.remove("is-active");
-          }
+        // Remove active class from all menu items (including VRCX native)
+        const allMenuItems = this.navMenu?.querySelectorAll(".el-menu-item");
+        allMenuItems?.forEach((el) => {
+          el.classList.remove("is-active");
         });
 
         // Add active class to clicked item immediately
         menuItem.classList.add("is-active");
 
-        // Use VRCX's selectMenu to switch tabs
-        if (window.$pinia?.ui?.selectMenu) {
-          window.$pinia.ui.selectMenu(item.id);
+        // Hide all VRCX native content containers
+        if (this.contentParent) {
+          const vrcxContainers =
+            this.contentParent.querySelectorAll(".x-container");
+          vrcxContainers.forEach((container) => {
+            // Only hide VRCX native containers, not custom ones
+            if (!container.id || !container.id.startsWith("custom-nav-content-")) {
+              container.style.display = "none";
+            }
+          });
+        }
+
+        // Hide all custom content containers
+        this.contentContainers.forEach((container) => {
+          container.style.display = "none";
+        });
+
+        // Show the content for this item
+        const contentContainer = this.contentContainers.get(item.id);
+        if (contentContainer) {
+          contentContainer.style.display = "block";
+          
+          // Fire onShow callback
+          if (item.onShow) {
+            try {
+              item.onShow();
+            } catch (error) {
+              this.logger.error(`Error in onShow callback for ${item.id}:`, error);
+            }
+          }
+        } else {
+          this.logger.warn(`Content container not found for ${item.id}`);
+        }
+
+        // Update Pinia store (optional, for integration with VRCX)
+        if (window.$pinia?.ui) {
+          window.$pinia.ui.menuActiveIndex = item.id;
         }
       }
       // If no content, treat as button - don't manage active state or switch tabs

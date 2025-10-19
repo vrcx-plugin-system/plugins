@@ -15,7 +15,7 @@ class ProtocolLinksPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760846455",
+      build: "1760847187",
       tags: ["Utility", "Integration"],
       dependencies: [
         "https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/context-menu-api.js",

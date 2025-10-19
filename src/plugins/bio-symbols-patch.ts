@@ -24,7 +24,7 @@ class BioSymbolsPatchPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760846455",
+      build: "1760847187",
       tags: ["Bugfix", "Utility", "Patch", "Fix"],
       dependencies: [],
     });

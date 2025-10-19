@@ -14,7 +14,7 @@ class AutoDisableUntrustedURLsPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760846455",
+      build: "1760847187",
       tags: ["Security", "Automation"],
       dependencies: [],
     });

@@ -35,7 +35,7 @@ class ApiRetryPatchPlugin extends Plugin {
         name: "Bluscream",
       }
     ],
-      build: "1760846455",
+      build: "1760847187",
       tags: ["Network", "API", "Utility", "Patch", "Fix"],
       dependencies: [],
     });
