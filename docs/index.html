@@ -227,27 +227,7 @@
         // Load repo.json
         async function loadPlugins() {
             try {
-                // Try to load from local first, fallback to GitHub
-                let response;
-                try {
-                    response = await fetch('../dist/repo.json');
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                } catch (localError) {
-                    console.error('Error loading plugins from local:', localError);
-                    // Fallback to GitHub raw URL
-                    try {
-                        response = await fetch('https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/repo.json');
-                        if (!response.ok) {
-                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                        }
-                    } catch (githubError) {
-                        console.error('Error loading plugins from GitHub:', githubError);
-                        throw new Error('Failed to load plugins from local or GitHub');
-                    }
-                }
-
+                const response = await fetch('https://cdn.jsdelivr.net/gh/vrcx-plugin-system/plugins@main/dist/repo.json');
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
