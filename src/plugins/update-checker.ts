@@ -38,9 +38,11 @@ class UpdateCheckerPlugin extends CustomModule {
     private rateLimit: GitHubRateLimit | null = null;
     private coreRepoOwner: string = '';
     private coreRepoName: string = '';
+    private authSubscription: (() => void) | null = null;
 
     // GitHub API configuration
     private readonly GITHUB_API = 'https://api.github.com';
+    private readonly INSTALL_COMMAND = 'Invoke-WebRequest -Uri "https://github.com/vrcx-plugin-system/vrcx-plugin-system/releases/latest/download/custom.js" -OutFile "$env:APPDATA\\VRCX\\custom.js"';
 
     constructor() {
         super({
@@ -72,6 +74,15 @@ class UpdateCheckerPlugin extends CustomModule {
                 description: 'Manually check for plugin updates',
                 callback: async () => {
                     await this.checkPluginUpdates(true);
+                }
+            },
+            {
+                title: 'Copy Install Command',
+                color: 'success',
+                icon: 'ri-file-copy-line',
+                description: 'Copy PowerShell install command to clipboard',
+                callback: async () => {
+                    await this.copyInstallCommand();
                 }
             },
             {
@@ -158,6 +169,30 @@ class UpdateCheckerPlugin extends CustomModule {
                 type: SettingType.BOOLEAN,
                 description: 'Display warnings when approaching GitHub API rate limits',
                 default: true
+            },
+
+            // Notification settings
+            enableDesktopNotifications: {
+                type: SettingType.BOOLEAN,
+                description: 'Show Windows desktop notifications for updates',
+                default: true
+            },
+            enableVrNotifications: {
+                type: SettingType.BOOLEAN,
+                description: 'Show VR overlay notifications (XSOverlay/OVRToolkit) for updates',
+                default: false
+            },
+            vrNotificationTimeout: {
+                type: SettingType.NUMBER,
+                description: 'VR notification duration in seconds',
+                default: 10,
+                min: 3,
+                max: 60
+            },
+            announceViaIpc: {
+                type: SettingType.BOOLEAN,
+                description: 'Broadcast update notifications to external apps via IPC',
+                default: false
             },
 
             // Hidden settings for tracking

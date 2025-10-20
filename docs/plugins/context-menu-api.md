@@ -4,13 +4,13 @@ Custom context menu management for VRCX user, world, avatar, group, and instance
 
 ## Overview
 
-| Property         | Value                        |
-| ---------------- | ---------------------------- |
-| **ID**           | `context-menu-api`           |
-| **Category**     | Core API                     |
-| **Tags**         | API, Core, Context, Library  |
-| **Dependencies** | None                         |
-| **Author**       | Bluscream                    |
+| Property         | Value                       |
+| ---------------- | --------------------------- |
+| **ID**           | `context-menu-api`          |
+| **Category**     | Core API                    |
+| **Tags**         | API, Core, Context, Library |
+| **Dependencies** | None                        |
+| **Author**       | Bluscream                   |
 
 ## Features
 
@@ -27,28 +27,28 @@ Custom context menu management for VRCX user, world, avatar, group, and instance
 
 ## Supported Menu Types
 
-| Menu Type  | Triggered By                        |
-| ---------- | ----------------------------------- |
-| `user`     | Clicking on user names/avatars      |
-| `world`    | Clicking on world listings          |
-| `avatar`   | Clicking on avatar listings         |
-| `group`    | Clicking on group listings          |
-| `instance` | Clicking on instance join buttons   |
+| Menu Type  | Triggered By                      |
+| ---------- | --------------------------------- |
+| `user`     | Clicking on user names/avatars    |
+| `world`    | Clicking on world listings        |
+| `avatar`   | Clicking on avatar listings       |
+| `group`    | Clicking on group listings        |
+| `instance` | Clicking on instance join buttons |
 
 ## Core Methods
 
-| Method                | Parameters                         | Returns   | Description                      |
-| --------------------- | ---------------------------------- | --------- | -------------------------------- |
-| `addUserItem`         | `id, label, icon?, onClick`        | `boolean` | Add item to user context menu    |
-| `addWorldItem`        | `id, label, icon?, onClick`        | `boolean` | Add item to world context menu   |
-| `addAvatarItem`       | `id, label, icon?, onClick`        | `boolean` | Add item to avatar context menu  |
-| `addGroupItem`        | `id, label, icon?, onClick`        | `boolean` | Add item to group context menu   |
-| `addInstanceItem`     | `id, label, icon?, onClick`        | `boolean` | Add item to instance context menu|
-| `removeUserItem`      | `id: string`                       | `boolean` | Remove user menu item            |
-| `removeWorldItem`     | `id: string`                       | `boolean` | Remove world menu item           |
-| `removeAvatarItem`    | `id: string`                       | `boolean` | Remove avatar menu item          |
-| `removeGroupItem`     | `id: string`                       | `boolean` | Remove group menu item           |
-| `removeInstanceItem`  | `id: string`                       | `boolean` | Remove instance menu item        |
+| Method               | Parameters                  | Returns   | Description                       |
+| -------------------- | --------------------------- | --------- | --------------------------------- |
+| `addUserItem`        | `id, label, icon?, onClick` | `boolean` | Add item to user context menu     |
+| `addWorldItem`       | `id, label, icon?, onClick` | `boolean` | Add item to world context menu    |
+| `addAvatarItem`      | `id, label, icon?, onClick` | `boolean` | Add item to avatar context menu   |
+| `addGroupItem`       | `id, label, icon?, onClick` | `boolean` | Add item to group context menu    |
+| `addInstanceItem`    | `id, label, icon?, onClick` | `boolean` | Add item to instance context menu |
+| `removeUserItem`     | `id: string`                | `boolean` | Remove user menu item             |
+| `removeWorldItem`    | `id: string`                | `boolean` | Remove world menu item            |
+| `removeAvatarItem`   | `id: string`                | `boolean` | Remove avatar menu item           |
+| `removeGroupItem`    | `id: string`                | `boolean` | Remove group menu item            |
+| `removeInstanceItem` | `id: string`                | `boolean` | Remove instance menu item         |
 
 ## Dialog Data Interface
 
@@ -56,49 +56,49 @@ Each context menu callback receives relevant data based on menu type:
 
 ### User Menu Data
 
-| Property            | Type     | Description            |
-| ------------------- | -------- | ---------------------- |
-| `userId`            | `string` | VRChat user ID         |
-| `displayName`       | `string` | User display name      |
-| `currentAvatarImageUrl` | `string?` | Avatar thumbnail   |
+| Property                | Type      | Description       |
+| ----------------------- | --------- | ----------------- |
+| `userId`                | `string`  | VRChat user ID    |
+| `displayName`           | `string`  | User display name |
+| `currentAvatarImageUrl` | `string?` | Avatar thumbnail  |
 
 ### World Menu Data
 
-| Property       | Type     | Description           |
-| -------------- | -------- | --------------------- |
-| `worldId`      | `string` | VRChat world ID       |
-| `worldName`    | `string` | World name            |
-| `authorId`     | `string?` | World author user ID |
+| Property    | Type      | Description          |
+| ----------- | --------- | -------------------- |
+| `worldId`   | `string`  | VRChat world ID      |
+| `worldName` | `string`  | World name           |
+| `authorId`  | `string?` | World author user ID |
 
 ### Avatar Menu Data
 
-| Property       | Type     | Description          |
-| -------------- | -------- | -------------------- |
-| `avatarId`     | `string` | VRChat avatar ID     |
-| `avatarName`   | `string` | Avatar name          |
-| `authorId`     | `string?` | Avatar author ID    |
+| Property     | Type      | Description      |
+| ------------ | --------- | ---------------- |
+| `avatarId`   | `string`  | VRChat avatar ID |
+| `avatarName` | `string`  | Avatar name      |
+| `authorId`   | `string?` | Avatar author ID |
 
 ### Group Menu Data
 
-| Property      | Type     | Description         |
-| ------------- | -------- | ------------------- |
-| `groupId`     | `string` | VRChat group ID     |
-| `groupName`   | `string` | Group name          |
+| Property    | Type     | Description     |
+| ----------- | -------- | --------------- |
+| `groupId`   | `string` | VRChat group ID |
+| `groupName` | `string` | Group name      |
 
 ## Usage Examples
 
 ### Add User Menu Item
 
 ```typescript
-const contextApi = window.customjs.getModule('context-menu-api');
+const contextApi = window.customjs.getModule("context-menu-api");
 
 contextApi.addUserItem(
-  'copy-user-id',
-  'Copy User ID',
-  'ri-file-copy-line',
+  "copy-user-id",
+  "Copy User ID",
+  "ri-file-copy-line",
   (userData) => {
     navigator.clipboard.writeText(userData.userId);
-    console.log('Copied:', userData.userId);
+    console.log("Copied:", userData.userId);
   }
 );
 ```
@@ -107,12 +107,12 @@ contextApi.addUserItem(
 
 ```typescript
 contextApi.addWorldItem(
-  'open-world-page',
-  'Open in Browser',
-  'ri-external-link-line',
+  "open-world-page",
+  "Open in Browser",
+  "ri-external-link-line",
   (worldData) => {
     const url = `https://vrchat.com/home/world/${worldData.worldId}`;
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   }
 );
 ```
@@ -121,13 +121,13 @@ contextApi.addWorldItem(
 
 ```typescript
 contextApi.addAvatarItem(
-  'favorite-avatar',
-  'Add to Favorites',
-  'ri-heart-line',
+  "favorite-avatar",
+  "Add to Favorites",
+  "ri-heart-line",
   async (avatarData) => {
     await window.API.saveFavoriteAvatar({
       avatarId: avatarData.avatarId,
-      tags: ['favorite']
+      tags: ["favorite"],
     });
   }
 );
@@ -136,23 +136,23 @@ contextApi.addAvatarItem(
 ### Remove Menu Item
 
 ```typescript
-const contextApi = window.customjs.getModule('context-menu-api');
+const contextApi = window.customjs.getModule("context-menu-api");
 
 // Remove from all user context menus
-contextApi.removeUserItem('my-custom-item');
+contextApi.removeUserItem("my-custom-item");
 ```
 
 ### Access Full Dialog Data
 
 ```typescript
 contextApi.addUserItem(
-  'detailed-info',
-  'Show Details',
-  'ri-information-line',
+  "detailed-info",
+  "Show Details",
+  "ri-information-line",
   (userData) => {
-    console.log('User ID:', userData.userId);
-    console.log('Display Name:', userData.displayName);
-    console.log('Avatar Image:', userData.currentAvatarImageUrl);
+    console.log("User ID:", userData.userId);
+    console.log("Display Name:", userData.displayName);
+    console.log("Avatar Image:", userData.currentAvatarImageUrl);
     // userData contains all Pinia state for this user dialog
   }
 );
@@ -163,11 +163,12 @@ contextApi.addUserItem(
 ### Pinia Integration
 
 Extracts dialog data from Vue/Pinia state:
+
 ```typescript
-window.$pinia?.user?.userDialog
-window.$pinia?.world?.worldDialog
-window.$pinia?.avatar?.avatarDialog
-window.$pinia?.group?.groupDialog
+window.$pinia?.user?.userDialog;
+window.$pinia?.world?.worldDialog;
+window.$pinia?.avatar?.avatarDialog;
+window.$pinia?.group?.groupDialog;
 ```
 
 ### Mutation Observer
@@ -203,16 +204,21 @@ window.$pinia?.group?.groupDialog
 ### Copy to Clipboard
 
 ```typescript
-contextApi.addUserItem('copy-name', 'Copy Name', 'ri-clipboard-line', (data) => {
-  window.customjs.utils.copyToClipboard(data.displayName);
-});
+contextApi.addUserItem(
+  "copy-name",
+  "Copy Name",
+  "ri-clipboard-line",
+  (data) => {
+    window.customjs.utils.copyToClipboard(data.displayName);
+  }
+);
 ```
 
 ### Open External Link
 
 ```typescript
-contextApi.addUserItem('open-profile', 'VRChat Profile', 'ri-link', (data) => {
-  window.open(`https://vrchat.com/home/user/${data.userId}`, '_blank');
+contextApi.addUserItem("open-profile", "VRChat Profile", "ri-link", (data) => {
+  window.open(`https://vrchat.com/home/user/${data.userId}`, "_blank");
 });
 ```
 
@@ -220,31 +226,37 @@ contextApi.addUserItem('open-profile', 'VRChat Profile', 'ri-link', (data) => {
 
 ```typescript
 // Only show for specific users
-contextApi.addUserItem('admin-actions', 'Admin Tools', 'ri-admin-line', (data) => {
-  const adminUsers = ['usr_xxx', 'usr_yyy'];
-  
-  if (!adminUsers.includes(data.userId)) {
-    console.log('Not an admin user');
-    return;
+contextApi.addUserItem(
+  "admin-actions",
+  "Admin Tools",
+  "ri-admin-line",
+  (data) => {
+    const adminUsers = ["usr_xxx", "usr_yyy"];
+
+    if (!adminUsers.includes(data.userId)) {
+      console.log("Not an admin user");
+      return;
+    }
+
+    // Show admin menu
+    showAdminDialog(data);
   }
-  
-  // Show admin menu
-  showAdminDialog(data);
-});
+);
 ```
 
 ## Troubleshooting
 
-| Issue                     | Solution                                      |
-| ------------------------- | --------------------------------------------- |
-| Menu items not appearing  | Check if dialog-api is loaded, verify menu type |
-| Duplicate menu items      | Use unique IDs, check if already registered  |
-| Callbacks not firing      | Verify Pinia state structure hasn't changed  |
-| Items persist after unload| Call remove methods in plugin's `stop()`     |
+| Issue                      | Solution                                        |
+| -------------------------- | ----------------------------------------------- |
+| Menu items not appearing   | Check if dialog-api is loaded, verify menu type |
+| Duplicate menu items       | Use unique IDs, check if already registered     |
+| Callbacks not firing       | Verify Pinia state structure hasn't changed     |
+| Items persist after unload | Call remove methods in plugin's `stop()`        |
 
 ## Integration with Other Plugins
 
 Used by:
+
 - **Auto Follow** - Adds follow/unfollow menu items
 - **Auto Invite** - Adds invite menu items
 - **Protocol Links** - Adds copy link/import menu items
@@ -255,4 +267,3 @@ Used by:
 - [Auto Follow](auto-follow.md)
 - [Auto Invite](auto-invite.md)
 - [Protocol Links](protocol-links.md)
-
