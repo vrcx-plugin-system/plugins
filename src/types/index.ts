@@ -336,4 +336,7 @@ interface Window {
   };
   request?: any;
   database?: any;
+  SQLite?: {
+    Execute(query: string, params?: any[]): Promise<any>;
+  };
 }
