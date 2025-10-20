@@ -53,7 +53,7 @@ class TagManagerPlugin extends CustomModule {
 
   async load() {
     // Register events
-    this.events.register('tags-loaded', {
+    this.registerEvent('tags-loaded', {
       description: 'Fired when tags are successfully loaded from URLs',
       payload: {
         totalTags: 'number - Total number of tags loaded',
@@ -62,7 +62,7 @@ class TagManagerPlugin extends CustomModule {
       }
     });
 
-    this.events.register('tags-applied', {
+    this.registerEvent('tags-applied', {
       description: 'Fired when tags are applied to users in UI',
       payload: {
         userId: 'string - User ID',
@@ -73,7 +73,7 @@ class TagManagerPlugin extends CustomModule {
       logToConsole: false // Too spammy for console
     });
 
-    this.events.register('tagged-player-join', {
+    this.registerEvent('tagged-player-join', {
       description: 'Fired when a tagged player joins your instance',
       payload: {
         userId: 'string - User ID',
@@ -217,7 +217,7 @@ class TagManagerPlugin extends CustomModule {
     );
 
     // Emit tags-loaded event
-    this.events.emit('tags-loaded', {
+    this.emit('tags-loaded', {
       totalTags,
       sources: urls.length,
       timestamp: Date.now()
@@ -645,7 +645,7 @@ class TagManagerPlugin extends CustomModule {
         );
 
         // Emit tagged-player-join event
-        this.events.emit('tagged-player-join', {
+        this.emit('tagged-player-join', {
           userId: playerId,
           displayName: playerName,
           tags: [playerTag.tag],

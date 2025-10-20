@@ -79,7 +79,7 @@ class AutoFollowPlugin extends CustomModule {
 
   async load() {
     // Register events
-    this.events.register('user-added', {
+    this.registerEvent('user-added', {
       description: 'Fired when a user is added to auto-follow list',
       payload: {
         userId: 'string - User ID',
@@ -88,7 +88,7 @@ class AutoFollowPlugin extends CustomModule {
       }
     });
 
-    this.events.register('user-removed', {
+    this.registerEvent('user-removed', {
       description: 'Fired when a user is removed from auto-follow list',
       payload: {
         userId: 'string - User ID',
@@ -96,7 +96,7 @@ class AutoFollowPlugin extends CustomModule {
       }
     });
 
-    this.events.register('invite-requested', {
+    this.registerEvent('invite-requested', {
       description: 'Fired when an invite request is sent',
       payload: {
         userId: 'string - User ID',
@@ -447,7 +447,7 @@ class AutoFollowPlugin extends CustomModule {
         this.logger.log(`✓ Successfully requested invite from ${userName}`);
 
         // Emit invite-requested event
-        this.events.emit('invite-requested', {
+        this.emit('invite-requested', {
           userId: user.id,
           displayName: user.displayName,
           success: true,
@@ -474,7 +474,7 @@ class AutoFollowPlugin extends CustomModule {
         );
 
         // Emit invite-requested event (failed)
-        this.events.emit('invite-requested', {
+        this.emit('invite-requested', {
           userId: user.id,
           displayName: user.displayName,
           success: false,
@@ -634,7 +634,7 @@ class AutoFollowPlugin extends CustomModule {
     this.updateAutoFollowButtonText();
 
     // Emit user-added event
-    this.events.emit('user-added', {
+    this.emit('user-added', {
       userId: user.id,
       displayName: user.displayName,
       timestamp: Date.now()
@@ -660,7 +660,7 @@ class AutoFollowPlugin extends CustomModule {
       this.updateAutoFollowButtonText();
 
       // Emit user-removed event
-      this.events.emit('user-removed', {
+      this.emit('user-removed', {
         userId,
         timestamp: Date.now()
       });

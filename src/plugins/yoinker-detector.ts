@@ -61,7 +61,7 @@ class YoinkerDetectorPlugin extends CustomModule {
     this.logger.log("📦 Loading Yoinker Detector...");
 
     // Register events
-    this.events.register('user-checked', {
+    this.registerEvent('user-checked', {
       description: 'Fired when a user is checked for yoinking',
       payload: {
         userId: 'string - VRChat user ID',
@@ -76,7 +76,7 @@ class YoinkerDetectorPlugin extends CustomModule {
       logToConsole: false // Too spammy for console
     });
 
-    this.events.register('cache-cleared', {
+    this.registerEvent('cache-cleared', {
       description: 'Fired when detection cache is manually cleared',
       payload: {
         clearedCount: 'number - Number of entries cleared',
@@ -84,7 +84,7 @@ class YoinkerDetectorPlugin extends CustomModule {
       }
     });
 
-    this.events.register('queue-processed', {
+    this.registerEvent('queue-processed', {
       description: 'Fired when detection queue finishes processing',
       payload: {
         processed: 'number - Users processed',
@@ -366,7 +366,7 @@ class YoinkerDetectorPlugin extends CustomModule {
 
         // Emit queue-processed event
         const duration = Date.now() - startTime;
-        this.events.emit('queue-processed', {
+        this.emit('queue-processed', {
           processed: totalToProcess,
           yoinkersFound: this.settings.store.statsTotalYoinkers,
           duration
@@ -703,7 +703,7 @@ class YoinkerDetectorPlugin extends CustomModule {
     this.settings.store.statsErrors = 0;
 
     // Emit event
-    this.events.emit('cache-cleared', {
+    this.emit('cache-cleared', {
       clearedCount,
       timestamp: Date.now()
     });

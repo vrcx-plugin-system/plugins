@@ -55,7 +55,7 @@ class AutoInvitePlugin extends CustomModule {
 
   async load() {
     // Register events
-    this.events.register('user-added', {
+    this.registerEvent('user-added', {
       description: 'Fired when a user is added to auto-invite list',
       payload: {
         userId: 'string - User ID',
@@ -64,7 +64,7 @@ class AutoInvitePlugin extends CustomModule {
       }
     });
 
-    this.events.register('user-removed', {
+    this.registerEvent('user-removed', {
       description: 'Fired when a user is removed from auto-invite list',
       payload: {
         userId: 'string - User ID',
@@ -72,7 +72,7 @@ class AutoInvitePlugin extends CustomModule {
       }
     });
 
-    this.events.register('invite-sent', {
+    this.registerEvent('invite-sent', {
       description: 'Fired when an invite is sent to a user',
       payload: {
         userId: 'string - User ID',

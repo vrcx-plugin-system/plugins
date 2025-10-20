@@ -36,7 +36,7 @@ class BioUpdaterPlugin extends CustomModule {
 
   async load() {
     // Register events
-    this.events.register('bio-updated', {
+    this.registerEvent('bio-updated', {
       description: 'Fired when bio is successfully updated',
       payload: {
         bio: 'string - Updated bio content',
@@ -350,7 +350,7 @@ Oculus ID: {oculus_id}`;
       this.logger.log("✓ Bio updated successfully");
 
       // Emit event for other plugins
-      this.events.emit("bio-updated", { bio, timestamp: now });
+      this.emit("bio-updated", { bio, timestamp: now });
     } catch (error) {
       this.logger.error(`Error updating bio: ${error.message}`);
     }
