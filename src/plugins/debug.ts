@@ -1,277 +1,415 @@
 // 
 class DebugPlugin extends CustomModule {
+  private ipcMessageLog: Array<{timestamp: number; direction: 'in' | 'out'; type: string; msgType?: string; data: any}> = [];
+  private maxLogSize: number = 100;
+
   constructor() {
     super({
       name: "Debug Plugin 🐛",
-      description:
-        "Debug utilities, IPC logging, global scope search, and console commands for development",
+      description: "Debug utilities, full IPC logging, global scope search, and console commands",
       authors: [{
-          name: "Bluscream",
-          description: "VRCX Plugin System Maintainer",
-          userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
-        }],
+        name: "Bluscream",
+        description: "VRCX Plugin System Maintainer",
+        userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
+      }],
       required_dependencies: [],
+      tags: ["Debug", "Utility", "Development"],
     });
+
+    this.actionButtons = [
+      {
+        title: "Dump System State",
+        color: "primary",
+        icon: "ri-file-info-line",
+        description: "Log all system information to console",
+        callback: async () => {
+          this.dumpSystemState();
+        },
+      },
+      {
+        title: "Show IPC Log",
+        color: "info",
+        icon: "ri-chat-1-line",
+        description: "Display all captured IPC messages",
+        callback: async () => {
+          this.showIpcLog();
+        },
+      },
+      {
+        title: "Clear IPC Log",
+        color: "warning",
+        icon: "ri-delete-bin-line",
+        description: "Clear IPC message log",
+        callback: async () => {
+          this.ipcMessageLog = [];
+          this.logger.showSuccess("Cleared IPC log");
+        },
+      },
+      {
+        title: "Test Error",
+        color: "danger",
+        icon: "ri-error-warning-line",
+        description: "Trigger a test error",
+        callback: async () => {
+          throw new Error("Test error from Debug Plugin");
+        },
+      },
+    ];
   }
 
   async load() {
-    // Expose all debug functions globally via window.customjs.debug
-    window.customjs.debug = {
-      // Plugin system debug functions
-      printDebugInfo: () => this.printDebugInfo(),
+    const SettingType = window.customjs.types.SettingType;
+
+    this.categories = this.defineSettingsCategories({
+      general: {
+        name: "🔧 General",
+        description: "General debug settings",
+      },
+      ipc: {
+        name: "📡 IPC Logging",
+        description: "Inter-process communication logging",
+      },
+    });
+
+    this.settings = this.defineSettings({
+      consoleTimestamps: {
+        type: SettingType.BOOLEAN,
+        description: "Show timestamps in console logs",
+        category: "general",
+        default: true,
+      },
+      logIncomingIpc: {
+        type: SettingType.BOOLEAN,
+        description: "Log incoming IPC messages to console",
+        category: "ipc",
+        default: false,
+      },
+      logOutgoingIpc: {
+        type: SettingType.BOOLEAN,
+        description: "Log outgoing IPC messages to console",
+        category: "ipc",
+        default: false,
+      },
+      ipcTypeFilter: {
+        type: SettingType.STRING,
+        description: "Filter IPC types (comma-separated, e.g. 'OSC_,VrcxMessage' or leave empty for all)",
+        category: "ipc",
+        default: "",
+      },
+      captureIpc: {
+        type: SettingType.BOOLEAN,
+        description: "Capture IPC messages to log (view with 'Show IPC Log' button)",
+        category: "ipc",
+        default: true,
+      },
+      maxIpcLogSize: {
+        type: SettingType.NUMBER,
+        description: "Maximum IPC messages to keep in log",
+        category: "ipc",
+        default: 100,
+        min: 10,
+        max: 1000,
+      },
+    });
+
+    // Expose all debug functions globally
+    (window.customjs as any).debug = {
+      // Plugin system debug
+      printDebugInfo: () => this.dumpSystemState(),
       listPlugins: () => this.listPlugins(),
-      getPlugin: (id) => this.getPlugin(id),
+      getPlugin: (id: string) => window.customjs.getModule(id),
       listEvents: () => this.listEvents(),
       listHooks: () => this.listHooks(),
-      testEvent: (eventName, data) => this.testEvent(eventName, data),
+      testEvent: (eventName: string, data: any) => this.testEvent(eventName, data),
 
-      // VRCX state access functions
-      getCurrentUser: () => window.$pinia?.user?.currentUser,
-      getCurrentLocation: () => window.$app?.lastLocation,
-      getFriends: () => window.$pinia?.user?.currentUser?.friends,
-      getCustomTags: () => window.$pinia?.user?.customUserTags,
-      getStores: () => window.$pinia,
+      // VRCX state access
+      getCurrentUser: () => (window as any).$pinia?.user?.currentUser,
+      getCurrentLocation: () => (window as any).$app?.lastLocation,
+      getFriends: () => (window as any).$pinia?.user?.currentUser?.friends,
+      getCustomTags: () => (window as any).$pinia?.user?.customUserTags,
+      getStores: () => (window as any).$pinia,
 
-      // Plugin helper functions
-      getUserTag: (userId) =>
-        (window.customjs.getModule("tag-manager") as any)?.getUserTag(userId),
-      clearProcessedMenus: () =>
-        (window.customjs.getModule("context-menu-api") as any)?.clearProcessedMenus(),
-      triggerRegistryEvent: (event) =>
-        (window.customjs.getModule("registry-overrides") as any)?.triggerEvent(event),
-      refreshTags: () =>
-        (window.customjs.getModule("tag-manager") as any)?.refreshTags(),
-      getLoadedTagsCount: () =>
-        (window.customjs.getModule("tag-manager") as any)?.getLoadedTagsCount(),
-      getActiveTagsCount: () =>
-        (window.customjs.getModule("tag-manager") as any)?.getActiveTagsCount(),
+      // Plugin helpers
       getModules: () => window.customjs.modules,
       getRepos: () => window.customjs.repos,
-
-      // Advanced inspection functions
-      inspectPlugin: (id) => this.inspectPlugin(id),
+      inspectPlugin: (id: string) => this.inspectPlugin(id),
 
       // Global scope search
-      searchVariable: (searchTerm, options) =>
-        this.searchVariable(searchTerm, options),
+      searchVariable: (searchTerm: string, options?: any) => this.searchVariable(searchTerm, options),
+
+      // IPC log access
+      showIpcLog: () => this.showIpcLog(),
+      clearIpcLog: () => { this.ipcMessageLog = []; },
+      getIpcLog: () => this.ipcMessageLog,
     };
 
-    this.logger.log("Debug utilities ready");
+    this.logger.log("Debug utilities ready (access via window.customjs.debug)");
     this.loaded = true;
   }
 
   async start() {
-    // Setup IPC logging hook
-    this.setupIPCLogging();
+    // Setup IPC logging
+    this.setupIpcLogging();
 
     this.enabled = true;
     this.started = true;
-    this.logger.log("Debug plugin started (access via window.customjs.debug)");
-
-    // Print debug info
-    this.printDebugInfo();
+    this.logger.log("Debug plugin started");
   }
 
-  setupIPCLogging() {
-    // Use PRE-HOOK to log IPC calls
-    this.registerPreHook("AppApi.SendIpc", (args) => {
-      console.log(`[IPC OUT]`, args); // eslint-disable-line no-console - Intentional debug output for IPC monitoring
+  setupIpcLogging() {
+    // Hook incoming IPC messages
+    this.onIpc((data) => {
+      const shouldLog = this.shouldLogIpcMessage('in', data.type, data.raw.Type);
+      
+      if (shouldLog && this.settings?.store.logIncomingIpc) {
+        console.group(`%c[IPC IN] ${data.type}`, 'color: #4caf50; font-weight: bold');
+        console.log('Type:', data.type);
+        console.log('Payload:', data.payload);
+        console.log('Raw:', data.raw);
+        console.log('Time:', new Date().toLocaleTimeString());
+        console.groupEnd();
+      }
+
+      if (shouldLog && this.settings?.store.captureIpc) {
+        this.captureIpcMessage('in', data.type, data.payload, data.raw.Type);
+      }
     });
 
-    this.logger.log(
-      "IPC logging hook registered (will activate when function available)"
-    );
+    // Hook outgoing IPC messages
+    this.registerPreHook("AppApi.SendIpc", (args) => {
+      const msgType = this.extractMessageType(args);
+      const shouldLog = this.shouldLogIpcMessage('out', msgType);
+      
+      if (shouldLog && this.settings?.store.logOutgoingIpc) {
+        console.group(`%c[IPC OUT] ${msgType}`, 'color: #ff9800; font-weight: bold');
+        console.log('Args:', args);
+        console.log('Time:', new Date().toLocaleTimeString());
+        console.groupEnd();
+      }
+
+      if (shouldLog && this.settings?.store.captureIpc) {
+        this.captureIpcMessage('out', msgType, args);
+      }
+    });
+
+    this.logger.log("IPC logging initialized (incoming + outgoing)");
+  }
+
+  private extractMessageType(args: any[]): string {
+    try {
+      if (args && args.length > 0) {
+        const firstArg = args[0];
+        if (typeof firstArg === 'string') {
+          const parsed = JSON.parse(firstArg);
+          return parsed.MsgType || parsed.Type || 'Unknown';
+        }
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+    return 'Unknown';
+  }
+
+  private shouldLogIpcMessage(direction: 'in' | 'out', msgType: string, rawType?: string): boolean {
+    const filter = this.settings?.store.ipcTypeFilter || '';
+    if (!filter) return true;
+
+    const filters = filter.split(',').map(f => f.trim()).filter(f => f);
+    return filters.some(f => msgType.includes(f) || rawType?.includes(f));
+  }
+
+  private captureIpcMessage(direction: 'in' | 'out', type: string, data: any, msgType?: string) {
+    this.maxLogSize = this.settings?.store.maxIpcLogSize || 100;
+    
+    this.ipcMessageLog.push({
+      timestamp: Date.now(),
+      direction,
+      type,
+      msgType,
+      data
+    });
+
+    // Trim if too large
+    if (this.ipcMessageLog.length > this.maxLogSize) {
+      this.ipcMessageLog = this.ipcMessageLog.slice(-this.maxLogSize);
+    }
+  }
+
+  showIpcLog() {
+    if (this.ipcMessageLog.length === 0) {
+      this.logger.showInfo("No IPC messages captured");
+      return;
+    }
+
+    console.group(`%c[Debug] IPC Message Log (${this.ipcMessageLog.length} messages)`, 'color: #ff9800; font-weight: bold; font-size: 14px');
+    
+    // Group by direction and type
+    const incoming = this.ipcMessageLog.filter(m => m.direction === 'in');
+    const outgoing = this.ipcMessageLog.filter(m => m.direction === 'out');
+
+    if (incoming.length > 0) {
+      console.group(`%c📥 Incoming (${incoming.length})`, 'color: #4caf50; font-weight: bold');
+      const grouped: Record<string, any[]> = {};
+      incoming.forEach(msg => {
+        const key = msg.type;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(msg);
+      });
+      Object.entries(grouped).forEach(([type, messages]) => {
+        console.group(`${type} (${messages.length})`);
+        messages.forEach(msg => {
+          const time = new Date(msg.timestamp).toLocaleTimeString();
+          console.log(`[${time}]`, msg.data);
+        });
+        console.groupEnd();
+      });
+      console.groupEnd();
+    }
+
+    if (outgoing.length > 0) {
+      console.group(`%c📤 Outgoing (${outgoing.length})`, 'color: #ff9800; font-weight: bold');
+      const grouped: Record<string, any[]> = {};
+      outgoing.forEach(msg => {
+        const key = msg.type;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(msg);
+      });
+      Object.entries(grouped).forEach(([type, messages]) => {
+        console.group(`${type} (${messages.length})`);
+        messages.forEach(msg => {
+          const time = new Date(msg.timestamp).toLocaleTimeString();
+          console.log(`[${time}]`, msg.data);
+        });
+        console.groupEnd();
+      });
+      console.groupEnd();
+    }
+
+    console.groupEnd();
+    this.logger.showInfo(`Displayed ${this.ipcMessageLog.length} IPC messages in console`);
   }
 
   async stop() {
-    this.logger.log("Stopping Debug plugin");
-
-    // Clean up global namespace
-    if (window.customjs?.debug) {
-      delete window.customjs.debug;
+    if ((window.customjs as any)?.debug) {
+      delete (window.customjs as any).debug;
     }
-
     await super.stop();
   }
 
-  printDebugInfo() {
-    this.logger.log("=== DEBUG INFO ===");
-    this.logger.log(`Modules loaded: ${window.customjs.modules.length}`);
-    this.logger.log(
-      `Events registered: ${Object.keys(window.customjs.events).length}`
-    );
-    this.logger.log(
-      `Hooks registered: pre=${
-        Object.keys(window.customjs.hooks.pre).length
-      }, post=${Object.keys(window.customjs.hooks.post).length}`
-    );
-    this.logger.log(
-      `Functions backed up: ${Object.keys(window.customjs.functions).length}`
-    );
-
-    // List all plugins
+  dumpSystemState() {
+    console.group("%c=== DEBUG INFO ===", "color: #2196f3; font-weight: bold; font-size: 14px");
+    console.log(`Modules loaded: ${window.customjs.modules.length}`);
+    console.log(`Event registry stats:`, window.customjs.eventRegistry.getStats());
+    console.log(`Hooks: pre=${Object.keys(window.customjs.hooks.pre).length}, post=${Object.keys(window.customjs.hooks.post).length}`);
+    console.log(`Functions backed up: ${Object.keys(window.customjs.functions).length}`);
+    
+    console.group("Loaded Modules");
     window.customjs.modules.forEach((plugin) => {
-      this.logger.log(
-        `  - ${plugin.metadata.name} (build: ${plugin.metadata.build}) (${
-          plugin.enabled ? "enabled" : "disabled"
-        }, ${plugin.loaded ? "loaded" : "not loaded"}, ${
-          plugin.started ? "started" : "not started"
-        })`
-      );
+      const status = `${plugin.enabled ? '✓' : '✗'} ${plugin.loaded ? 'L' : ''} ${plugin.started ? 'S' : ''}`;
+      console.log(`[${status}] ${plugin.metadata.name} (${plugin.metadata.id})`);
     });
+    console.groupEnd();
+    
+    console.groupEnd();
   }
 
-  /**
-   * List all registered plugins
-   */
   listPlugins() {
     return window.customjs.modules.map((p) => ({
       id: p.metadata.id,
       name: p.metadata.name,
-      build: p.metadata.build,
       enabled: p.enabled,
       loaded: p.loaded,
       started: p.started,
     }));
   }
 
-  /**
-   * Get plugin by ID
-   */
-  getPlugin(id) {
-    return window.customjs.getModule(id);
-  }
-
-  /**
-   * List all events (opens DevTools and logs to console)
-   */
   listEvents() {
-    // Open devtools for debugging
-    if (window.AppApi?.ShowDevTools) {
-      window.AppApi.ShowDevTools();
+    if ((window as any).AppApi?.ShowDevTools) {
+      (window as any).AppApi.ShowDevTools();
     }
 
-    const events = window.customjs?.events || {};
-    // Intentional console output for debug listing
-    console.group("Custom Events"); // eslint-disable-line no-console
-    Object.keys(events).forEach((eventName) => {
-      console.log(`${eventName}: ${events[eventName].length} listeners`); // eslint-disable-line no-console
+    const allEvents = window.customjs.eventRegistry.listAll();
+    console.group("📡 Registered Events");
+    allEvents.forEach((event: any) => {
+      console.log(`${event.name}: ${event.listenerCount} listeners (${event.registeredBy.length} plugins)`);
     });
-    console.groupEnd(); // eslint-disable-line no-console
-    return events;
+    console.groupEnd();
+    return allEvents;
   }
 
-  /**
-   * List all hooks (opens DevTools and logs to console)
-   */
   listHooks() {
-    // Open devtools for debugging
-    if (window.AppApi?.ShowDevTools) {
-      window.AppApi.ShowDevTools();
+    if ((window as any).AppApi?.ShowDevTools) {
+      (window as any).AppApi.ShowDevTools();
     }
 
-    // Intentional console output for debug listing
-    console.group("Registered Hooks"); // eslint-disable-line no-console
-    console.log("Pre-hooks:"); // eslint-disable-line no-console
-    console.dir(Object.keys(window.customjs?.hooks?.pre || {})); // eslint-disable-line no-console
-    console.log("Post-hooks:"); // eslint-disable-line no-console
-    console.dir(Object.keys(window.customjs?.hooks?.post || {})); // eslint-disable-line no-console
-    console.log("Void-hooks:"); // eslint-disable-line no-console
-    console.dir(Object.keys(window.customjs?.hooks?.void || {})); // eslint-disable-line no-console
-    console.log("Replace-hooks:"); // eslint-disable-line no-console
-    console.dir(Object.keys(window.customjs?.hooks?.replace || {})); // eslint-disable-line no-console
-    console.groupEnd(); // eslint-disable-line no-console
-    return window.customjs?.hooks;
+    console.group("🪝 Registered Hooks");
+    console.log("Pre-hooks:", Object.keys(window.customjs.hooks.pre));
+    console.log("Post-hooks:", Object.keys(window.customjs.hooks.post));
+    console.log("Void-hooks:", Object.keys(window.customjs.hooks.void));
+    console.log("Replace-hooks:", Object.keys(window.customjs.hooks.replace));
+    console.groupEnd();
+    return window.customjs.hooks;
   }
 
-  /**
-   * Test event emission
-   */
-  testEvent(eventName, data) {
+  testEvent(eventName: string, data: any) {
     this.emit(eventName, data);
     this.logger.log(`Emitted event: ${eventName}`, data);
   }
 
-  /**
-   * Inspect a plugin in detail (opens DevTools and logs to console)
-   */
-  inspectPlugin(id) {
-    // Open devtools for debugging
-    if (window.AppApi?.ShowDevTools) {
-      window.AppApi.ShowDevTools();
+  inspectPlugin(id: string) {
+    if ((window as any).AppApi?.ShowDevTools) {
+      (window as any).AppApi.ShowDevTools();
     }
 
-    const plugin = window.customjs?.modules?.find((p) => p.metadata.id === id);
+    const plugin = window.customjs.modules.find((p) => p.metadata.id === id);
     if (plugin) {
-      // Intentional console output for debug inspection
-      console.group(`Plugin: ${plugin.metadata.name}`); // eslint-disable-line no-console
-      console.log("Metadata:"); // eslint-disable-line no-console
-      console.dir(plugin.metadata); // eslint-disable-line no-console
+      console.group(`🔍 Plugin: ${plugin.metadata.name}`);
+      console.log("Metadata:", plugin.metadata);
       console.table({
-        // eslint-disable-line no-console
         enabled: plugin.enabled,
         loaded: plugin.loaded,
         started: plugin.started,
       });
-      console.log("Resources:"); // eslint-disable-line no-console
-      console.dir(plugin.resources); // eslint-disable-line no-console
-      console.groupEnd(); // eslint-disable-line no-console
+      console.log("Resources:", plugin.resources);
+      console.log("Settings:", plugin.settings?.store);
+      console.groupEnd();
     } else {
-      console.warn(`Plugin not found: ${id}`); // eslint-disable-line no-console
+      console.warn(`Plugin not found: ${id}`);
     }
     return plugin;
   }
 
-  /**
-   * Search for properties/functions in the global scope by name
-   * @param {string} searchTerm - Term to search for (case-insensitive)
-   * @param {object} options - Search options
-   * @param {number} options.maxDepth - Maximum depth to search (default: 5)
-   * @param {boolean} options.caseSensitive - Case-sensitive search (default: false)
-   * @param {boolean} options.exactMatch - Exact match only (default: false)
-   * @param {object} options.root - Root object to search (default: window)
-   * @returns {Array} Array of results with path and value
-   */
-  searchVariable(searchTerm: any, options: any = {}) {
+  searchVariable(searchTerm: string, options: any = {}) {
     const maxDepth = options.maxDepth || 5;
     const caseSensitive = options.caseSensitive || false;
     const exactMatch = options.exactMatch || false;
     const root = options.root || window;
 
-    const results = [];
+    const results: any[] = [];
     const visited = new WeakSet();
     const searchPattern = caseSensitive ? searchTerm : searchTerm.toLowerCase();
 
-    const search = (obj, path, depth) => {
+    const search = (obj: any, path: string, depth: number) => {
       if (depth > maxDepth) return;
       if (obj === null || obj === undefined) return;
       if (typeof obj !== "object" && typeof obj !== "function") return;
-
-      // Prevent circular references
       if (visited.has(obj)) return;
       visited.add(obj);
 
       try {
         const keys = Object.getOwnPropertyNames(obj);
-
         for (const key of keys) {
           try {
             const currentPath = path ? `${path}.${key}` : key;
             const keyToCheck = caseSensitive ? key : key.toLowerCase();
-
-            // Check if key matches search term
-            const matches = exactMatch
-              ? keyToCheck === searchPattern
-              : keyToCheck.includes(searchPattern);
+            const matches = exactMatch ? keyToCheck === searchPattern : keyToCheck.includes(searchPattern);
 
             if (matches) {
               let value;
               let type;
               try {
-                // Get the property descriptor to check if it's a getter
                 const descriptor = Object.getOwnPropertyDescriptor(obj, key);
                 if (descriptor && descriptor.get && !descriptor.set) {
-                  // It's a getter-only property, might throw on access
                   value = "[Getter]";
                   type = "getter";
                 } else {
@@ -279,69 +417,51 @@ class DebugPlugin extends CustomModule {
                   type = typeof value;
                 }
               } catch (e) {
-                // Silently skip properties that throw errors
                 value = "[Access Error]";
                 type = "error";
               }
-
-              results.push({
-                path: currentPath,
-                key: key,
-                type: type,
-                value: value,
-              });
+              results.push({ path: currentPath, key, type, value });
             }
 
-            // Recursively search nested objects
             if (depth < maxDepth) {
               try {
                 const nestedValue = obj[key];
-                if (
-                  nestedValue &&
-                  (typeof nestedValue === "object" ||
-                    typeof nestedValue === "function")
-                ) {
+                if (nestedValue && (typeof nestedValue === "object" || typeof nestedValue === "function")) {
                   search(nestedValue, currentPath, depth + 1);
                 }
               } catch (e) {
-                // Skip properties that throw errors when accessed
+                // Skip
               }
             }
           } catch (e) {
-            // Skip problematic keys entirely
+            // Skip
           }
         }
       } catch (e) {
-        // Skip objects that don't allow property enumeration
+        // Skip
       }
     };
 
-    this.logger.log(
-      `Searching for "${searchTerm}" (max depth: ${maxDepth})...`
-    );
+    this.logger.log(`Searching for "${searchTerm}" (max depth: ${maxDepth})...`);
     search(root, "", 0);
 
-    // Log results to console
-    if (window.AppApi?.ShowDevTools) {
-      window.AppApi.ShowDevTools();
+    if ((window as any).AppApi?.ShowDevTools) {
+      (window as any).AppApi.ShowDevTools();
     }
 
-    console.group(
-      `Search results for "${searchTerm}" (${results.length} matches)`
-    ); // eslint-disable-line no-console
+    console.group(`🔍 Search results for "${searchTerm}" (${results.length} matches)`);
     results.forEach((result) => {
       if (result.type === "getter" || result.type === "error") {
-        console.log(`${result.path} [${result.type}]`); // eslint-disable-line no-console
+        console.log(`${result.path} [${result.type}]`);
       } else {
-        console.log(`${result.path} [${result.type}]`, result.value); // eslint-disable-line no-console
+        console.log(`${result.path} [${result.type}]`, result.value);
       }
     });
-    console.groupEnd(); // eslint-disable-line no-console
+    console.groupEnd();
 
-    this.logger.log(`Found ${results.length} matches for "${searchTerm}"`);
+    this.logger.log(`Found ${results.length} matches`);
     return results;
   }
 }
 
-// Export plugin class for module loader
 window.customjs.__LAST_PLUGIN_CLASS__ = DebugPlugin;

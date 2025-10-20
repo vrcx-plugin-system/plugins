@@ -272,6 +272,28 @@ interface CustomJS {
   // Emergency shutdown
   panic: () => Promise<{success: boolean; message: string; modulesUnloaded: number}>;
   
+  // Debug utilities (set by debug plugin)
+  debug?: {
+    printDebugInfo: () => void;
+    listPlugins: () => any[];
+    getPlugin: (id: string) => any;
+    listEvents: () => any;
+    listHooks: () => any;
+    testEvent: (eventName: string, data: any) => void;
+    getCurrentUser: () => any;
+    getCurrentLocation: () => any;
+    getFriends: () => any;
+    getCustomTags: () => any;
+    getStores: () => any;
+    getModules: () => any[];
+    getRepos: () => any[];
+    inspectPlugin: (id: string) => any;
+    searchVariable: (searchTerm: string, options?: any) => any[];
+    showIpcLog: () => void;
+    clearIpcLog: () => void;
+    getIpcLog: () => any[];
+  };
+  
   // Internal use
   __LAST_PLUGIN_CLASS__?: typeof CustomModule;
   __currentPluginUrl?: string;
