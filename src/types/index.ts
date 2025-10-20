@@ -87,8 +87,18 @@ declare class CustomModule {
   cleanupResources(): void;
   subscribe(storeName: string, callback: (state: any) => void): (() => void) | null;
   
-  on(eventName: string, callback: (data: any) => void): void;
-  emit(eventName: string, data?: any): void;
+  // Event system
+  registerEvent(eventName: string, options: {
+    description: string;
+    payload?: Record<string, string>;
+    broadcastIPC?: boolean;
+    logToConsole?: boolean;
+  }): void;
+  emit(eventName: string, payload: any): void;
+  on(eventName: string, callback: (data: any) => void): () => void;
+  off(eventName: string, callback: Function): void;
+  events: string[];
+  getEvents(): any[];
   
   log(message: string, ...args: any[]): void;
   warn(message: string, ...args: any[]): void;
@@ -111,30 +121,41 @@ interface ModuleMetadata {
 }
 
 interface ModuleLogger {
-  log(...args: any[]): void;
-  logInfo(...args: any[]): void;
-  logWarn(...args: any[]): void;
-  logWarning(...args: any[]): void;
-  logError(...args: any[]): void;
-  warn(...args: any[]): void;
-  error(...args: any[]): void;
-  showSuccess(message: string): void;
-  showInfo(message: string): void;
-  showWarning(message: string): void;
-  showWarn(message: string): void;
-  showError(message: string): void;
-  notifyInfo(message: string): void;
-  notifySuccess(message: string): void;
-  notifyWarning(message: string): void;
-  notifyError(message: string): void;
-  notifyDesktop(message: string, title?: string): Promise<void>;
-  notifyVR(message: string, title?: string): Promise<void>;
-  notifyAll(message: string): Promise<void>;
+  // Console logging
+  log(msg: any, ...args: any[]): void;
+  logInfo(msg: any, ...args: any[]): void;
+  logWarn(msg: any, ...args: any[]): void;
+  logWarning(msg: any, ...args: any[]): void;
+  logError(msg: any, ...args: any[]): void;
+  info(msg: any, ...args: any[]): void;
+  warn(msg: any, ...args: any[]): void;
+  warning(msg: any, ...args: any[]): void;
+  error(msg: any, ...args: any[]): void;
+  
+  // UI toast messages (brief, top-center)
+  showInfo(msg: any, ...args: any[]): void;
+  showSuccess(msg: any, ...args: any[]): void;
+  showWarning(msg: any, ...args: any[]): void;
+  showWarn(msg: any, ...args: any[]): void;
+  showError(msg: any, ...args: any[]): void;
+  
+  // UI notifications (persistent, top-right)
+  notifyInfo(msg: any, ...args: any[]): void;
+  notifySuccess(msg: any, ...args: any[]): void;
+  notifyWarning(msg: any, ...args: any[]): void;
+  notifyError(msg: any, ...args: any[]): void;
+  
+  // System notifications
+  notifyDesktop(msg: any, title?: string, ...args: any[]): Promise<void>;
+  notifyVR(msg: any, title?: string, ...args: any[]): Promise<void>;
+  notifyAll(msg: any, ...args: any[]): Promise<void>;
+  alert(msg: any, ...args: any[]): void;
+  
+  // VRCX log feeds
   addFeed(entry: any): void;
   addGameLog(entry: any): void;
   addFriendLog(entry: any): void;
   addNotificationLog(entry: any): void;
-  alert(message: string): void;
 }
 
 interface ModuleResources {
@@ -142,7 +163,7 @@ interface ModuleResources {
   observers: Set<any>;
   listeners: Map<EventTarget, Array<{event: string; handler: EventListener; options?: AddEventListenerOptions}>>;
   subscriptions: Set<() => void>;
-  hooks?: Set<{type: string; functionPath: string; callback: Function}>;
+  hooks: Set<{type: string; functionPath: string; callback: Function}>;
 }
 
 interface ModuleSettings {
@@ -201,9 +222,11 @@ interface SettingTypeEnum {
 type SettingType = SettingTypeEnum[keyof SettingTypeEnum];
 
 interface CustomJS {
+  sourceUrl: string;
+  build: number;
   modules: CustomModule[];
   repos: any[];
-  events: Record<string, Array<(data: any) => void>>;
+  subscriptions: Map<string, Set<() => void>>;
   hooks: {
     pre: Record<string, Array<{plugin: CustomModule; callback: (args: any[]) => void}>>;
     post: Record<string, Array<{plugin: CustomModule; callback: (result: any, args: any[]) => void}>>;
@@ -211,7 +234,9 @@ interface CustomJS {
     replace: Record<string, Array<{plugin: CustomModule; callback: (originalFunc: Function, ...args: any[]) => any}>>;
   };
   functions: Record<string, Function>;
-  subscriptions: Map<string, Set<() => void>>;
+  eventRegistry: any;
+  coreModules: Map<string, any>;
+  hasTriggeredLogin: boolean;
   classes: {
     Logger: any;
     ConfigManager: any;
@@ -221,39 +246,78 @@ interface CustomJS {
     CustomModule: typeof CustomModule;
     CustomActionButton: typeof CustomActionButton;
     ModuleRepository: any;
+    EventRegistry: any;
   };
-  utils?: ModuleUtils;
-  debug?: any;
+  systemLogger: any;
+  configManager: any;
+  utils: ModuleUtils;
   types: {
     SettingType: SettingTypeEnum;
   };
-  definePluginSettings?: (definition: Record<string, SettingDefinition>, plugin: CustomModule) => ModuleSettings;
+  definePluginSettings: (definition: Record<string, SettingDefinition>, plugin: CustomModule) => ModuleSettings;
+  
+  // Module management
+  getModule: (idOrUrl: string) => CustomModule | undefined;
+  waitForModule: (moduleId: string, timeout?: number) => Promise<CustomModule>;
+  loadModule: (url: string) => Promise<{success: boolean; message?: string; module?: CustomModule}>;
+  unloadModule: (idOrUrl: string) => Promise<{success: boolean; message?: string}>;
+  reloadModule: (idOrUrl: string) => Promise<{success: boolean; message?: string}>;
+  
+  // Repository management
+  getRepo: (url: string) => any;
+  addRepository: (url: string, saveConfig?: boolean) => Promise<{success: boolean; message: string; repo?: any}>;
+  removeRepository: (url: string) => boolean;
+  
+  // Emergency shutdown
+  panic: () => Promise<{success: boolean; message: string; modulesUnloaded: number}>;
+  
+  // Internal use
   __LAST_PLUGIN_CLASS__?: typeof CustomModule;
-  coreModules?: Map<string, any>;
-  configManager?: any;
-  getModule?: (idOrUrl: string) => CustomModule | undefined;
-  waitForModule?: (moduleId: string, timeout?: number) => Promise<CustomModule>;
-  getRepo?: (url: string) => any;
-  loadModule?: (url: string) => Promise<{success: boolean; message?: string; module?: CustomModule}>;
-  unloadModule?: (idOrUrl: string) => Promise<{success: boolean; message?: string}>;
-  reloadModule?: (idOrUrl: string) => Promise<{success: boolean; message?: string}>;
-  addRepository?: (url: string, saveConfig?: boolean) => Promise<{success: boolean; message: string; repo?: any}>;
-  removeRepository?: (url: string) => boolean;
+  __currentPluginUrl?: string;
 }
 
 interface ModuleUtils {
+  // String/Data utilities
   isEmpty(v: any): boolean;
   decodeUnicode(str: string): string;
+  
+  // Time formatting
   timeToText(ms: number): string;
   parseTimespan(input: string | number): number;
   formatTimespan(ms: number): string;
   getTimestamp(now?: Date | null): string;
   formatDateTime(now?: Date | null): string;
+  
+  // Clipboard & Downloads
   copyToClipboard(text: string, description?: string): Promise<boolean>;
+  downloadFile(url: string, filename: string, mimeType?: string): Promise<{success: boolean; method?: string; error?: string}>;
+  downloadDataAsFile(content: string, filename: string, mimeType?: string): void;
+  
+  // VRCX API helpers
   saveBio(bio?: string, bioLinks?: any): Promise<any>;
   getLocationObject(loc: any): Promise<any>;
+  
+  // UI utilities
+  injectCSS(css: string): HTMLStyleElement;
   hexToRgba(hex: string, alpha: number): string;
   darkenColor(hex: string, percent: number): string;
+  
+  // Repository parsing
+  parseRepositoryUrl(url: string): {
+    platform: 'github' | 'gitlab' | 'unknown';
+    owner: string;
+    repo: string;
+    branch?: string;
+    filepath?: string;
+    isRaw?: boolean;
+    isRelease?: boolean;
+    tag?: string;
+    rawUrl?: string;
+    apiUrl?: string;
+    repoUrl?: string;
+    releaseUrl?: string;
+  } | null;
+  
   [key: string]: any;
 }
 
