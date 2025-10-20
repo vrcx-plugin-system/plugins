@@ -73,6 +73,8 @@ Automatically sends notifications to your VRChat chatbox when:
 [VRCX] Blocked ToxicPlayer
 [VRCX] Rate limited by VRChat API
 [VRCX] VRChat API server error
+[VRCX] VRChat issue: Partial System Outage: API, Website
+[VRCX] VRChat services operational
 ```
 
 ## Requirements

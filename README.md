@@ -4,7 +4,11 @@ TypeScript-based plugin repository for the VRCX Plugin System.
 
 ## Overview
 
-This repository contains **30 plugins** for VRCX, all written in TypeScript and compiled to optimized JavaScript.
+This repository contains **32 plugins** for VRCX, all written in TypeScript and compiled to optimized JavaScript.
+
+**📖 [Browse Plugins (Interactive)](https://vrcx-plugin-system.github.io/plugins)** - View all plugins in a nice Bootstrap table
+
+> **Local**: [Open Local Browser](./docs/index.html) | **API**: [repo.json](https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/repo.json)
 
 ### Plugin Categories
 
@@ -45,6 +49,10 @@ Builds without minification for easier debugging.
 
 ```
 plugins/
+├── docs/
+│   ├── index.html        # Interactive plugin browser
+│   ├── plugins/          # Individual plugin documentation
+│   │   └── *.md          # Plugin docs
 ├── src/
 │   ├── plugins/          # All plugin TypeScript files
 │   │   ├── *.ts          # Plugin source code

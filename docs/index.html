@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VRCX Plugins Repository</title>
+    <meta name="description" content="Browse 32+ plugins for VRCX Plugin System - APIs, utilities, social automation, and more!">
+    <meta name="keywords" content="VRCX, VRChat, plugins, mods, extensions, automation">
+    <meta name="author" content="VRCX Plugin System">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="VRCX Plugins Repository">
+    <meta property="og:description" content="Browse 32+ plugins for VRCX Plugin System">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vrcx-plugin-system.github.io/plugins">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            border: none;
+        }
+
+        .plugin-emoji {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .badge-custom {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            cursor: pointer;
+        }
+
+        .plugin-row {
+            transition: all 0.2s ease;
+        }
+
+        .plugin-row:hover {
+            transform: scale(1.01);
+        }
+
+        .filter-badge {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-badge:hover {
+            transform: scale(1.1);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .search-box {
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .loading-spinner {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .plugin-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .plugin-description {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .author-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="text-white display-4 fw-bold mb-3">
+                <i class="bi bi-puzzle-fill"></i> VRCX Plugins Repository
+            </h1>
+            <p class="text-white-50 lead">Official plugin collection for VRCX Plugin System</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4" id="statsSection">
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h3 class="display-4 fw-bold" id="totalPlugins">-</h3>
+                        <p class="mb-0">Total Plugins</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3 class="display-4 fw-bold" id="enabledPlugins">-</h3>
+                        <p class="mb-0">Enabled by Default</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3 class="display-4 fw-bold" id="totalTags">-</h3>
+                        <p class="mb-0">Tags</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h3 class="display-4 fw-bold" id="totalAuthors">-</h3>
+                        <p class="mb-0">Authors</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Card -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Available Plugins</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control search-box" id="searchBox" placeholder="🔍 Search plugins...">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Tag Filters -->
+                <div class="mb-3" id="tagFilters"></div>
+
+                <!-- Loading State -->
+                <div id="loadingSpinner" class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="errorMessage" class="alert alert-danger d-none" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Error loading plugins:</strong> <span id="errorText"></span>
+                </div>
+
+                <!-- Plugins Table -->
+                <div id="pluginsTable" class="table-responsive d-none">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 40%">Plugin</th>
+                                <th style="width: 20%">Author</th>
+                                <th style="width: 20%">Tags</th>
+                                <th style="width: 10%">Status</th>
+                                <th style="width: 10%" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pluginsTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- No Results -->
+                <div id="noResults" class="alert alert-info d-none">
+                    <i class="bi bi-info-circle-fill"></i> No plugins found matching your search.
+                </div>
+            </div>
+            <div class="card-footer text-muted text-center">
+                <small>
+                    Last updated: <span id="lastUpdated">-</span> |
+                    <a href="https://github.com/vrcx-plugin-system/plugins" target="_blank" class="text-decoration-none">
+                        <i class="bi bi-github"></i> GitHub Repository
+                    </a> |
+                    <a href="https://vrcx-plugin-system.github.io/plugins" target="_blank" class="text-decoration-none">
+                        <i class="bi bi-globe"></i> Live Demo
+                    </a>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let allPlugins = [];
+        let filteredPlugins = [];
+        let selectedTags = new Set();
+
+        // Load repo.json
+        async function loadPlugins() {
+            try {
+                // Try to load from local first, fallback to GitHub
+                let response;
+                try {
+                    response = await fetch('../dist/repo.json');
+                } catch (localError) {
+                    // Fallback to GitHub raw URL
+                    response = await fetch('https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/repo.json');
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+
+                allPlugins = data.modules || [];
+                filteredPlugins = [...allPlugins];
+
+                updateStats(data);
+                renderPlugins();
+                renderTagFilters();
+
+                document.getElementById('loadingSpinner').classList.add('d-none');
+                document.getElementById('pluginsTable').classList.remove('d-none');
+            } catch (error) {
+                console.error('Error loading plugins:', error);
+                document.getElementById('loadingSpinner').classList.add('d-none');
+                document.getElementById('errorMessage').classList.remove('d-none');
+                document.getElementById('errorText').textContent = error.message;
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('totalPlugins').textContent = allPlugins.length;
+
+            const enabled = allPlugins.filter(p => p.enabled).length;
+            document.getElementById('enabledPlugins').textContent = enabled;
+
+            const allTags = new Set();
+            allPlugins.forEach(p => {
+                if (p.tags) p.tags.forEach(tag => allTags.add(tag));
+            });
+            document.getElementById('totalTags').textContent = allTags.size;
+
+            const allAuthors = new Set();
+            allPlugins.forEach(p => {
+                if (p.authors) p.authors.forEach(a => allAuthors.add(a.name));
+            });
+            document.getElementById('totalAuthors').textContent = allAuthors.size;
+
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        }
+
+        function renderTagFilters() {
+            const allTags = new Set();
+            allPlugins.forEach(p => {
+                if (p.tags) p.tags.forEach(tag => allTags.add(tag));
+            });
+
+            const tagFiltersDiv = document.getElementById('tagFilters');
+            tagFiltersDiv.innerHTML = '<strong class="me-2">Filter by tag:</strong>';
+
+            const sortedTags = Array.from(allTags).sort();
+            sortedTags.forEach(tag => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-secondary filter-badge me-2 mb-2';
+                badge.textContent = tag;
+                badge.onclick = () => toggleTagFilter(tag, badge);
+                tagFiltersDiv.appendChild(badge);
+            });
+        }
+
+        function toggleTagFilter(tag, badgeElement) {
+            if (selectedTags.has(tag)) {
+                selectedTags.delete(tag);
+                badgeElement.classList.remove('bg-primary');
+                badgeElement.classList.add('bg-secondary');
+            } else {
+                selectedTags.add(tag);
+                badgeElement.classList.remove('bg-secondary');
+                badgeElement.classList.add('bg-primary');
+            }
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+
+            filteredPlugins = allPlugins.filter(plugin => {
+                // Search filter
+                const matchesSearch = !searchTerm ||
+                    plugin.name.toLowerCase().includes(searchTerm) ||
+                    plugin.description.toLowerCase().includes(searchTerm) ||
+                    plugin.id.toLowerCase().includes(searchTerm);
+
+                // Tag filter
+                const matchesTags = selectedTags.size === 0 ||
+                    (plugin.tags && plugin.tags.some(tag => selectedTags.has(tag)));
+
+                return matchesSearch && matchesTags;
+            });
+
+            renderPlugins();
+        }
+
+        function renderPlugins() {
+            const tbody = document.getElementById('pluginsTableBody');
+            const noResults = document.getElementById('noResults');
+
+            if (filteredPlugins.length === 0) {
+                tbody.innerHTML = '';
+                noResults.classList.remove('d-none');
+                return;
+            }
+
+            noResults.classList.add('d-none');
+
+            tbody.innerHTML = filteredPlugins.map(plugin => {
+                const emoji = plugin.name.match(/[\p{Emoji}]/u)?.[0] || '📦';
+                const nameWithoutEmoji = plugin.name.replace(/[\p{Emoji}\s]/gu, '').trim();
+
+                const authors = plugin.authors?.map(a => a.name).join(', ') || 'Unknown';
+                const tags = (plugin.tags || []).map(tag =>
+                    `<span class="badge bg-info badge-custom me-1">${tag}</span>`
+                ).join('');
+
+                const statusBadge = plugin.enabled
+                    ? '<span class="badge bg-success">Enabled</span>'
+                    : '<span class="badge bg-secondary">Disabled</span>';
+
+                const githubUrl = `https://github.com/vrcx-plugin-system/plugins/blob/main/src/plugins/${plugin.id}.ts`;
+                const rawUrl = plugin.url || `https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/${plugin.id}.js`;
+                const docsUrl = `https://github.com/vrcx-plugin-system/plugins/blob/main/docs/plugins/${plugin.id}.md`;
+
+                return `
+                    <tr class="plugin-row">
+                        <td>
+                            <div class="d-flex align-items-start">
+                                <span class="plugin-emoji">${emoji}</span>
+                                <div class="flex-grow-1">
+                                    <div class="plugin-name">${nameWithoutEmoji}</div>
+                                    <div class="plugin-description">${plugin.description}</div>
+                                    <small class="text-muted">ID: ${plugin.id}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            ${plugin.authors?.map(a => `
+                                <span class="badge author-badge badge-custom">
+                                    ${a.name}
+                                </span>
+                            `).join('<br>')}
+                        </td>
+                        <td>${tags}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="${githubUrl}" target="_blank" class="btn btn-outline-primary" title="View Source">
+                                    <i class="bi bi-github"></i>
+                                </a>
+                                <a href="${rawUrl}" target="_blank" class="btn btn-outline-success" title="Raw URL">
+                                    <i class="bi bi-code-square"></i>
+                                </a>
+                                <a href="${docsUrl}" target="_blank" class="btn btn-outline-info" title="Documentation">
+                                    <i class="bi bi-book"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPlugins();
+
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', applyFilters);
+        });
+
+        // Add copy URL functionality
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3';
+                toast.setAttribute('role', 'alert');
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi bi-check-circle-fill"></i> URL copied to clipboard!
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+                setTimeout(() => toast.remove(), 3000);
+            });
+        }
+    </script>
+</body>
+
+</html>
