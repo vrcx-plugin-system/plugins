@@ -164,16 +164,13 @@ class OSCBridgePlugin extends CustomModule {
    * Setup IPC listener for messages FROM external OSC app
    */
   setupIpcListener() {
-    // Listen for IPC messages from OSC app
-    this.subscribe('IPC', (data) => {
-      if (!data || !data.type) return;
-
+    this.onIpc((data) => {
       // Only process OSC-related messages
-      if (!data.type.startsWith('OSC_')) return;
-
-      this.handleIpcMessage(data);
+      if (data.type?.startsWith('OSC_')) {
+        this.handleIpcMessage(data);
+      }
     });
-
+    
     this.logger.log("IPC listener registered for OSC messages");
   }
 

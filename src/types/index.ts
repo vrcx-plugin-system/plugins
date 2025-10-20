@@ -85,6 +85,7 @@ declare class CustomModule {
   registerSubscription(unsubscribe: () => void): () => void;
   registerResource(unsubscribe: () => void): () => void;
   cleanupResources(): void;
+  onIpc(callback: (data: { type: string; payload: any; raw: any }) => void): void;
   subscribe(storeName: string, callback: (state: any) => void): (() => void) | null;
   
   // Event system
