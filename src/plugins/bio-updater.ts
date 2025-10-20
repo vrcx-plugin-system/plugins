@@ -35,6 +35,15 @@ class BioUpdaterPlugin extends CustomModule {
   }
 
   async load() {
+    // Register events
+    this.events.register('bio-updated', {
+      description: 'Fired when bio is successfully updated',
+      payload: {
+        bio: 'string - Updated bio content',
+        timestamp: 'number - Unix timestamp of update'
+      }
+    });
+
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.types.SettingType;
 
@@ -341,7 +350,7 @@ Oculus ID: {oculus_id}`;
       this.logger.log("✓ Bio updated successfully");
 
       // Emit event for other plugins
-      this.emit("bio-updated", { bio, timestamp: now });
+      this.events.emit("bio-updated", { bio, timestamp: now });
     } catch (error) {
       this.logger.error(`Error updating bio: ${error.message}`);
     }

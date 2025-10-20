@@ -45,6 +45,37 @@ class TemplatePlugin extends CustomModule {
   async load() {
     this.logger.log("📦 load() called - Setting up plugin...");
 
+    // Register events
+    this.events.register('timer-tick', {
+      description: 'Fired on each timer tick',
+      payload: {
+        count: 'number - Current tick count',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('button-clicked', {
+      description: 'Fired when test button is clicked',
+      payload: {
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('example-event', {
+      description: 'Example event for testing',
+      payload: {
+        message: 'string - Example message',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('user-clicked', {
+      description: 'Fired when user action is triggered',
+      payload: {
+        userData: 'object - User data object'
+      }
+    });
+
     // ⚠️ OLD WAY (Not Recommended): Expose plugin directly
     // window.customjs.template = this;
 
@@ -188,12 +219,12 @@ class TemplatePlugin extends CustomModule {
     // });
 
     // Example: Listen to events from other plugins
-    // this.on("other-plugin:event-name", (data) => {
+    // this.events.on("other-plugin:event-name", (data) => {
     //   this.logger.log("📨 Received event from other-plugin:", data);
     // });
 
     // Example: Listen to own events
-    this.on("example-event", (data) => {
+    this.events.on("template:example-event", (data) => {
       this.logger.log("📨 Received example-event:", data);
       this.exampleData.eventsReceived++;
     });
@@ -239,7 +270,7 @@ class TemplatePlugin extends CustomModule {
         this.logger.log(`⏱️ Timer tick #${this.counter}`);
 
         // Example: Emit an event for other plugins
-        this.emit("timer-tick", {
+        this.events.emit("timer-tick", {
           count: this.counter,
           timestamp: Date.now(),
         });
@@ -450,7 +481,7 @@ class TemplatePlugin extends CustomModule {
       if (testBtn) {
         this.registerListener(testBtn, "click", () => {
           this.logger.log("🧪 Test button clicked!");
-          this.emit("button-clicked", { timestamp: Date.now() });
+          this.events.emit("button-clicked", { timestamp: Date.now() });
 
           if (this.utils) {
             this.logger.showSuccess("Template plugin test button clicked!");
@@ -462,7 +493,7 @@ class TemplatePlugin extends CustomModule {
       if (emitBtn) {
         this.registerListener(emitBtn, "click", () => {
           this.logger.log("📡 Emit button clicked - emitting example-event");
-          this.emit("example-event", {
+          this.events.emit("example-event", {
             message: "Hello from template!",
             timestamp: Date.now(),
           });
@@ -492,7 +523,7 @@ class TemplatePlugin extends CustomModule {
     }
 
     // Example: Emit event for other plugins
-    this.emit("user-clicked", userData);
+    this.events.emit("user-clicked", { userData });
   }
 
   /**

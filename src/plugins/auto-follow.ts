@@ -78,6 +78,34 @@ class AutoFollowPlugin extends CustomModule {
   }
 
   async load() {
+    // Register events
+    this.events.register('user-added', {
+      description: 'Fired when a user is added to auto-follow list',
+      payload: {
+        userId: 'string - User ID',
+        displayName: 'string - Display name',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('user-removed', {
+      description: 'Fired when a user is removed from auto-follow list',
+      payload: {
+        userId: 'string - User ID',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('invite-requested', {
+      description: 'Fired when an invite request is sent',
+      payload: {
+        userId: 'string - User ID',
+        displayName: 'string - Display name',
+        success: 'boolean - Whether request succeeded',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.types.SettingType;
 
@@ -418,6 +446,14 @@ class AutoFollowPlugin extends CustomModule {
         );
         this.logger.log(`✓ Successfully requested invite from ${userName}`);
 
+        // Emit invite-requested event
+        this.events.emit('invite-requested', {
+          userId: user.id,
+          displayName: user.displayName,
+          success: true,
+          timestamp: Date.now()
+        });
+
         // Add notification to VRCX notification feed
         this.logger.addNotificationLog({
           id: user.id,
@@ -436,6 +472,14 @@ class AutoFollowPlugin extends CustomModule {
         this.logger.error(
           `Failed to request invite from ${userName}: ${error.message}`
         );
+
+        // Emit invite-requested event (failed)
+        this.events.emit('invite-requested', {
+          userId: user.id,
+          displayName: user.displayName,
+          success: false,
+          timestamp: Date.now()
+        });
       }
     } else {
       this.logger.warn(
@@ -589,6 +633,13 @@ class AutoFollowPlugin extends CustomModule {
     this.logger.log(`Auto-follow user added: ${user?.displayName}`);
     this.updateAutoFollowButtonText();
 
+    // Emit user-added event
+    this.events.emit('user-added', {
+      userId: user.id,
+      displayName: user.displayName,
+      timestamp: Date.now()
+    });
+
     // Immediately check their location
     this.checkUserLocation(user.id, {
       user: user,
@@ -607,6 +658,12 @@ class AutoFollowPlugin extends CustomModule {
       this.lastRequestedFrom.delete(userId);
       this.logger.log(`Auto-follow user removed: ${data?.user?.displayName}`);
       this.updateAutoFollowButtonText();
+
+      // Emit user-removed event
+      this.events.emit('user-removed', {
+        userId,
+        timestamp: Date.now()
+      });
     }
   }
 

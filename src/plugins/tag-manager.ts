@@ -52,6 +52,37 @@ class TagManagerPlugin extends CustomModule {
   }
 
   async load() {
+    // Register events
+    this.events.register('tags-loaded', {
+      description: 'Fired when tags are successfully loaded from URLs',
+      payload: {
+        totalTags: 'number - Total number of tags loaded',
+        sources: 'number - Number of sources loaded from',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('tags-applied', {
+      description: 'Fired when tags are applied to users in UI',
+      payload: {
+        userId: 'string - User ID',
+        tags: 'array - Array of tag names applied',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false, // Too frequent for IPC
+      logToConsole: false // Too spammy for console
+    });
+
+    this.events.register('tagged-player-join', {
+      description: 'Fired when a tagged player joins your instance',
+      payload: {
+        userId: 'string - User ID',
+        displayName: 'string - Display name',
+        tags: 'array - Array of tag names',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.types.SettingType;
 
@@ -180,9 +211,17 @@ class TagManagerPlugin extends CustomModule {
       }
     }
 
+    const totalTags = this.getLoadedTagsCount();
     this.logger.log(
-      `✓ Tag loading complete (${this.getLoadedTagsCount()} tags loaded)`
+      `✓ Tag loading complete (${totalTags} tags loaded)`
     );
+
+    // Emit tags-loaded event
+    this.events.emit('tags-loaded', {
+      totalTags,
+      sources: urls.length,
+      timestamp: Date.now()
+    });
   }
 
   async loadTagsFromUrl(url) {
@@ -604,6 +643,14 @@ class TagManagerPlugin extends CustomModule {
           { console: true, desktop: true, xsoverlay: true, ovrtoolkit: true },
           "info"
         );
+
+        // Emit tagged-player-join event
+        this.events.emit('tagged-player-join', {
+          userId: playerId,
+          displayName: playerName,
+          tags: [playerTag.tag],
+          timestamp: Date.now()
+        });
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);

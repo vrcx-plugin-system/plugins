@@ -54,6 +54,37 @@ class AutoInvitePlugin extends CustomModule {
   }
 
   async load() {
+    // Register events
+    this.events.register('user-added', {
+      description: 'Fired when a user is added to auto-invite list',
+      payload: {
+        userId: 'string - User ID',
+        displayName: 'string - Display name',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('user-removed', {
+      description: 'Fired when a user is removed from auto-invite list',
+      payload: {
+        userId: 'string - User ID',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('invite-sent', {
+      description: 'Fired when an invite is sent to a user',
+      payload: {
+        userId: 'string - User ID',
+        displayName: 'string - Display name',
+        worldId: 'string - World ID',
+        instanceId: 'string - Instance ID',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: false
+    });
+
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.types.SettingType;
 

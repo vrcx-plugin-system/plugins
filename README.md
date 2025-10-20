@@ -179,16 +179,16 @@ window.customjs.__LAST_PLUGIN_CLASS__ = YourPlugin;
 async load() {
   const SettingType = window.customjs.types.SettingType;
 
-  this.settings = this.defineSettings({
+this.settings = this.defineSettings({
     myOption: {
-      type: SettingType.BOOLEAN,
+    type: SettingType.BOOLEAN,
       description: 'Enable my feature',
-      default: true,
+    default: true,
       min: 0,              // For numbers/timespans
       max: 100,            // For numbers/timespans
       category: 'general'  // Optional grouping
     }
-  });
+});
 }
 ```
 

@@ -60,6 +60,41 @@ class YoinkerDetectorPlugin extends CustomModule {
   async load() {
     this.logger.log("📦 Loading Yoinker Detector...");
 
+    // Register events
+    this.events.register('user-checked', {
+      description: 'Fired when a user is checked for yoinking',
+      payload: {
+        userId: 'string - VRChat user ID',
+        displayName: 'string - User display name',
+        isYoinker: 'boolean - Whether user is detected as yoinker',
+        confidence: 'number - Detection confidence (0-1)',
+        avatarCount: 'number - Number of avatars ripped',
+        source: 'string - join | dialog | manual',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: true,
+      logToConsole: false // Too spammy for console
+    });
+
+    this.events.register('cache-cleared', {
+      description: 'Fired when detection cache is manually cleared',
+      payload: {
+        clearedCount: 'number - Number of entries cleared',
+        timestamp: 'number - Unix timestamp'
+      }
+    });
+
+    this.events.register('queue-processed', {
+      description: 'Fired when detection queue finishes processing',
+      payload: {
+        processed: 'number - Users processed',
+        yoinkersFound: 'number - Yoinkers detected',
+        duration: 'number - Processing time in ms'
+      },
+      broadcastIPC: false, // Too frequent for IPC
+      logToConsole: false // Too spammy for console
+    });
+
     // Define settings using new Equicord-style system
     const SettingType = window.customjs.types.SettingType;
 
@@ -307,6 +342,8 @@ class YoinkerDetectorPlugin extends CustomModule {
     }
 
     this.isProcessing = true;
+    const startTime = Date.now();
+    const totalToProcess = this.pendingQueue.size;
 
     try {
       // Process one at a time to respect rate limits
@@ -326,6 +363,14 @@ class YoinkerDetectorPlugin extends CustomModule {
       } else {
         this.isProcessing = false;
         this.saveProcessedUsers();
+
+        // Emit queue-processed event
+        const duration = Date.now() - startTime;
+        this.events.emit('queue-processed', {
+          processed: totalToProcess,
+          yoinkersFound: this.settings.store.statsTotalYoinkers,
+          duration
+        });
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -418,6 +463,17 @@ class YoinkerDetectorPlugin extends CustomModule {
         this.settings.store.statsTotalYoinkers++;
 
         this.handleYoinkerDetected(result);
+
+        // Emit user-checked event
+        this.events.emit('user-checked', {
+          userId: result.userId,
+          displayName: result.userName,
+          isYoinker: true,
+          confidence: 1.0,
+          avatarCount: 0, // Not provided by API
+          source: 'api',
+          timestamp: result.timestamp
+        });
       } else {
         // Not a yoinker
         const result = {
@@ -430,6 +486,17 @@ class YoinkerDetectorPlugin extends CustomModule {
         if (this.settings.store.logToConsole) {
           this.logger.log(`✅ User ${userId} checked - not a yoinker`);
         }
+
+        // Emit user-checked event
+        this.events.emit('user-checked', {
+          userId,
+          displayName: 'Unknown',
+          isYoinker: false,
+          confidence: 1.0,
+          avatarCount: 0,
+          source: 'api',
+          timestamp: result.timestamp
+        });
       }
     } catch (error) {
       this.settings.store.statsErrors++;
@@ -623,6 +690,8 @@ class YoinkerDetectorPlugin extends CustomModule {
 
   // Clear all processed users and cache (useful for debugging)
   clearCache() {
+    const clearedCount = this.processedUsers.size + this.yoinkerCheckCache.size;
+    
     this.processedUsers.clear();
     this.pendingQueue.clear();
     this.yoinkerCheckCache.clear();
@@ -632,6 +701,12 @@ class YoinkerDetectorPlugin extends CustomModule {
     this.settings.store.statsTotalYoinkers = 0;
     this.settings.store.statsCacheHits = 0;
     this.settings.store.statsErrors = 0;
+
+    // Emit event
+    this.events.emit('cache-cleared', {
+      clearedCount,
+      timestamp: Date.now()
+    });
 
     // Clear settings store data
     this.settings.store.processedUsersData = "[]";
