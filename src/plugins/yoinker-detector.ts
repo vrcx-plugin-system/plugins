@@ -465,7 +465,7 @@ class YoinkerDetectorPlugin extends CustomModule {
         this.handleYoinkerDetected(result);
 
         // Emit user-checked event
-        this.events.emit('user-checked', {
+        this.emit('user-checked', {
           userId: result.userId,
           displayName: result.userName,
           isYoinker: true,
@@ -488,7 +488,7 @@ class YoinkerDetectorPlugin extends CustomModule {
         }
 
         // Emit user-checked event
-        this.events.emit('user-checked', {
+        this.emit('user-checked', {
           userId,
           displayName: 'Unknown',
           isYoinker: false,

@@ -218,14 +218,16 @@ class TemplatePlugin extends CustomModule {
     //   return result; // Or return your own value
     // });
 
-    // Example: Listen to events from other plugins
-    // this.on("other-plugin:event-name", (data) => {
-    //   this.logger.log("📨 Received event from other-plugin:", data);
+    // Example: Listen to events from ANY plugin (global event names)
+    // this.on("bio-updated", (data) => {
+    //   this.logger.log("📨 Bio updated by:", data.plugin.metadata.name);
+    //   this.logger.log("📨 New bio:", data.bio);
     // });
 
-    // Example: Listen to own events
+    // Example: Listen to own events (plugin auto-injected into data)
     this.on("example-event", (data) => {
-      this.logger.log("📨 Received example-event:", data);
+      this.logger.log("📨 Received example-event from:", data.plugin.metadata.name);
+      this.logger.log("📨 Payload:", data);
       this.exampleData.eventsReceived++;
     });
 
