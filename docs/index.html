@@ -232,8 +232,14 @@
                 try {
                     response = await fetch('../dist/repo.json');
                 } catch (localError) {
+                    console.error('Error loading plugins from local:', localError);
                     // Fallback to GitHub raw URL
-                    response = await fetch('https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/repo.json');
+                    try {
+                        response = await fetch('https://github.com/vrcx-plugin-system/plugins/raw/refs/heads/main/dist/repo.json');
+                    } catch (githubError) {
+                        console.error('Error loading plugins from GitHub:', githubError);
+                        throw new Error('Failed to load plugins from local or GitHub');
+                    }
                 }
 
                 if (!response.ok) {
