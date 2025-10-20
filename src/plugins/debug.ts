@@ -82,13 +82,13 @@ class DebugPlugin extends CustomModule {
         type: SettingType.BOOLEAN,
         description: "Log incoming IPC messages to console",
         category: "ipc",
-        default: false,
+        default: true,
       },
       logOutgoingIpc: {
         type: SettingType.BOOLEAN,
         description: "Log outgoing IPC messages to console",
         category: "ipc",
-        default: false,
+        default: true,
       },
       ipcTypeFilter: {
         type: SettingType.STRING,
