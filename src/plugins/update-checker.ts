@@ -38,11 +38,15 @@ class UpdateCheckerPlugin extends CustomModule {
     private rateLimit: GitHubRateLimit | null = null;
     private coreRepoOwner: string = '';
     private coreRepoName: string = '';
-    private authSubscription: (() => void) | null = null;
 
     // GitHub API configuration
     private readonly GITHUB_API = 'https://api.github.com';
-    private readonly INSTALL_COMMAND = 'Invoke-WebRequest -Uri "https://github.com/vrcx-plugin-system/vrcx-plugin-system/releases/latest/download/custom.js" -OutFile "$env:APPDATA\\VRCX\\custom.js"';
+    private readonly TARGET_PATH = '%APPDATA%\\VRCX\\custom.js';
+    
+    // Computed from sourceUrl at runtime
+    private get downloadUrl(): string {
+        return `https://github.com/${this.coreRepoOwner}/${this.coreRepoName}/releases/latest/download/custom.js`;
+    }
 
     constructor() {
         super({
@@ -77,12 +81,12 @@ class UpdateCheckerPlugin extends CustomModule {
                 }
             },
             {
-                title: 'Copy Install Command',
+                title: 'Download Core Update',
                 color: 'success',
-                icon: 'ri-file-copy-line',
-                description: 'Copy PowerShell install command to clipboard',
+                icon: 'ri-download-line',
+                description: 'Download latest core system update',
                 callback: async () => {
-                    await this.copyInstallCommand();
+                    await this.downloadCoreUpdate();
                 }
             },
             {
@@ -245,6 +249,17 @@ class UpdateCheckerPlugin extends CustomModule {
         this.logger.log('Update checker stopped');
     }
 
+    async onLogin(): Promise<void> {
+        // Built-in lifecycle hook - called when user logs into VRChat
+        if (this.settings.store.checkCoreOnStartup) {
+            setTimeout(() => this.checkCoreUpdate(false), 5000);
+        }
+        
+        if (this.settings.store.checkPluginsOnStartup) {
+            setTimeout(() => this.checkPluginUpdates(false), 7000);
+        }
+    }
+
     private parseRepositoryInfo(): void {
         try {
             const sourceUrl = (window as any).customjs?.sourceUrl || '';
@@ -253,12 +268,27 @@ class UpdateCheckerPlugin extends CustomModule {
                 return;
             }
             
-            // Parse GitHub URL: https://github.com/{owner}/{repo}/...
-            const match = sourceUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
-            if (match) {
-                this.coreRepoOwner = match[1];
-                this.coreRepoName = match[2];
-                this.logger.log(`Parsed repository: ${this.coreRepoOwner}/${this.coreRepoName}`);
+            const utils = (window as any).customjs?.utils;
+            if (!utils?.parseRepositoryUrl) {
+                this.logger.warn('Utils.parseRepositoryUrl not available, falling back to manual parsing');
+                // Fallback to simple regex
+                const match = sourceUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+                if (match) {
+                    this.coreRepoOwner = match[1];
+                    this.coreRepoName = match[2];
+                }
+                return;
+            }
+            
+            const repoInfo = utils.parseRepositoryUrl(sourceUrl);
+            if (repoInfo) {
+                this.coreRepoOwner = repoInfo.owner;
+                this.coreRepoName = repoInfo.repo;
+                this.logger.log(`Parsed repository: ${this.coreRepoOwner}/${this.coreRepoName} (${repoInfo.platform})`);
+                
+                if (repoInfo.branch) {
+                    this.logger.log(`  → Branch: ${repoInfo.branch}`);
+                }
             } else {
                 this.logger.warn('Failed to parse repository info from sourceUrl');
             }
@@ -387,10 +417,41 @@ class UpdateCheckerPlugin extends CustomModule {
 
     private async showCoreUpdateNotification(release: GitHubRelease, manual: boolean): Promise<void> {
         const currentBuild = (window as any).customjs?.build || 0;
-        const message = `A new version of the VRCX Plugin System is available!\n\nCurrent: ${currentBuild}\nLatest: ${release.tag_name}\n\nReleased: ${new Date(release.published_at).toLocaleString()}`;
+        const releaseDate = new Date(release.published_at).toLocaleString();
         
+        // Enhanced notification message
+        const message = `A new version of the VRCX Plugin System is available!\n\nCurrent: ${currentBuild}\nLatest: ${release.tag_name}\n\nReleased: ${releaseDate}`;
+        
+        // Multi-channel notifications
         if (this.settings.store.showCoreNotification || manual) {
             this.logger.showInfo('New VRCX Plugin System update available: ' + release.tag_name);
+            
+            // Desktop notification
+            if (this.settings.store.enableDesktopNotifications && (window as any).AppApi?.DesktopNotification) {
+                (window as any).AppApi.DesktopNotification(
+                    '🔄 Plugin System Update Available',
+                    `${release.tag_name} is now available`,
+                    ''
+                );
+            }
+            
+            // VR notifications
+            if (this.settings.store.enableVrNotifications) {
+                this.sendVrNotification(
+                    '🔄 Plugin System Update',
+                    `${release.tag_name} available`
+                );
+            }
+            
+            // IPC announcement
+            if (this.settings.store.announceViaIpc && (window as any).AppApi?.SendIpc) {
+                (window as any).AppApi.SendIpc('UpdateAvailable', JSON.stringify({
+                    component: 'plugin-system',
+                    currentVersion: currentBuild,
+                    latestVersion: release.tag_name,
+                    releaseUrl: release.html_url
+                }));
+            }
         }
         
         const result = await this.showConfirmDialog(
@@ -401,24 +462,8 @@ class UpdateCheckerPlugin extends CustomModule {
         );
         
         if (result) {
-            if (this.settings.store.openReleasePageOnUpdate || manual) {
-                window.open(release.html_url, '_blank');
-                
-                // Offer to reload the page after they download the update
-                const reloadMessage = `The release page has been opened.\n\nAfter downloading custom.js to %APPDATA%\\VRCX\\, would you like to reload VRCX to apply the update?`;
-                
-                const shouldReload = await this.showConfirmDialog(
-                    '🔄 Reload VRCX?',
-                    reloadMessage,
-                    'Reload Now',
-                    'Later'
-                );
-                
-                if (shouldReload) {
-                    this.logger.showInfo('Reloading VRCX to apply core system update...');
-                    window.location.reload();
-                }
-            }
+            // Start the download
+            await this.downloadCoreUpdate();
         } else {
             // User dismissed - add to dismissed list
             const dismissed = JSON.parse(this.settings.store.dismissedCoreVersions || '[]');
@@ -534,38 +579,6 @@ class UpdateCheckerPlugin extends CustomModule {
         }
     }
 
-    private async handlePluginUpdates(updates: PluginUpdateInfo[], manual: boolean): Promise<void> {
-        const dialogApi = (window as any).customjs?.getModule('dialog-api');
-        
-        if (!dialogApi) {
-            this.logger.showWarning(`${updates.length} plugin update(s) available, but dialog-api not found`);
-            return;
-        }
-        
-        const updateList = updates.map(u => 
-            `• ${u.name}: ${u.currentVersion || '?'} → ${u.latestVersion || '?'}`
-        ).join('\n');
-        
-        this.logger.showInfo(`Found ${updates.length} plugin update(s)`);
-        
-        if (this.settings.store.autoUpdatePlugins && !manual) {
-            // Auto-update without confirmation
-            await this.applyPluginUpdates(updates);
-        } else {
-            // Ask for confirmation
-            const result = await this.showConfirmDialog(
-                '🔄 Plugin Updates Available',
-                `The following plugins have updates available:\n\n${updateList}\n\nWould you like to update them now?`,
-                'Update All',
-                'Skip'
-            );
-            
-            if (result) {
-                await this.applyPluginUpdates(updates);
-            }
-        }
-    }
-
     private async applyPluginUpdates(updates: PluginUpdateInfo[]): Promise<void> {
         this.logger.showInfo(`Updating ${updates.length} plugin(s)...`);
         
@@ -643,6 +656,182 @@ class UpdateCheckerPlugin extends CustomModule {
         }
         
         return 0;
+    }
+
+    private async downloadCoreUpdate(): Promise<void> {
+        try {
+            this.logger.showInfo('Starting core system download...');
+            
+            // Step 1: Copy target path to clipboard FIRST
+            const utils = (window as any).customjs?.utils;
+            const targetPath = this.TARGET_PATH;
+            
+            if (utils?.copyToClipboard) {
+                await utils.copyToClipboard(targetPath, 'Install path');
+            } else if (navigator?.clipboard?.writeText) {
+                await navigator.clipboard.writeText(targetPath);
+            }
+            
+            // Step 2: Show instructions
+            await this.showAlertDialog(
+                '📥 Downloading Update',
+                `The download will start in a moment.\n\n✅ Install path copied to clipboard:\n${targetPath}\n\n📝 When the browser's "Save As" dialog appears:\n1. Paste (Ctrl+V) into the "File name:" field\n2. Click "Save" to overwrite the existing file\n\nThe browser will handle the download.`,
+                'Start Download'
+            );
+            
+            // Step 3: Trigger download using utility
+            if (utils?.downloadFile) {
+                const result = await utils.downloadFile(this.downloadUrl, 'custom.js', 'application/javascript');
+                
+                if (result.success) {
+                    this.logger.log(`Download initiated via ${result.method}`);
+                    
+                    // Step 4: Ask to reload after download
+                    await this.promptForReload();
+                } else {
+                    throw new Error(result.error || 'Download failed');
+                }
+            } else {
+                // Fallback: manual download link
+                await this.showAlertDialog(
+                    '⚠️ Download Utility Not Available',
+                    `Please download manually from:\n\n${this.downloadUrl}\n\nAnd save to:\n${targetPath}`,
+                    'OK'
+                );
+            }
+        } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            this.logger.error(`Failed to download core update: ${errorMsg}`);
+            this.logger.showError('Download failed. Please try manually.');
+            
+            // Show download URL for manual download
+            await this.showAlertDialog(
+                '⚠️ Download Failed',
+                `Automatic download failed.\n\nPlease download manually from:\n${this.downloadUrl}\n\nAnd save to:\n${this.TARGET_PATH}`,
+                'OK'
+            );
+        }
+    }
+
+    private async getLatestRelease(): Promise<GitHubRelease | null> {
+        try {
+            const url = `${this.GITHUB_API}/repos/${this.coreRepoOwner}/${this.coreRepoName}/releases/latest`;
+            const response = await this.fetchWithRateLimit(url);
+            
+            if (!response.ok) {
+                return null;
+            }
+            
+            return await response.json();
+        } catch (error) {
+            return null;
+        }
+    }
+
+    private async promptForReload(): Promise<void> {
+        // Wait a bit for download to complete
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const shouldReload = await this.showConfirmDialog(
+            '🔄 Reload VRCX?',
+            'The update has been downloaded.\n\nHave you saved it to the correct location?\n\nReload VRCX now to apply the update?',
+            'Reload Now',
+            'Later'
+        );
+        
+        if (shouldReload) {
+            this.logger.showInfo('Reloading VRCX to apply core system update...');
+            window.location.reload();
+        } else {
+            this.logger.showInfo('Reload later to apply the update');
+        }
+    }
+
+    private sendVrNotification(title: string, message: string): void {
+        const AppApi = (window as any).AppApi;
+        if (!AppApi) return;
+        
+        const timeout = (this.settings.store.vrNotificationTimeout || 10) * 1000;
+        
+        // Try XSOverlay
+        try {
+            if (AppApi.XSNotification) {
+                AppApi.XSNotification(title, message, timeout, 1.0, '');
+            }
+        } catch (error) {
+            this.logger.warn('Failed to send XSOverlay notification');
+        }
+        
+        // Try OVRToolkit
+        try {
+            if (AppApi.OVRTNotification) {
+                AppApi.OVRTNotification(true, true, title, message, timeout, 1.0, '');
+            }
+        } catch (error) {
+            this.logger.warn('Failed to send OVRToolkit notification');
+        }
+    }
+
+    private async handlePluginUpdates(updates: PluginUpdateInfo[], manual: boolean): Promise<void> {
+        const dialogApi = (window as any).customjs?.getModule('dialog-api');
+        
+        if (!dialogApi) {
+            this.logger.showWarning(`${updates.length} plugin update(s) available, but dialog-api not found`);
+            return;
+        }
+        
+        const updateList = updates.map(u => 
+            `• ${u.name}: ${u.currentVersion || '?'} → ${u.latestVersion || '?'}`
+        ).join('\n');
+        
+        this.logger.showInfo(`Found ${updates.length} plugin update(s)`);
+        
+        // Desktop notification for plugin updates
+        if (this.settings.store.enableDesktopNotifications && (window as any).AppApi?.DesktopNotification) {
+            (window as any).AppApi.DesktopNotification(
+                '🔌 Plugin Updates Available',
+                `${updates.length} plugin(s) can be updated`,
+                ''
+            );
+        }
+        
+        // VR notification
+        if (this.settings.store.enableVrNotifications) {
+            this.sendVrNotification(
+                '🔌 Plugin Updates',
+                `${updates.length} update(s) available`
+            );
+        }
+        
+        // IPC announcement
+        if (this.settings.store.announceViaIpc && (window as any).AppApi?.SendIpc) {
+            (window as any).AppApi.SendIpc('PluginUpdates', JSON.stringify({
+                count: updates.length,
+                plugins: updates.map(u => ({
+                    id: u.id,
+                    name: u.name,
+                    currentVersion: u.currentVersion,
+                    latestVersion: u.latestVersion
+                }))
+            }));
+        }
+        
+        if (this.settings.store.autoUpdatePlugins && !manual) {
+            // Auto-update without confirmation
+            await this.applyPluginUpdates(updates);
+        } else {
+            // Ask for confirmation
+            const result = await this.showConfirmDialog(
+                '🔄 Plugin Updates Available',
+                `The following plugins have updates available:\n\n${updateList}\n\nWould you like to update them now?`,
+                'Update All',
+                'Skip'
+            );
+            
+            if (result) {
+                await this.applyPluginUpdates(updates);
+            }
+        }
     }
 }
 
