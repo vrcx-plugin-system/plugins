@@ -268,7 +268,8 @@ class AutoInvitePlugin extends CustomModule {
 
       this.autoInviteItem = this.contextMenuApi.addUserItem("autoInvite", {
         text: "Auto Invite",
-        icon: "el-icon-message",
+        icon: "ri-mail-send-line",
+        pluginId: "auto-invite",
         onClick: (user) => this.toggleAutoInvite(user),
       });
 
@@ -276,7 +277,8 @@ class AutoInvitePlugin extends CustomModule {
         "clearAutoInvite",
         {
           text: "Clear AutoInvite",
-          icon: "el-icon-delete",
+          icon: "ri-delete-bin-line",
+          pluginId: "auto-invite",
           onClick: () => this.clearAllAutoInvites(),
         }
       );

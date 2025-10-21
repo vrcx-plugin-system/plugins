@@ -67,46 +67,53 @@ class ProtocolLinksPlugin extends CustomModule {
     // User dialog items
     this.contextMenuApi.addUserItem("copy-user-link", {
       text: "Copy User Link",
-      icon: "el-icon-link",
+      icon: "ri-link",
+      pluginId: "protocol-links",
       onClick: (userData: any) => this.copyUserLink(userData),
     });
 
     this.contextMenuApi.addUserItem("copy-user-import", {
       text: "Copy User Import Link",
-      icon: "el-icon-download",
+      icon: "ri-download-line",
+      pluginId: "protocol-links",
       onClick: (userData: any) => this.copyUserImportLink(userData),
     });
 
     // Avatar dialog items
     this.contextMenuApi.addAvatarItem("copy-avatar-link", {
       text: "Copy Avatar Link",
-      icon: "el-icon-link",
+      icon: "ri-link",
+      pluginId: "protocol-links",
       onClick: (avatarData: any) => this.copyAvatarLink(avatarData),
     });
 
     this.contextMenuApi.addAvatarItem("copy-avatar-import", {
       text: "Copy Avatar Import Link",
-      icon: "el-icon-download",
+      icon: "ri-download-line",
+      pluginId: "protocol-links",
       onClick: (avatarData: any) => this.copyAvatarImportLink(avatarData),
     });
 
     // World dialog items
     this.contextMenuApi.addWorldItem("copy-world-link", {
       text: "Copy World Link",
-      icon: "el-icon-link",
+      icon: "ri-link",
+      pluginId: "protocol-links",
       onClick: (worldData: any) => this.copyWorldLink(worldData),
     });
 
     this.contextMenuApi.addWorldItem("copy-world-import", {
       text: "Copy World Import Link",
-      icon: "el-icon-download",
+      icon: "ri-download-line",
+      pluginId: "protocol-links",
       onClick: (worldData: any) => this.copyWorldImportLink(worldData),
     });
 
     // Group dialog items
     this.contextMenuApi.addGroupItem("copy-group-link", {
       text: "Copy Group Link",
-      icon: "el-icon-link",
+      icon: "ri-link",
+      pluginId: "protocol-links",
       onClick: (groupData: any) => this.copyGroupLink(groupData),
     });
 

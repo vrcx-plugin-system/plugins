@@ -204,7 +204,8 @@ class AutoFollowPlugin extends CustomModule {
 
       this.autoFollowItem = this.contextMenuApi.addUserItem("autoFollow", {
         text: "Auto Follow",
-        icon: "el-icon-position",
+        icon: "ri-user-follow-line",
+        pluginId: "auto-follow",
         onClick: (user) => this.toggleAutoFollow(user),
       });
 
@@ -212,7 +213,8 @@ class AutoFollowPlugin extends CustomModule {
         "clearAutoFollow",
         {
           text: "Clear AutoFollow",
-          icon: "el-icon-delete",
+          icon: "ri-user-unfollow-line",
+          pluginId: "auto-follow",
           onClick: () => this.clearAllAutoFollows(),
         }
       );
