@@ -216,7 +216,10 @@ class TagAPIPlugin extends CustomModule {
   setupWorldDialogWatcher() {
     // Listen for ShowWorldDialog event from dialog-events-api
     this.on('ShowWorldDialog', (data) => {
+      this.logger.log(`[DEBUG] ShowWorldDialog event received for worldId: ${data?.worldId}`);
       if (data?.worldId) {
+        const tags = this.customWorldTags.get(data.worldId);
+        this.logger.log(`[DEBUG] World has ${tags?.length || 0} custom tags`);
         setTimeout(() => this.injectCustomWorldTag(data.worldId), 100);
       }
     });
@@ -296,7 +299,10 @@ class TagAPIPlugin extends CustomModule {
   setupUserDialogWatcher() {
     // Listen for ShowUserDialog event from dialog-events-api
     this.on('ShowUserDialog', (data) => {
+      this.logger.log(`[DEBUG] ShowUserDialog event received for userId: ${data?.userId}`);
       if (data?.userId) {
+        const tags = this.customUserTags.get(data.userId);
+        this.logger.log(`[DEBUG] User has ${tags?.length || 0} custom tags`);
         setTimeout(() => this.injectCustomUserTags(data.userId), 100);
       }
     });
@@ -307,7 +313,10 @@ class TagAPIPlugin extends CustomModule {
   setupAvatarDialogWatcher() {
     // Listen for ShowAvatarDialog event from dialog-events-api
     this.on('ShowAvatarDialog', (data) => {
+      this.logger.log(`[DEBUG] ShowAvatarDialog event received for avatarId: ${data?.avatarId}`);
       if (data?.avatarId) {
+        const tags = this.customAvatarTags.get(data.avatarId);
+        this.logger.log(`[DEBUG] Avatar has ${tags?.length || 0} custom tags`);
         setTimeout(() => this.injectCustomAvatarTags(data.avatarId), 100);
       }
     });
@@ -363,11 +372,14 @@ class TagAPIPlugin extends CustomModule {
   }
 
   injectCustomUserTags(userId: string) {
+    this.logger.log(`[DEBUG] injectCustomUserTags called for userId: ${userId}`);
     const tags = this.customUserTags.get(userId);
+    this.logger.log(`[DEBUG] Found ${tags?.length || 0} tags to inject`);
     if (!tags || tags.length === 0) return;
 
     // Find the user dialog tag container (usually after user info)
     const tagContainers = document.querySelectorAll('.el-dialog__body > div > div');
+    this.logger.log(`[DEBUG] Found ${tagContainers.length} tag containers`);
     if (tagContainers.length < 2) return;
 
     const tagContainer = tagContainers[1]; // Second div usually has the user tags
