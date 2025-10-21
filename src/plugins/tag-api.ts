@@ -243,6 +243,8 @@ class TagAPIPlugin extends CustomModule {
       const tagData = {
         tag: avatarTag.Tag || '',
         colour: avatarTag.TagColour || '#00C6FF',
+        url: avatarTag.Url || '',
+        tooltip: avatarTag.Tooltip || '',
         timestamp: Date.now()
       };
 
@@ -337,6 +339,20 @@ class TagAPIPlugin extends CustomModule {
       tagEl.style.borderColor = tag.colour;
       tagEl.textContent = tag.tag;
 
+      // Add tooltip if provided
+      if (tag.tooltip) {
+        tagEl.title = tag.tooltip;
+      }
+
+      // Add click handler if URL provided
+      if (tag.url) {
+        tagEl.style.cursor = 'pointer';
+        tagEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.open(tag.url, '_blank');
+        });
+      }
+
       // Insert at the beginning of tag container
       if (tagContainer.firstChild) {
         tagContainer.insertBefore(tagEl, tagContainer.firstChild);
@@ -370,6 +386,20 @@ class TagAPIPlugin extends CustomModule {
       tagEl.style.borderColor = tag.colour;
       tagEl.textContent = tag.tag;
 
+      // Add tooltip if provided
+      if (tag.tooltip) {
+        tagEl.title = tag.tooltip;
+      }
+
+      // Add click handler if URL provided
+      if (tag.url) {
+        tagEl.style.cursor = 'pointer';
+        tagEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.open(tag.url, '_blank');
+        });
+      }
+
       // Append to tag container
       tagContainer.appendChild(tagEl);
     }
@@ -399,6 +429,20 @@ class TagAPIPlugin extends CustomModule {
       tagEl.style.borderColor = tag.colour;
       tagEl.textContent = tag.tag;
 
+      // Add tooltip if provided
+      if (tag.tooltip) {
+        tagEl.title = tag.tooltip;
+      }
+
+      // Add click handler if URL provided
+      if (tag.url) {
+        tagEl.style.cursor = 'pointer';
+        tagEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.open(tag.url, '_blank');
+        });
+      }
+
       // Append to tag container
       tagContainer.appendChild(tagEl);
     }
@@ -407,7 +451,7 @@ class TagAPIPlugin extends CustomModule {
   /**
    * Add a custom tag to a world (supports multiple tags per world)
    */
-  addWorldTag(worldId: string, tag: string, color: string = '#FF0000') {
+  addWorldTag(worldId: string, tag: string, color: string = '#FF0000', url: string = '', tooltip: string = '') {
     const worldStore = window.$pinia?.world;
     if (!worldStore || !worldStore.addCustomWorldTag) {
       this.logger.error("World store not available or not patched");
@@ -418,7 +462,9 @@ class TagAPIPlugin extends CustomModule {
       worldStore.addCustomWorldTag({
         WorldId: worldId,
         Tag: tag,
-        TagColour: color
+        TagColour: color,
+        Url: url,
+        Tooltip: tooltip
       });
       return true;
     } catch (error) {
@@ -483,7 +529,7 @@ class TagAPIPlugin extends CustomModule {
   /**
    * Add a custom tag to a user (supports multiple tags per user)
    */
-  addUserTag(userId: string, tag: string, color: string = '#FF00C6') {
+  addUserTag(userId: string, tag: string, color: string = '#FF00C6', url: string = '', tooltip: string = '') {
     const userStore = window.$pinia?.user;
     if (!userStore || !userStore.addCustomUserTag) {
       this.logger.error("User store not available or not patched");
@@ -494,7 +540,9 @@ class TagAPIPlugin extends CustomModule {
       userStore.addCustomUserTag({
         UserId: userId,
         Tag: tag,
-        TagColour: color
+        TagColour: color,
+        Url: url,
+        Tooltip: tooltip
       });
       return true;
     } catch (error) {
@@ -559,7 +607,7 @@ class TagAPIPlugin extends CustomModule {
   /**
    * Add a custom tag to an avatar (supports multiple tags per avatar)
    */
-  addAvatarTag(avatarId: string, tag: string, color: string = '#00C6FF') {
+  addAvatarTag(avatarId: string, tag: string, color: string = '#00C6FF', url: string = '', tooltip: string = '') {
     const avatarStore = window.$pinia?.avatar;
     if (!avatarStore || !avatarStore.addCustomAvatarTag) {
       this.logger.error("Avatar store not available or not patched");
@@ -570,7 +618,9 @@ class TagAPIPlugin extends CustomModule {
       avatarStore.addCustomAvatarTag({
         AvatarId: avatarId,
         Tag: tag,
-        TagColour: color
+        TagColour: color,
+        Url: url,
+        Tooltip: tooltip
       });
       return true;
     } catch (error) {
