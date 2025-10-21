@@ -23,45 +23,15 @@ class DialogApiPlugin extends CustomModule {
   }
 
   async load() {
-    // Register events for all VRCX dialog types
+    // Register events for all implemented VRCX dialog types (21 total)
+    // Status matches docs/dialogs.csv - only tracking dialogs that exist in VRCX
+
+    // User & Social Dialogs (4)
     this.registerEvent('ShowUserDialog', {
       description: 'Fired when a user dialog is opened',
       payload: {
         userId: 'string - User ID that was opened',
-        timestamp: 'number - Unix timestamp'
-      },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
-    this.registerEvent('ShowWorldDialog', {
-      description: 'Fired when a world dialog is opened',
-      payload: {
-        worldId: 'string - World ID or location tag',
-        shortName: 'string - Optional short name',
-        timestamp: 'number - Unix timestamp'
-      },
-      broadcastIPC: true,
-      logToConsole: true
-    });
-
-    this.registerEvent('ShowAvatarDialog', {
-      description: 'Fired when an avatar dialog is opened',
-      payload: {
-        avatarId: 'string - Avatar ID that was opened',
-        dialog: 'object - Full dialog reference',
-        timestamp: 'number - Unix timestamp'
-      },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
-    this.registerEvent('ShowAvatarAuthorDialog', {
-      description: 'Fired when avatar author dialog is opened (may trigger ShowAvatarDialog or ShowUserDialog)',
-      payload: {
-        refUserId: 'string - Reference user ID',
-        ownerUserId: 'string - Owner user ID',  
-        currentAvatarImageUrl: 'string - Avatar image URL',
+        dialog: 'object - Full dialog reference (userDialog state)',
         timestamp: 'number - Unix timestamp'
       },
       broadcastIPC: false,
@@ -72,9 +42,69 @@ class DialogApiPlugin extends CustomModule {
       description: 'Fired when a group dialog is opened',
       payload: {
         groupId: 'string - Group ID that was opened',
+        dialog: 'object - Full dialog reference (groupDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: true,
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowModerateGroupDialog', {
+      description: 'Fired when group moderation dialog is opened',
+      payload: {
+        userId: 'string - User ID being moderated',
+        dialog: 'object - Full dialog reference (moderateGroupDialog state)',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowGroupMemberModerationDialog', {
+      description: 'Fired when group member moderation dialog is opened',
+      payload: {
+        groupId: 'string - Group ID',
+        userId: 'string - User ID (optional)',
+        dialog: 'object - Full dialog reference (groupMemberModeration state)',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    // Content Dialogs (4)
+    this.registerEvent('ShowWorldDialog', {
+      description: 'Fired when a world dialog is opened',
+      payload: {
+        worldId: 'string - World ID or location tag',
+        shortName: 'string - Optional short name',
+        dialog: 'object - Full dialog reference (worldDialog state)',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowAvatarDialog', {
+      description: 'Fired when an avatar dialog is opened',
+      payload: {
+        avatarId: 'string - Avatar ID that was opened',
+        dialog: 'object - Full dialog reference (avatarDialog state)',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowAvatarAuthorDialog', {
+      description: 'Fired when avatar author dialog is opened (may trigger ShowAvatarDialog or ShowUserDialog)',
+      payload: {
+        refUserId: 'string - Reference user ID',
+        ownerUserId: 'string - Owner user ID',
+        currentAvatarImageUrl: 'string - Avatar image URL',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
       logToConsole: true
     });
 
@@ -83,35 +113,14 @@ class DialogApiPlugin extends CustomModule {
       payload: {
         location: 'string - Location tag',
         shortName: 'string - Optional short name',
-        dialog: 'object - Full dialog reference',
+        dialog: 'object - Full dialog reference (launchDialogData state)',
         timestamp: 'number - Unix timestamp'
       },
       broadcastIPC: false,
       logToConsole: true
     });
 
-    this.registerEvent('ShowGalleryDialog', {
-      description: 'Fired when gallery dialog is opened',
-      payload: {
-        dialog: 'object - Gallery dialog state',
-        timestamp: 'number - Unix timestamp'
-      },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
-    this.registerEvent('ShowFavoriteDialog', {
-      description: 'Fired when favorite management dialog is opened',
-      payload: {
-        type: 'string - Favorite type (world/avatar)',
-        objectId: 'string - Object ID',
-        dialog: 'object - Favorite dialog state',
-        timestamp: 'number - Unix timestamp'
-      },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
+    // Import/Export Dialogs (4)
     this.registerEvent('ShowWorldImportDialog', {
       description: 'Fired when world favorites import dialog is opened',
       payload: { timestamp: 'number - Unix timestamp' },
@@ -133,37 +142,72 @@ class DialogApiPlugin extends CustomModule {
       logToConsole: true
     });
 
-    this.registerEvent('ShowModerateGroupDialog', {
-      description: 'Fired when group moderation dialog is opened',
+    this.registerEvent('ShowFavoriteDialog', {
+      description: 'Fired when favorite management dialog is opened',
       payload: {
-        userId: 'string - User ID being moderated',
-        dialog: 'object - Full dialog reference',
+        type: 'string - Favorite type (world/avatar)',
+        objectId: 'string - Object ID',
+        dialog: 'object - Full dialog reference (favoriteDialog state)',
         timestamp: 'number - Unix timestamp'
       },
       broadcastIPC: false,
       logToConsole: true
     });
 
-    this.registerEvent('ShowGroupMemberModerationDialog', {
-      description: 'Fired when group member moderation dialog is opened',
-      payload: {
-        groupId: 'string - Group ID',
-        userId: 'string - User ID (optional)',
-        dialog: 'object - Full dialog reference',
-        timestamp: 'number - Unix timestamp'
-      },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
+    // Media/Gallery Dialogs (2)
     this.registerEvent('ShowFullscreenImageDialog', {
       description: 'Fired when fullscreen image viewer is opened',
       payload: {
         imageUrl: 'string - Image URL',
         fileName: 'string - File name',
-        dialog: 'object - Full dialog reference',
+        dialog: 'object - Full dialog reference (fullscreenImageDialog state)',
         timestamp: 'number - Unix timestamp'
       },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowGalleryDialog', {
+      description: 'Fired when gallery dialog is opened',
+      payload: {
+        dialog: 'object - Gallery dialog state',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    // Settings/System Dialogs (5)
+    this.registerEvent('ShowRegistryBackupDialog', {
+      description: 'Fired when registry backup dialog is opened',
+      payload: { timestamp: 'number - Unix timestamp' },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowVRCXUpdateDialog', {
+      description: 'Fired when VRCX update dialog is opened',
+      payload: {
+        dialog: 'object - Full dialog reference (VRCXUpdateDialog state)',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowChangeLogDialog', {
+      description: 'Fired when changelog dialog is opened',
+      payload: {
+        dialog: 'object - Full dialog reference (changeLogDialog state)',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowAvatarProviderDialog', {
+      description: 'Fired when avatar provider dialog is opened',
+      payload: { timestamp: 'number - Unix timestamp' },
       broadcastIPC: false,
       logToConsole: true
     });
@@ -178,46 +222,13 @@ class DialogApiPlugin extends CustomModule {
       logToConsole: true
     });
 
-    this.registerEvent('ShowRegistryBackupDialog', {
-      description: 'Fired when registry backup dialog is opened',
-      payload: { timestamp: 'number - Unix timestamp' },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
-    this.registerEvent('ShowVRCXUpdateDialog', {
-      description: 'Fired when VRCX update dialog is opened',
-      payload: {
-        dialog: 'object - Full dialog reference',
-        timestamp: 'number - Unix timestamp'
-      },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
-    this.registerEvent('ShowChangeLogDialog', {
-      description: 'Fired when changelog dialog is opened',
-      payload: {
-        dialog: 'object - Full dialog reference',
-        timestamp: 'number - Unix timestamp'
-      },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
+    // Notification/Message Dialogs (1)
     this.registerEvent('ShowEditInviteMessageDialog', {
       description: 'Fired when edit invite message dialog is opened',
       payload: {
-        dialog: 'object - Full dialog reference',
+        dialog: 'object - Full dialog reference (editInviteMessageDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
-      logToConsole: true
-    });
-
-    this.registerEvent('ShowAvatarProviderDialog', {
-      description: 'Fired when avatar provider dialog is opened',
-      payload: { timestamp: 'number - Unix timestamp' },
       broadcastIPC: false,
       logToConsole: true
     });
