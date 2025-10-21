@@ -63,6 +63,7 @@ class OSCBridgePlugin extends CustomModule {
         value: 'any - Parameter value',
         timestamp: 'number - Unix timestamp'
       },
+      broadcastIPC: false,
       logToConsole: false
     });
 
@@ -71,6 +72,7 @@ class OSCBridgePlugin extends CustomModule {
       payload: {
         timestamp: 'number - Unix timestamp'
       },
+      broadcastIPC: false,
       logToConsole: false
     });
 
@@ -80,6 +82,7 @@ class OSCBridgePlugin extends CustomModule {
         error: 'string - Error message',
         timestamp: 'number - Unix timestamp'
       },
+      broadcastIPC: false,
       logToConsole: false
     });
 
