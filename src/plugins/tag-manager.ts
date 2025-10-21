@@ -873,8 +873,17 @@ class TagManagerPlugin extends CustomModule {
    * @param {string} tag - Tag text
    * @param {string} color - Tag color (default: #FF00C6)
    */
-  addTag(userId, tag, color = "#FF00C6") {
+  addTag(userId, tag, color = "#FF00C6", url = '', tooltip = '') {
     try {
+      // Try to use tag-api for multi-tag support
+      const tagApi = window.customjs.getModule('tag-api') as any;
+      if (tagApi && tagApi.addUserTag) {
+        tagApi.addUserTag(userId, tag, color, url, tooltip);
+        this.logger.log(`Manually added tag: ${tag} for user ${userId} via tag-api`);
+        return;
+      }
+
+      // Fallback to userStore
       const userStore = window.$pinia?.user;
       if (!userStore) {
         this.logger.warn("User store not available, cannot add tag");
