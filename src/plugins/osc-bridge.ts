@@ -127,6 +127,12 @@ class OSCBridgePlugin extends CustomModule {
         category: "connection",
         default: true,
       },
+      ipcMessageType: {
+        type: SettingType.STRING,
+        description: "IPC message type for bulk events (Event7List=silent, VrcxMessage=verbose)",
+        category: "advanced",
+        default: "Event7List",
+      },
       logOscParams: {
         type: SettingType.BOOLEAN,
         description: "Log all OSC parameter changes to console",
@@ -174,16 +180,19 @@ class OSCBridgePlugin extends CustomModule {
    */
   setupIpcListener() {
     this.onIpc((data) => {
-      // Process OSC-related messages (sent as Event7List to avoid logging)
+      // Process OSC-related messages
       if (data.type?.startsWith('OSC_')) {
         this.handleIpcMessage(data);
       }
-      // Also handle Event7List type which we hijack for bulk OSC events
-      else if (data.type === 'Event7List' && data.raw?.MsgType === 'OSC_RECEIVED_BULK') {
-        this.handleIpcMessage({
-          type: data.raw.MsgType,
-          payload: JSON.parse(data.raw.Data)
-        });
+      // Also handle configurable message type for bulk OSC events
+      else {
+        const configuredType = this.settings?.store?.ipcMessageType || 'Event7List';
+        if (data.type === configuredType && data.raw?.MsgType === 'OSC_RECEIVED_BULK') {
+          this.handleIpcMessage({
+            type: data.raw.MsgType,
+            payload: JSON.parse(data.raw.Data)
+          });
+        }
       }
     });
     
@@ -201,8 +210,9 @@ class OSCBridgePlugin extends CustomModule {
       // Filter out "IPC:" messages for OSC_RECEIVED_BULK unless logging is enabled
       if (args.length >= 2 && args[0] === 'IPC:' && typeof args[1] === 'object') {
         const data = args[1];
-        // Only suppress OSC_RECEIVED_BULK messages when logging is disabled (sent as Event7List or VrcxMessage)
-        if ((data?.Type === 'Event7List' || data?.Type === 'VrcxMessage') && data?.MsgType === 'OSC_RECEIVED_BULK') {
+        const configuredType = self.settings?.store?.ipcMessageType || 'Event7List';
+        // Suppress OSC_RECEIVED_BULK messages when logging is disabled (check configured type)
+        if (data?.Type === configuredType && data?.MsgType === 'OSC_RECEIVED_BULK') {
           if (!self.settings?.store?.logOscParams) {
             return; // Suppress this log
           }
