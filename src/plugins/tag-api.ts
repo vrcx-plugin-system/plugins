@@ -328,15 +328,25 @@ class TagAPIPlugin extends CustomModule {
     const tags = this.customWorldTags.get(worldId);
     if (!tags || tags.length === 0) return;
 
-    // Find the world dialog tag container
-    const tagContainers = document.querySelectorAll('.el-dialog__body > div > div > div');
-    if (tagContainers.length < 2) return;
+    // Find the world dialog specifically (not user dialog)
+    const worldDialog = document.querySelector('.x-world-dialog');
+    if (!worldDialog) {
+      this.logger.log(`[DEBUG] World dialog not found in DOM, skipping injection`);
+      return;
+    }
 
-    const tagContainer = tagContainers[1]; // Second div usually has the tags
+    // Find tag container within world dialog
+    const tagContainer = worldDialog.querySelector('.el-dialog__body > div > div > div:nth-child(2)');
+    if (!tagContainer) {
+      this.logger.log(`[DEBUG] Tag container not found in world dialog`);
+      return;
+    }
 
     // Remove any previously injected custom tags
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-world-tag');
     existingCustomTags.forEach(el => el.remove());
+
+    this.logger.log(`[DEBUG] Injecting ${tags.length} world tags into dialog`);
 
     // Inject each custom tag
     for (const tag of tags) {
@@ -377,16 +387,28 @@ class TagAPIPlugin extends CustomModule {
     this.logger.log(`[DEBUG] Found ${tags?.length || 0} tags to inject`);
     if (!tags || tags.length === 0) return;
 
-    // Find the user dialog tag container (usually after user info)
-    const tagContainers = document.querySelectorAll('.el-dialog__body > div > div');
-    this.logger.log(`[DEBUG] Found ${tagContainers.length} tag containers`);
-    if (tagContainers.length < 2) return;
+    // Find the user dialog specifically (not world dialog)
+    const userDialog = document.querySelector('.x-user-dialog');
+    if (!userDialog) {
+      this.logger.log(`[DEBUG] User dialog not found in DOM, skipping injection`);
+      return;
+    }
 
-    const tagContainer = tagContainers[1]; // Second div usually has the user tags
+    // Find the represented group section to inject tags after
+    const representedGroupDiv = userDialog.querySelector('.detail .extra > div');
+    if (!representedGroupDiv) {
+      this.logger.log(`[DEBUG] Represented group section not found, trying alternative location`);
+      return;
+    }
+
+    const tagContainer = representedGroupDiv.parentElement;
+    if (!tagContainer) return;
 
     // Remove any previously injected custom tags
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-user-tag');
     existingCustomTags.forEach(el => el.remove());
+
+    this.logger.log(`[DEBUG] Injecting ${tags.length} user tags into dialog`);
 
     // Inject each custom tag
     for (const tag of tags) {
@@ -421,15 +443,25 @@ class TagAPIPlugin extends CustomModule {
     const tags = this.customAvatarTags.get(avatarId);
     if (!tags || tags.length === 0) return;
 
-    // Find the avatar dialog tag container
-    const tagContainers = document.querySelectorAll('.el-dialog__body > div > div');
-    if (tagContainers.length < 2) return;
+    // Find the avatar dialog specifically
+    const avatarDialog = document.querySelector('.x-avatar-dialog');
+    if (!avatarDialog) {
+      this.logger.log(`[DEBUG] Avatar dialog not found in DOM, skipping injection`);
+      return;
+    }
 
-    const tagContainer = tagContainers[1]; // Second div usually has the avatar tags
+    // Find tag container within avatar dialog
+    const tagContainer = avatarDialog.querySelector('.el-dialog__body > div > div:nth-child(2)');
+    if (!tagContainer) {
+      this.logger.log(`[DEBUG] Tag container not found in avatar dialog`);
+      return;
+    }
 
     // Remove any previously injected custom tags
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-avatar-tag');
     existingCustomTags.forEach(el => el.remove());
+
+    this.logger.log(`[DEBUG] Injecting ${tags.length} avatar tags into dialog`);
 
     // Inject each custom tag
     for (const tag of tags) {
