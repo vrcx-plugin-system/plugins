@@ -306,14 +306,13 @@ class ContextMenuApiPlugin extends CustomModule {
       itemsByPlugin.get(pluginId).push({ itemId, item });
     });
 
-    // Add items with dividers between plugin groups
-    let isFirstPlugin = true;
+    // Add items with dividers before each plugin group (including the first one to separate from native items)
     itemsByPlugin.forEach((pluginItems, pluginId) => {
       pluginItems.forEach((entry, index) => {
-        const shouldAddDivider = !isFirstPlugin && index === 0;
+        // Add divider before first item of each plugin group
+        const shouldAddDivider = index === 0;
         this.addMenuItemToContainer(menuContainer, menuType, entry.itemId, entry.item, shouldAddDivider);
       });
-      isFirstPlugin = false;
     });
   }
 
