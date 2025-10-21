@@ -454,9 +454,9 @@ class TagManagerPlugin extends CustomModule {
   }
 
   async applyWorldTags(worldTags) {
-    const tagApi = window.customjs.getModule('tag-api');
-    if (!tagApi) {
-      this.logger.error("Tag API module not found - world tags disabled");
+    const tagApi = window.customjs.getModule('tag-api') as any;
+    if (!tagApi || !tagApi.addWorldTag) {
+      this.logger.error("Tag API module not found or addWorldTag method missing - world tags disabled");
       return;
     }
 
