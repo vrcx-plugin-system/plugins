@@ -583,16 +583,18 @@ class TagManagerPlugin extends CustomModule {
     }
 
     try {
-      const gameLogData = window.$pinia?.gameLog?.gameLogTable || [];
-      const seenInGameLog = new Set();
-      for (const entry of gameLogData) {
-        const userId = entry.user_id || entry.userId;
-        if (userId && userId.startsWith("usr_") && !seenInGameLog.has(userId)) {
-          const tag = this.getUserTag(userId);
-          if (tag) {
-            seenInGameLog.add(userId);
-            const name = entry.display_name || entry.displayName;
-            addTaggedUser("gameLog", userId, name, tag);
+      const gameLogData = window.$pinia?.gameLog?.gameLogTable;
+      if (Array.isArray(gameLogData)) {
+        const seenInGameLog = new Set();
+        for (const entry of gameLogData) {
+          const userId = entry.user_id || entry.userId;
+          if (userId && userId.startsWith("usr_") && !seenInGameLog.has(userId)) {
+            const tag = this.getUserTag(userId);
+            if (tag) {
+              seenInGameLog.add(userId);
+              const name = entry.display_name || entry.displayName;
+              addTaggedUser("gameLog", userId, name, tag);
+            }
           }
         }
       }
@@ -602,16 +604,18 @@ class TagManagerPlugin extends CustomModule {
     }
 
     try {
-      const feedData = window.$pinia?.feed?.sharedFeed || [];
-      const seenInFeed = new Set();
-      for (const entry of feedData) {
-        const userId = entry.user_id || entry.userId;
-        if (userId && userId.startsWith("usr_") && !seenInFeed.has(userId)) {
-          const tag = this.getUserTag(userId);
-          if (tag) {
-            seenInFeed.add(userId);
-            const name = entry.display_name || entry.displayName;
-            addTaggedUser("feed", userId, name, tag);
+      const feedData = window.$pinia?.feed?.sharedFeed;
+      if (Array.isArray(feedData)) {
+        const seenInFeed = new Set();
+        for (const entry of feedData) {
+          const userId = entry.user_id || entry.userId;
+          if (userId && userId.startsWith("usr_") && !seenInFeed.has(userId)) {
+            const tag = this.getUserTag(userId);
+            if (tag) {
+              seenInFeed.add(userId);
+              const name = entry.display_name || entry.displayName;
+              addTaggedUser("feed", userId, name, tag);
+            }
           }
         }
       }
@@ -621,20 +625,22 @@ class TagManagerPlugin extends CustomModule {
     }
 
     try {
-      const friendLogData = window.$pinia?.friend?.friendLog || [];
-      const seenInFriendLog = new Set();
-      for (const entry of friendLogData) {
-        const userId = entry.user_id || entry.userId;
-        if (
-          userId &&
-          userId.startsWith("usr_") &&
-          !seenInFriendLog.has(userId)
-        ) {
-          const tag = this.getUserTag(userId);
-          if (tag) {
-            seenInFriendLog.add(userId);
-            const name = entry.display_name || entry.displayName;
-            addTaggedUser("friendLog", userId, name, tag);
+      const friendLogData = window.$pinia?.friend?.friendLog;
+      if (Array.isArray(friendLogData)) {
+        const seenInFriendLog = new Set();
+        for (const entry of friendLogData) {
+          const userId = entry.user_id || entry.userId;
+          if (
+            userId &&
+            userId.startsWith("usr_") &&
+            !seenInFriendLog.has(userId)
+          ) {
+            const tag = this.getUserTag(userId);
+            if (tag) {
+              seenInFriendLog.add(userId);
+              const name = entry.display_name || entry.displayName;
+              addTaggedUser("friendLog", userId, name, tag);
+            }
           }
         }
       }
@@ -644,21 +650,22 @@ class TagManagerPlugin extends CustomModule {
     }
 
     try {
-      const notificationLogData =
-        window.$pinia?.notification?.notificationTable || [];
-      const seenInNotificationLog = new Set();
-      for (const entry of notificationLogData) {
-        const userId = entry.sender_user_id || entry.senderUserId;
-        if (
-          userId &&
-          userId.startsWith("usr_") &&
-          !seenInNotificationLog.has(userId)
-        ) {
-          const tag = this.getUserTag(userId);
-          if (tag) {
-            seenInNotificationLog.add(userId);
-            const name = entry.sender_username || entry.senderUsername;
-            addTaggedUser("notificationLog", userId, name, tag);
+      const notificationLogData = window.$pinia?.notification?.notificationTable;
+      if (Array.isArray(notificationLogData)) {
+        const seenInNotificationLog = new Set();
+        for (const entry of notificationLogData) {
+          const userId = entry.sender_user_id || entry.senderUserId;
+          if (
+            userId &&
+            userId.startsWith("usr_") &&
+            !seenInNotificationLog.has(userId)
+          ) {
+            const tag = this.getUserTag(userId);
+            if (tag) {
+              seenInNotificationLog.add(userId);
+              const name = entry.sender_username || entry.senderUsername;
+              addTaggedUser("notificationLog", userId, name, tag);
+            }
           }
         }
       }
