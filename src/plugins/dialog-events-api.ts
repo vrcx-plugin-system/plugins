@@ -239,8 +239,13 @@ class DialogEventsApiPlugin extends CustomModule {
   }
 
   setupDialogWatchers() {
+    this.logger.log('[DEBUG] Setting up dialog watchers...');
+    this.logger.log(`[DEBUG] $pinia available: ${!!window.$pinia}`);
+    this.logger.log(`[DEBUG] $pinia.user available: ${!!window.$pinia?.user}`);
+    this.logger.log(`[DEBUG] $pinia.world available: ${!!window.$pinia?.world}`);
+    
     // Watch user dialog via store subscription
-    this.subscribe('USER', ({ userDialog }) => {
+    const userUnsubscribe = this.subscribe('USER', ({ userDialog }) => {
       this.logger.log(`[DEBUG] USER subscription triggered - visible: ${userDialog?.visible}, id: ${userDialog?.id}`);
       if (userDialog?.visible && userDialog?.id) {
         this.logger.log(`[DEBUG] Emitting ShowUserDialog for ${userDialog.id}`);
@@ -251,9 +256,10 @@ class DialogEventsApiPlugin extends CustomModule {
         });
       }
     });
+    this.logger.log(`[DEBUG] USER subscription setup - unsubscribe function: ${!!userUnsubscribe}`);
 
     // Watch world dialog
-    this.subscribe('WORLD', ({ worldDialog }) => {
+    const worldUnsubscribe = this.subscribe('WORLD', ({ worldDialog }) => {
       this.logger.log(`[DEBUG] WORLD subscription triggered - visible: ${worldDialog?.visible}, id: ${worldDialog?.id}`);
       if (worldDialog?.visible && worldDialog?.id) {
         this.logger.log(`[DEBUG] Emitting ShowWorldDialog for ${worldDialog.id}`);
@@ -265,6 +271,7 @@ class DialogEventsApiPlugin extends CustomModule {
         });
       }
     });
+    this.logger.log(`[DEBUG] WORLD subscription setup - unsubscribe function: ${!!worldUnsubscribe}`);
 
     // Watch avatar dialog
     this.subscribe('AVATAR', ({ avatarDialog }) => {
