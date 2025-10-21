@@ -284,12 +284,27 @@ class DialogEventsApiPlugin extends CustomModule {
       });
     });
 
-    // Watch group dialog
-    this.subscribe('GROUP', ({ groupDialog }) => {
+    // Watch GROUP store (consolidate all group-related dialogs)
+    this.subscribe('GROUP', ({ groupDialog, moderateGroupDialog, groupMemberModeration }) => {
       if (groupDialog?.visible && groupDialog?.id) {
         this.emit('ShowGroupDialog', {
           groupId: groupDialog.id,
           dialog: groupDialog,
+          timestamp: Date.now()
+        });
+      }
+      if (moderateGroupDialog?.visible && moderateGroupDialog?.userId) {
+        this.emit('ShowModerateGroupDialog', {
+          userId: moderateGroupDialog.userId,
+          dialog: moderateGroupDialog,
+          timestamp: Date.now()
+        });
+      }
+      if (groupMemberModeration?.visible && groupMemberModeration?.id) {
+        this.emit('ShowGroupMemberModerationDialog', {
+          groupId: groupMemberModeration.id,
+          userId: groupMemberModeration.openWithUserId || '',
+          dialog: groupMemberModeration,
           timestamp: Date.now()
         });
       }
@@ -307,11 +322,19 @@ class DialogEventsApiPlugin extends CustomModule {
       }
     });
 
-    // Watch gallery dialog
+    // Watch GALLERY store (consolidate gallery and fullscreen image dialogs)
     this.subscribe('GALLERY', (state) => {
       if (state.galleryDialogVisible) {
         this.emit('ShowGalleryDialog', {
           dialog: state,
+          timestamp: Date.now()
+        });
+      }
+      if (state.fullscreenImageDialog?.visible) {
+        this.emit('ShowFullscreenImageDialog', {
+          imageUrl: state.fullscreenImageDialog.imageUrl,
+          fileName: state.fullscreenImageDialog.fileName || '',
+          dialog: state.fullscreenImageDialog,
           timestamp: Date.now()
         });
       }
@@ -339,37 +362,6 @@ class DialogEventsApiPlugin extends CustomModule {
       }
       if (friendImportDialogVisible) {
         this.emit('ShowFriendImportDialog', {
-          timestamp: Date.now()
-        });
-      }
-    });
-
-    // Watch group moderation dialogs
-    this.subscribe('GROUP', ({ moderateGroupDialog, groupMemberModeration }) => {
-      if (moderateGroupDialog?.visible && moderateGroupDialog?.userId) {
-        this.emit('ShowModerateGroupDialog', {
-          userId: moderateGroupDialog.userId,
-          dialog: moderateGroupDialog,
-          timestamp: Date.now()
-        });
-      }
-      if (groupMemberModeration?.visible && groupMemberModeration?.id) {
-        this.emit('ShowGroupMemberModerationDialog', {
-          groupId: groupMemberModeration.id,
-          userId: groupMemberModeration.openWithUserId || '',
-          dialog: groupMemberModeration,
-          timestamp: Date.now()
-        });
-      }
-    });
-
-    // Watch fullscreen image dialog
-    this.subscribe('GALLERY', ({ fullscreenImageDialog }) => {
-      if (fullscreenImageDialog?.visible) {
-        this.emit('ShowFullscreenImageDialog', {
-          imageUrl: fullscreenImageDialog.imageUrl,
-          fileName: fullscreenImageDialog.fileName || '',
-          dialog: fullscreenImageDialog,
           timestamp: Date.now()
         });
       }
