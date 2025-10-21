@@ -293,6 +293,17 @@ class OSCBridgePlugin extends CustomModule {
           this.handleCommand(data.payload);
           break;
 
+        case 'OSC_RESPONSE':
+          // Response FROM VRCOSC to our command
+          const responseId = data.payload.requestId;
+          if (responseId && this.pendingCommands.has(responseId)) {
+            const pending = this.pendingCommands.get(responseId)!;
+            clearTimeout(pending.timeout);
+            pending.resolve(data.payload.result);
+            this.pendingCommands.delete(responseId);
+          }
+          break;
+
         case 'OSC_ERROR':
           this.logger.error(`OSC Error: ${data.payload.error}`);
           this.emit('osc-error', {
@@ -665,6 +676,89 @@ class OSCBridgePlugin extends CustomModule {
       lastReceived: this.stats.lastReceived,
       pendingMessages: this.pendingMessages.length,
     };
+  }
+
+  /**
+   * Fetch a chat timeline variable from VRCOSC
+   * @param name - Variable name
+   * @returns Variable value or null if not found
+   */
+  async fetchChatVariable(name: string): Promise<any> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return null;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('GET_VARIABLE', { name }, requestId);
+      
+      if (response?.success) {
+        return response.value;
+      } else {
+        this.logger.warn(`Variable '${name}' not found: ${response?.error || 'Unknown error'}`);
+        return null;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to fetch variable '${name}': ${errorMsg}`);
+      return null;
+    }
+  }
+
+  /**
+   * Store a chat timeline variable in VRCOSC
+   * @param name - Variable name
+   * @param value - Variable value (string, number, or boolean)
+   * @returns true if successful
+   */
+  async storeChatVariable(name: string, value: any): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('SET_VARIABLE', { name, value }, requestId);
+      
+      if (response?.success) {
+        if (this.settings.store.logCommands) {
+          this.logger.log(`Variable '${name}' stored successfully`);
+        }
+        return true;
+      } else {
+        this.logger.error(`Failed to store variable '${name}': ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to store variable '${name}': ${errorMsg}`);
+      return false;
+    }
+  }
+
+  private generateRequestId(): string {
+    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  private pendingCommands: Map<string, { resolve: Function; reject: Function; timeout: NodeJS.Timeout }> = new Map();
+
+  private async sendCommandToOSC(command: string, args: any, requestId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.pendingCommands.delete(requestId);
+        reject(new Error('Command timeout'));
+      }, 5000);
+
+      this.pendingCommands.set(requestId, { resolve, reject, timeout });
+
+      this.sendIpcToOSC('COMMAND', {
+        command,
+        args,
+        requestId
+      });
+    });
   }
 }
 
