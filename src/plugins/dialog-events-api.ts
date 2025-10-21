@@ -239,32 +239,21 @@ class DialogEventsApiPlugin extends CustomModule {
   }
 
   setupDialogWatchers() {
-    this.logger.log('[DEBUG] Setting up dialog watchers...');
-    this.logger.log(`[DEBUG] $pinia available: ${!!window.$pinia}`);
-    this.logger.log(`[DEBUG] $pinia.user available: ${!!window.$pinia?.user}`);
-    this.logger.log(`[DEBUG] $pinia.world available: ${!!window.$pinia?.world}`);
     
     // Watch user dialog via store subscription
-    const userUnsubscribe = this.subscribe('USER', (state) => {
-      this.logger.log(`[DEBUG] USER subscription triggered - state keys: ${Object.keys(state).join(', ')}`);
-      this.logger.log(`[DEBUG] USER state.userDialog exists: ${!!state.userDialog}, visible: ${state.userDialog?.visible}, id: ${state.userDialog?.id}`);
-      
-      if (state.userDialog?.visible && state.userDialog?.id) {
-        this.logger.log(`[DEBUG] Emitting ShowUserDialog for ${state.userDialog.id}`);
+    this.subscribe('USER', ({ userDialog }) => {
+      if (userDialog?.visible && userDialog?.id) {
         this.emit('ShowUserDialog', {
-          userId: state.userDialog.id,
-          dialog: state.userDialog,
+          userId: userDialog.id,
+          dialog: userDialog,
           timestamp: Date.now()
         });
       }
     });
-    this.logger.log(`[DEBUG] USER subscription setup - unsubscribe function: ${!!userUnsubscribe}`);
 
     // Watch world dialog
-    const worldUnsubscribe = this.subscribe('WORLD', ({ worldDialog }) => {
-      this.logger.log(`[DEBUG] WORLD subscription triggered - visible: ${worldDialog?.visible}, id: ${worldDialog?.id}`);
+    this.subscribe('WORLD', ({ worldDialog }) => {
       if (worldDialog?.visible && worldDialog?.id) {
-        this.logger.log(`[DEBUG] Emitting ShowWorldDialog for ${worldDialog.id}`);
         this.emit('ShowWorldDialog', {
           worldId: worldDialog.id,
           shortName: worldDialog.$location?.shortName || '',
@@ -273,7 +262,6 @@ class DialogEventsApiPlugin extends CustomModule {
         });
       }
     });
-    this.logger.log(`[DEBUG] WORLD subscription setup - unsubscribe function: ${!!worldUnsubscribe}`);
 
     // Watch avatar dialog
     this.subscribe('AVATAR', ({ avatarDialog }) => {
