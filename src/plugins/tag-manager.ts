@@ -581,7 +581,8 @@ class TagManagerPlugin extends CustomModule {
         }
       }
     } catch (error) {
-      this.logger.logError("Error checking game log:", error?.message);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error checking game log: ${errorMsg}`);
     }
 
     try {
@@ -599,7 +600,8 @@ class TagManagerPlugin extends CustomModule {
         }
       }
     } catch (error) {
-      this.logger.logError("Error checking feed:", error?.message);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error checking feed: ${errorMsg}`);
     }
 
     try {
@@ -621,7 +623,8 @@ class TagManagerPlugin extends CustomModule {
         }
       }
     } catch (error) {
-      this.logger.logError("Error checking friend log:", error?.message);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error checking friend log: ${errorMsg}`);
     }
 
     try {
@@ -644,7 +647,8 @@ class TagManagerPlugin extends CustomModule {
         }
       }
     } catch (error) {
-      this.logger.logError("Error checking notification log:", error?.message);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error checking notification log: ${errorMsg}`);
     }
 
     // Copy to clipboard in CSV format if copy == true
