@@ -332,22 +332,42 @@ class TagAPIPlugin extends CustomModule {
       return;
     }
 
+    this.logger.log(`[DEBUG] World dialog found, searching for tag container...`);
+
     // Find the div that contains native tags (Public, PC, etc.)
-    // In world dialog, it's just a plain div (no style attribute) containing .el-tag elements
+    // Look for divs that have .el-tag as DIRECT children
     const allDivs = Array.from(worldDialog.querySelectorAll('.el-dialog__body div'));
+    this.logger.log(`[DEBUG] Found ${allDivs.length} divs in dialog body`);
+    
     let tagContainer = null;
     
-    for (const div of allDivs) {
-      const tags = div.querySelectorAll('.el-tag');
-      // Look for div that DIRECTLY contains .el-tag elements (not nested deeper)
-      if (tags.length > 0 && div.querySelector('.el-tag')?.parentElement === div) {
-        tagContainer = div;
-        break;
+    for (let i = 0; i < allDivs.length; i++) {
+      const div = allDivs[i];
+      // Check if this div has .el-tag elements as DIRECT children
+      const directTagChildren = Array.from(div.children).filter((child: Element) => 
+        child.classList.contains('el-tag')
+      );
+      
+      if (directTagChildren.length > 0) {
+        this.logger.log(`[DEBUG] Found candidate div #${i} with ${directTagChildren.length} direct .el-tag children`);
+        // Check if these are platform/status tags (not instance tags)
+        const hasStatusTags = directTagChildren.some((tag: Element) => 
+          tag.classList.contains('el-tag--success') || 
+          tag.classList.contains('el-tag--info') ||
+          tag.textContent?.includes('Public') ||
+          tag.textContent?.includes('PC')
+        );
+        
+        if (hasStatusTags) {
+          this.logger.log(`[DEBUG] This div contains status/platform tags - using it!`);
+          tagContainer = div;
+          break;
+        }
       }
     }
 
     if (!tagContainer) {
-      this.logger.log(`[DEBUG] Native tag container not found in world dialog`);
+      this.logger.log(`[DEBUG] Native tag container not found in world dialog after checking ${allDivs.length} divs`);
       return;
     }
 
