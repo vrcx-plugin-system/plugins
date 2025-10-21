@@ -335,39 +335,25 @@ class TagAPIPlugin extends CustomModule {
     this.logger.log(`[DEBUG] World dialog found, searching for tag container...`);
 
     // Find the div that contains native tags (Public, PC, etc.)
-    // Look for divs that have .el-tag as DIRECT children
-    const allDivs = Array.from(worldDialog.querySelectorAll('.el-dialog__body div'));
-    this.logger.log(`[DEBUG] Found ${allDivs.length} divs in dialog body`);
+    // It's a div that contains .el-tag with text "Public" or "PC"
+    let tagContainer: Element | null = null;
+    const tagsInDialog = worldDialog.querySelectorAll('.el-tag');
+    this.logger.log(`[DEBUG] Found ${tagsInDialog.length} .el-tag elements in world dialog`);
     
-    let tagContainer = null;
-    
-    for (let i = 0; i < allDivs.length; i++) {
-      const div = allDivs[i];
-      // Check if this div has .el-tag elements as DIRECT children
-      const directTagChildren = Array.from(div.children).filter((child: Element) => 
-        child.classList.contains('el-tag')
-      );
+    for (const tag of tagsInDialog) {
+      const text = tag.textContent || '';
+      this.logger.log(`[DEBUG] Checking tag with text: "${text.substring(0, 50)}"`);
       
-      if (directTagChildren.length > 0) {
-        this.logger.log(`[DEBUG] Found candidate div #${i} with ${directTagChildren.length} direct .el-tag children`);
-        // Check if these are platform/status tags (not instance tags)
-        const hasStatusTags = directTagChildren.some((tag: Element) => 
-          tag.classList.contains('el-tag--success') || 
-          tag.classList.contains('el-tag--info') ||
-          tag.textContent?.includes('Public') ||
-          tag.textContent?.includes('PC')
-        );
-        
-        if (hasStatusTags) {
-          this.logger.log(`[DEBUG] This div contains status/platform tags - using it!`);
-          tagContainer = div;
-          break;
-        }
+      // Look for status/platform tags (Public, Private, PC, Quest, etc.)
+      if (text.includes('Public') || text.includes('Private') || text.includes('PC') || text.includes('Quest')) {
+        tagContainer = tag.parentElement;
+        this.logger.log(`[DEBUG] Found tag container via "${text}" tag`);
+        break;
       }
     }
 
     if (!tagContainer) {
-      this.logger.log(`[DEBUG] Native tag container not found in world dialog after checking ${allDivs.length} divs`);
+      this.logger.log(`[DEBUG] Native tag container not found in world dialog after checking ${tagsInDialog.length} tags`);
       return;
     }
 
