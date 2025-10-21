@@ -427,6 +427,9 @@ class TagAPIPlugin extends CustomModule {
 
     this.logger.log(`[DEBUG] Injecting ${tags.length} user tags into dialog`);
 
+    // Find the <br> element that separates tags from badges
+    const brElement = tagContainer.querySelector('br');
+
     // Inject each custom tag
     for (const tag of tags) {
       const tagEl = document.createElement('span');
@@ -451,8 +454,13 @@ class TagAPIPlugin extends CustomModule {
         });
       }
 
-      // Append to tag container (after native tags)
-      tagContainer.appendChild(tagEl);
+      // Insert before <br> (so custom tags appear after native tags but before badges)
+      if (brElement) {
+        tagContainer.insertBefore(tagEl, brElement);
+      } else {
+        // Fallback: append if no <br> found
+        tagContainer.appendChild(tagEl);
+      }
     }
   }
 
