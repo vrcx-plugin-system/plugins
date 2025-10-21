@@ -216,10 +216,7 @@ class TagAPIPlugin extends CustomModule {
   setupWorldDialogWatcher() {
     // Listen for ShowWorldDialog event from dialog-events-api
     this.on('ShowWorldDialog', (data) => {
-      this.logger.log(`[DEBUG] ShowWorldDialog event received for worldId: ${data?.worldId}`);
       if (data?.worldId) {
-        const tags = this.customWorldTags.get(data.worldId);
-        this.logger.log(`[DEBUG] World has ${tags?.length || 0} custom tags`);
         setTimeout(() => this.injectCustomWorldTag(data.worldId), 100);
       }
     });
@@ -299,10 +296,7 @@ class TagAPIPlugin extends CustomModule {
   setupUserDialogWatcher() {
     // Listen for ShowUserDialog event from dialog-events-api
     this.on('ShowUserDialog', (data) => {
-      this.logger.log(`[DEBUG] ShowUserDialog event received for userId: ${data?.userId}`);
       if (data?.userId) {
-        const tags = this.customUserTags.get(data.userId);
-        this.logger.log(`[DEBUG] User has ${tags?.length || 0} custom tags`);
         setTimeout(() => this.injectCustomUserTags(data.userId), 100);
       }
     });
@@ -313,10 +307,7 @@ class TagAPIPlugin extends CustomModule {
   setupAvatarDialogWatcher() {
     // Listen for ShowAvatarDialog event from dialog-events-api
     this.on('ShowAvatarDialog', (data) => {
-      this.logger.log(`[DEBUG] ShowAvatarDialog event received for avatarId: ${data?.avatarId}`);
       if (data?.avatarId) {
-        const tags = this.customAvatarTags.get(data.avatarId);
-        this.logger.log(`[DEBUG] Avatar has ${tags?.length || 0} custom tags`);
         setTimeout(() => this.injectCustomAvatarTags(data.avatarId), 100);
       }
     });
@@ -327,35 +318,24 @@ class TagAPIPlugin extends CustomModule {
   injectCustomWorldTag(worldId: string) {
     // Find the world dialog specifically (not user dialog)
     const worldDialog = document.querySelector('.x-world-dialog');
-    if (!worldDialog) {
-      this.logger.log(`[DEBUG] World dialog not found in DOM, skipping injection`);
-      return;
-    }
-
-    this.logger.log(`[DEBUG] World dialog found, searching for tag container...`);
+    if (!worldDialog) return;
 
     // Find the div that contains native tags (Public, PC, etc.)
     // It's a div that contains .el-tag with text "Public" or "PC"
     let tagContainer: Element | null = null;
-    const tagsInDialog = worldDialog.querySelectorAll('.el-tag');
-    this.logger.log(`[DEBUG] Found ${tagsInDialog.length} .el-tag elements in world dialog`);
+    const tagsInDialog = Array.from(worldDialog.querySelectorAll('.el-tag'));
     
     for (const tag of tagsInDialog) {
       const text = tag.textContent || '';
-      this.logger.log(`[DEBUG] Checking tag with text: "${text.substring(0, 50)}"`);
       
       // Look for status/platform tags (Public, Private, PC, Quest, etc.)
       if (text.includes('Public') || text.includes('Private') || text.includes('PC') || text.includes('Quest')) {
         tagContainer = tag.parentElement;
-        this.logger.log(`[DEBUG] Found tag container via "${text}" tag`);
         break;
       }
     }
 
-    if (!tagContainer) {
-      this.logger.log(`[DEBUG] Native tag container not found in world dialog after checking ${tagsInDialog.length} tags`);
-      return;
-    }
+    if (!tagContainer) return;
 
     // ALWAYS remove old tags first (even if current world has no tags)
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-world-tag');
@@ -364,8 +344,6 @@ class TagAPIPlugin extends CustomModule {
     // Now check if current world has tags to inject
     const tags = this.customWorldTags.get(worldId);
     if (!tags || tags.length === 0) return;
-
-    this.logger.log(`[DEBUG] Injecting ${tags.length} world tags into dialog`);
 
     // Inject each custom tag
     for (const tag of tags) {
@@ -397,14 +375,9 @@ class TagAPIPlugin extends CustomModule {
   }
 
   injectCustomUserTags(userId: string) {
-    this.logger.log(`[DEBUG] injectCustomUserTags called for userId: ${userId}`);
-
     // Find the user dialog specifically (not world dialog)
     const userDialog = document.querySelector('.x-user-dialog');
-    if (!userDialog) {
-      this.logger.log(`[DEBUG] User dialog not found in DOM, skipping injection`);
-      return;
-    }
+    if (!userDialog) return;
 
     // Find the tag container (the div with margin-top: 5px that contains the platform/status tags)
     // It's the second div with style containing "margin-top: 5px" in the user info section
@@ -419,10 +392,7 @@ class TagAPIPlugin extends CustomModule {
       }
     }
 
-    if (!tagContainer) {
-      this.logger.log(`[DEBUG] Native tag container not found in user dialog`);
-      return;
-    }
+    if (!tagContainer) return;
 
     // ALWAYS remove old tags first (even if current user has no tags)
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-user-tag');
@@ -430,10 +400,7 @@ class TagAPIPlugin extends CustomModule {
 
     // Now check if current user has tags to inject
     const tags = this.customUserTags.get(userId);
-    this.logger.log(`[DEBUG] Found ${tags?.length || 0} tags to inject`);
     if (!tags || tags.length === 0) return;
-
-    this.logger.log(`[DEBUG] Injecting ${tags.length} user tags into dialog`);
 
     // Find the <br> element that separates tags from badges
     const brElement = tagContainer.querySelector('br');
@@ -475,17 +442,11 @@ class TagAPIPlugin extends CustomModule {
   injectCustomAvatarTags(avatarId: string) {
     // Find the avatar dialog specifically
     const avatarDialog = document.querySelector('.x-avatar-dialog');
-    if (!avatarDialog) {
-      this.logger.log(`[DEBUG] Avatar dialog not found in DOM, skipping injection`);
-      return;
-    }
+    if (!avatarDialog) return;
 
     // Find tag container within avatar dialog
     const tagContainer = avatarDialog.querySelector('.el-dialog__body > div > div:nth-child(2)');
-    if (!tagContainer) {
-      this.logger.log(`[DEBUG] Tag container not found in avatar dialog`);
-      return;
-    }
+    if (!tagContainer) return;
 
     // ALWAYS remove old tags first (even if current avatar has no tags)
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-avatar-tag');
@@ -494,8 +455,6 @@ class TagAPIPlugin extends CustomModule {
     // Now check if current avatar has tags to inject
     const tags = this.customAvatarTags.get(avatarId);
     if (!tags || tags.length === 0) return;
-
-    this.logger.log(`[DEBUG] Injecting ${tags.length} avatar tags into dialog`);
 
     // Inject each custom tag
     for (const tag of tags) {
