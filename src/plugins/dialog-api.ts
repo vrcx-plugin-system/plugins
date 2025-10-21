@@ -49,9 +49,22 @@ class DialogApiPlugin extends CustomModule {
       description: 'Fired when an avatar dialog is opened',
       payload: {
         avatarId: 'string - Avatar ID that was opened',
+        dialog: 'object - Full dialog reference',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: true,
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowAvatarAuthorDialog', {
+      description: 'Fired when avatar author dialog is opened (may trigger ShowAvatarDialog or ShowUserDialog)',
+      payload: {
+        refUserId: 'string - Reference user ID',
+        ownerUserId: 'string - Owner user ID',  
+        currentAvatarImageUrl: 'string - Avatar image URL',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
       logToConsole: true
     });
 
@@ -258,6 +271,17 @@ class DialogApiPlugin extends CustomModule {
           timestamp: Date.now()
         });
       }
+    });
+
+    // Hook showAvatarAuthorDialog function (helper that calls other dialogs)
+    this.registerPreHook('$pinia.avatar.showAvatarAuthorDialog', (args) => {
+      const [refUserId, ownerUserId, currentAvatarImageUrl] = args;
+      this.emit('ShowAvatarAuthorDialog', {
+        refUserId: refUserId || '',
+        ownerUserId: ownerUserId || '',
+        currentAvatarImageUrl: currentAvatarImageUrl || '',
+        timestamp: Date.now()
+      });
     });
 
     // Watch group dialog
