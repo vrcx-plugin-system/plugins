@@ -144,6 +144,9 @@ class OSCBridgePlugin extends CustomModule {
     // Register IPC listener for messages FROM OSC app
     this.setupIpcListener();
 
+    // Patch console.log to filter out verbose IPC messages
+    this.patchIpcLogging();
+
     this.loaded = true;
     this.logger.log("OSC Bridge plugin loaded");
   }
@@ -178,6 +181,32 @@ class OSCBridgePlugin extends CustomModule {
     });
     
     this.logger.log("IPC listener registered for OSC messages");
+  }
+
+  /**
+   * Patch console.log to filter out verbose OSC IPC messages
+   */
+  patchIpcLogging() {
+    const originalConsoleLog = console.log;
+    const self = this;
+    
+    console.log = function(...args: any[]) {
+      // Filter out "IPC:" messages for OSC_RECEIVED_BULK unless logging is enabled
+      if (args.length >= 2 && args[0] === 'IPC:' && typeof args[1] === 'object') {
+        const data = args[1];
+        // Only suppress OSC_RECEIVED_BULK messages when logging is disabled
+        if (data?.Type === 'VrcxMessage' && data?.MsgType === 'OSC_RECEIVED_BULK') {
+          if (!self.settings?.store?.logOscParams) {
+            return; // Suppress this log
+          }
+        }
+      }
+      
+      // Call original console.log for everything else
+      originalConsoleLog.apply(console, args);
+    };
+    
+    this.logger.log("IPC logging filter installed");
   }
 
   /**
