@@ -194,7 +194,7 @@ class OSCBridgePlugin extends CustomModule {
           break;
 
         case 'OSC_RECEIVED':
-          // OSC parameter received FROM VRChat via VRCOSC
+          // OSC parameter received FROM VRChat via VRCOSC (single event)
           if (this.settings.store.logOscParams) {
             this.logger.log(`OSC ← VRChat: ${data.payload.address} = ${JSON.stringify(data.payload.value)} (${data.payload.type})`);
           }
@@ -205,6 +205,32 @@ class OSCBridgePlugin extends CustomModule {
             value: data.payload.value,
             timestamp: Date.now()
           });
+          break;
+
+        case 'OSC_RECEIVED_BULK':
+          // Bulk OSC events from VRCOSC - decode and emit individually
+          const events = data.payload.events;
+          if (Array.isArray(events)) {
+            if (this.settings.store.logOscParams) {
+              this.logger.log(`OSC ← VRChat: Received ${events.length} bulk events`);
+            }
+
+            for (const event of events) {
+              if (this.settings.store.logOscParams) {
+                this.logger.log(`  ${event.Address} = ${JSON.stringify(event.Value)} (${event.Type})`);
+              }
+
+              this.emit('osc-param-changed', {
+                path: event.Address,
+                type: event.Type,
+                value: event.Value,
+                timestamp: event.Timestamp || Date.now()
+              });
+            }
+
+            this.stats.messagesReceived += events.length;
+            this.stats.lastReceived = Date.now();
+          }
           break;
 
         case 'OSC_COMMAND':
