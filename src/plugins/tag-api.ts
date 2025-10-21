@@ -334,7 +334,7 @@ class TagAPIPlugin extends CustomModule {
 
     // Find the div that contains native tags (Public, PC, etc.)
     // It's a div with margin-top: 5px containing .el-tag elements
-    const allDivs = worldDialog.querySelectorAll('div[style*="margin-top: 5px"]');
+    const allDivs = Array.from(worldDialog.querySelectorAll('div[style*="margin-top: 5px"]'));
     let tagContainer = null;
     
     for (const div of allDivs) {
@@ -400,7 +400,7 @@ class TagAPIPlugin extends CustomModule {
 
     // Find the tag container (the div with margin-top: 5px that contains the platform/status tags)
     // It's the second div with style containing "margin-top: 5px" in the user info section
-    const allDivs = userDialog.querySelectorAll('div[style*="margin-top: 5px"]');
+    const allDivs = Array.from(userDialog.querySelectorAll('div[style*="margin-top: 5px"]'));
     let tagContainer = null;
     
     // Find the one that contains .el-tag elements (Trusted User, PC tags)
