@@ -241,7 +241,9 @@ class DialogEventsApiPlugin extends CustomModule {
   setupDialogWatchers() {
     // Watch user dialog via store subscription
     this.subscribe('USER', ({ userDialog }) => {
+      this.logger.log(`[DEBUG] USER subscription triggered - visible: ${userDialog?.visible}, id: ${userDialog?.id}`);
       if (userDialog?.visible && userDialog?.id) {
+        this.logger.log(`[DEBUG] Emitting ShowUserDialog for ${userDialog.id}`);
         this.emit('ShowUserDialog', {
           userId: userDialog.id,
           dialog: userDialog,
@@ -252,7 +254,9 @@ class DialogEventsApiPlugin extends CustomModule {
 
     // Watch world dialog
     this.subscribe('WORLD', ({ worldDialog }) => {
+      this.logger.log(`[DEBUG] WORLD subscription triggered - visible: ${worldDialog?.visible}, id: ${worldDialog?.id}`);
       if (worldDialog?.visible && worldDialog?.id) {
+        this.logger.log(`[DEBUG] Emitting ShowWorldDialog for ${worldDialog.id}`);
         this.emit('ShowWorldDialog', {
           worldId: worldDialog.id,
           shortName: worldDialog.$location?.shortName || '',
