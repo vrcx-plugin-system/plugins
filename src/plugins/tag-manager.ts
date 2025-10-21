@@ -446,23 +446,41 @@ class TagManagerPlugin extends CustomModule {
   }
 
   async applyTags(tags) {
-    const userStore = window.$pinia?.user;
-    if (!userStore) {
-      this.logger.warn("User store not available, cannot apply tags");
-      return;
-    }
-
-    for (const tag of tags) {
-      try {
-        userStore.addCustomTag({
-          UserId: tag.UserId,
-          Tag: tag.Tag,
-          TagColour: tag.TagColour,
-        });
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        this.logger.error(`Error applying tag for user ${tag.UserId}: ${errorMsg}`);
+    const tagApi = window.customjs.getModule('tag-api') as any;
+    if (!tagApi || !tagApi.addUserTag) {
+      this.logger.error("Tag API module not found or addUserTag method missing - falling back to userStore");
+      
+      // Fallback to single-tag userStore method
+      const userStore = window.$pinia?.user;
+      if (!userStore) {
+        this.logger.warn("User store not available, cannot apply tags");
+        return;
       }
+
+      for (const tag of tags) {
+        try {
+          userStore.addCustomTag({
+            UserId: tag.UserId,
+            Tag: tag.Tag,
+            TagColour: tag.TagColour,
+          });
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          this.logger.error(`Error applying tag for user ${tag.UserId}: ${errorMsg}`);
+        }
+      }
+    } else {
+      // Use tag-api for multi-tag support
+      for (const tag of tags) {
+        try {
+          tagApi.addUserTag(tag.UserId, tag.Tag, tag.TagColour);
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          this.logger.error(`Error applying tag for user ${tag.UserId}: ${errorMsg}`);
+        }
+      }
+      
+      this.logger.log(`Applied ${tags.length} user tags via Tag API`);
     }
 
     // Check friends and blocked players for tags
