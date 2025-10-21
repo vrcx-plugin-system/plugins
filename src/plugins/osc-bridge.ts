@@ -174,9 +174,16 @@ class OSCBridgePlugin extends CustomModule {
    */
   setupIpcListener() {
     this.onIpc((data) => {
-      // Only process OSC-related messages
+      // Process OSC-related messages (sent as Event7List to avoid logging)
       if (data.type?.startsWith('OSC_')) {
         this.handleIpcMessage(data);
+      }
+      // Also handle Event7List type which we hijack for bulk OSC events
+      else if (data.type === 'Event7List' && data.raw?.MsgType === 'OSC_RECEIVED_BULK') {
+        this.handleIpcMessage({
+          type: data.raw.MsgType,
+          payload: JSON.parse(data.raw.Data)
+        });
       }
     });
     
