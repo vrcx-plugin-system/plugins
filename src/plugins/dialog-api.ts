@@ -99,6 +99,116 @@ class DialogApiPlugin extends CustomModule {
       logToConsole: true
     });
 
+    this.registerEvent('ShowWorldImportDialog', {
+      description: 'Fired when world favorites import dialog is opened',
+      payload: { timestamp: 'number - Unix timestamp' },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowAvatarImportDialog', {
+      description: 'Fired when avatar favorites import dialog is opened',
+      payload: { timestamp: 'number - Unix timestamp' },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowFriendImportDialog', {
+      description: 'Fired when friend import dialog is opened',
+      payload: { timestamp: 'number - Unix timestamp' },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowModerateGroupDialog', {
+      description: 'Fired when group moderation dialog is opened',
+      payload: {
+        userId: 'string - User ID being moderated',
+        dialog: 'object - Full dialog reference',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowGroupMemberModerationDialog', {
+      description: 'Fired when group member moderation dialog is opened',
+      payload: {
+        groupId: 'string - Group ID',
+        userId: 'string - User ID (optional)',
+        dialog: 'object - Full dialog reference',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowFullscreenImageDialog', {
+      description: 'Fired when fullscreen image viewer is opened',
+      payload: {
+        imageUrl: 'string - Image URL',
+        fileName: 'string - File name',
+        dialog: 'object - Full dialog reference',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowPreviousInstancesInfoDialog', {
+      description: 'Fired when previous instances info dialog is opened',
+      payload: {
+        instanceId: 'string - Instance ID',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowRegistryBackupDialog', {
+      description: 'Fired when registry backup dialog is opened',
+      payload: { timestamp: 'number - Unix timestamp' },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowVRCXUpdateDialog', {
+      description: 'Fired when VRCX update dialog is opened',
+      payload: {
+        dialog: 'object - Full dialog reference',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowChangeLogDialog', {
+      description: 'Fired when changelog dialog is opened',
+      payload: {
+        dialog: 'object - Full dialog reference',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowEditInviteMessageDialog', {
+      description: 'Fired when edit invite message dialog is opened',
+      payload: {
+        dialog: 'object - Full dialog reference',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowAvatarProviderDialog', {
+      description: 'Fired when avatar provider dialog is opened',
+      payload: { timestamp: 'number - Unix timestamp' },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
     this.logger.log("Dialog API ready");
     this.loaded = true;
   }
@@ -184,12 +294,111 @@ class DialogApiPlugin extends CustomModule {
     });
 
     // Watch favorite dialog
-    this.subscribe('FAVORITE', ({ favoriteDialog }) => {
+    this.subscribe('FAVORITE', ({ favoriteDialog, worldImportDialogVisible, avatarImportDialogVisible, friendImportDialogVisible }) => {
       if (favoriteDialog?.visible) {
         this.emit('ShowFavoriteDialog', {
           type: favoriteDialog.type,
           objectId: favoriteDialog.objectId,
           dialog: favoriteDialog,
+          timestamp: Date.now()
+        });
+      }
+      if (worldImportDialogVisible) {
+        this.emit('ShowWorldImportDialog', {
+          timestamp: Date.now()
+        });
+      }
+      if (avatarImportDialogVisible) {
+        this.emit('ShowAvatarImportDialog', {
+          timestamp: Date.now()
+        });
+      }
+      if (friendImportDialogVisible) {
+        this.emit('ShowFriendImportDialog', {
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Watch group moderation dialogs
+    this.subscribe('GROUP', ({ moderateGroupDialog, groupMemberModeration }) => {
+      if (moderateGroupDialog?.visible && moderateGroupDialog?.userId) {
+        this.emit('ShowModerateGroupDialog', {
+          userId: moderateGroupDialog.userId,
+          dialog: moderateGroupDialog,
+          timestamp: Date.now()
+        });
+      }
+      if (groupMemberModeration?.visible && groupMemberModeration?.id) {
+        this.emit('ShowGroupMemberModerationDialog', {
+          groupId: groupMemberModeration.id,
+          userId: groupMemberModeration.openWithUserId || '',
+          dialog: groupMemberModeration,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Watch fullscreen image dialog
+    this.subscribe('GALLERY', ({ fullscreenImageDialog }) => {
+      if (fullscreenImageDialog?.visible) {
+        this.emit('ShowFullscreenImageDialog', {
+          imageUrl: fullscreenImageDialog.imageUrl,
+          fileName: fullscreenImageDialog.fileName || '',
+          dialog: fullscreenImageDialog,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Watch instance dialog
+    this.subscribe('INSTANCE', ({ previousInstancesInfoDialogVisible, previousInstancesInfoDialogInstanceId }) => {
+      if (previousInstancesInfoDialogVisible && previousInstancesInfoDialogInstanceId) {
+        this.emit('ShowPreviousInstancesInfoDialog', {
+          instanceId: previousInstancesInfoDialogInstanceId,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Watch VRCX system dialogs
+    this.subscribe('VRCX', ({ isRegistryBackupDialogVisible }) => {
+      if (isRegistryBackupDialogVisible) {
+        this.emit('ShowRegistryBackupDialog', {
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    this.subscribe('VRCXUPDATER', ({ VRCXUpdateDialog, changeLogDialog }) => {
+      if (VRCXUpdateDialog?.visible) {
+        this.emit('ShowVRCXUpdateDialog', {
+          dialog: VRCXUpdateDialog,
+          timestamp: Date.now()
+        });
+      }
+      if (changeLogDialog?.visible) {
+        this.emit('ShowChangeLogDialog', {
+          dialog: changeLogDialog,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Watch invite message dialog
+    this.subscribe('INVITE', ({ editInviteMessageDialog }) => {
+      if (editInviteMessageDialog?.visible) {
+        this.emit('ShowEditInviteMessageDialog', {
+          dialog: editInviteMessageDialog,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Watch avatar provider dialog
+    this.subscribe('AVATARPROVIDER', ({ isAvatarProviderDialogVisible }) => {
+      if (isAvatarProviderDialogVisible) {
+        this.emit('ShowAvatarProviderDialog', {
           timestamp: Date.now()
         });
       }
