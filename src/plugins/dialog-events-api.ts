@@ -26,7 +26,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (userDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: false,  // VRCX already logs this
       logToConsole: true
     });
 
@@ -37,7 +37,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (groupDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -48,7 +48,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (moderateGroupDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -60,7 +60,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (groupMemberModeration state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -73,7 +73,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (worldDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -84,7 +84,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (avatarDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -96,7 +96,7 @@ class DialogEventsApiPlugin extends CustomModule {
         currentAvatarImageUrl: 'string - Avatar image URL',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -108,7 +108,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (launchDialogData state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -116,21 +116,21 @@ class DialogEventsApiPlugin extends CustomModule {
     this.registerEvent('ShowWorldImportDialog', {
       description: 'Fired when world favorites import dialog is opened',
       payload: { timestamp: 'number - Unix timestamp' },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
     this.registerEvent('ShowAvatarImportDialog', {
       description: 'Fired when avatar favorites import dialog is opened',
       payload: { timestamp: 'number - Unix timestamp' },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
     this.registerEvent('ShowFriendImportDialog', {
       description: 'Fired when friend import dialog is opened',
       payload: { timestamp: 'number - Unix timestamp' },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -142,7 +142,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (favoriteDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -155,7 +155,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (fullscreenImageDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -165,7 +165,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Gallery dialog state',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -173,7 +173,7 @@ class DialogEventsApiPlugin extends CustomModule {
     this.registerEvent('ShowRegistryBackupDialog', {
       description: 'Fired when registry backup dialog is opened',
       payload: { timestamp: 'number - Unix timestamp' },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -183,7 +183,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (VRCXUpdateDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -193,14 +193,14 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (changeLogDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
     this.registerEvent('ShowAvatarProviderDialog', {
       description: 'Fired when avatar provider dialog is opened',
       payload: { timestamp: 'number - Unix timestamp' },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -210,7 +210,7 @@ class DialogEventsApiPlugin extends CustomModule {
         instanceId: 'string - Instance ID',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
@@ -221,7 +221,7 @@ class DialogEventsApiPlugin extends CustomModule {
         dialog: 'object - Full dialog reference (editInviteMessageDialog state)',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: false,
+      broadcastIPC: true,
       logToConsole: true
     });
 
