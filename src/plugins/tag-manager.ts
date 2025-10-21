@@ -13,7 +13,7 @@ class TagManagerPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Social", "Enhancement"],
-      required_dependencies: [],
+      required_dependencies: ["tag-api"],
     });
 
     this.loadedTags = new Map();
@@ -92,6 +92,10 @@ class TagManagerPlugin extends CustomModule {
         name: "🏷️ Tag Sources",
         description: "Configure tag loading sources",
       },
+      worlds: {
+        name: "🌍 World Tags",
+        description: "Configure world blacklist/tag sources",
+      },
       timing: {
         name: "🏷️ Update Timing",
         description: "Control when and how often tags are refreshed",
@@ -103,13 +107,33 @@ class TagManagerPlugin extends CustomModule {
     });
 
     this.settings = this.defineSettings({
-      urls: {
+      urls_user: {
         type: SettingType.CUSTOM,
         description: "URLs to load user tags from",
         category: "general",
         default: [
           "https://github.com/Bluscream/FewTags/raw/refs/heads/main/usertags.json",
         ],
+      },
+      urls_worlds: {
+        type: SettingType.CUSTOM,
+        description: "URLs to load world blacklists from",
+        category: "worlds",
+        default: [
+          "https://github.com/cyberkitsune/chatbox-club-blacklist/raw/refs/heads/master/npblacklist.json",
+        ],
+      },
+      worldTagText: {
+        type: SettingType.STRING,
+        description: "Tag text for blacklisted worlds",
+        category: "worlds",
+        default: "ChatBox Blacklisted",
+      },
+      worldTagColor: {
+        type: SettingType.STRING,
+        description: "Tag color for blacklisted worlds (hex)",
+        category: "worlds",
+        default: "#FF0000",
       },
       updateInterval: {
         type: SettingType.TIMESPAN,
@@ -133,7 +157,10 @@ class TagManagerPlugin extends CustomModule {
     });
 
     this.logger.log(
-      `⚙️ Configured tag sources: ${this.settings.store.urls.length}`
+      `⚙️ Configured user tag sources: ${this.settings.store.urls_user.length}`
+    );
+    this.logger.log(
+      `⚙️ Configured world tag sources: ${this.settings.store.urls_worlds.length}`
     );
 
     this.logger.log("Tag Manager plugin ready");
@@ -192,22 +219,34 @@ class TagManagerPlugin extends CustomModule {
   }
 
   async loadAllTags() {
-    const urls = this.settings.store.urls;
+    const userUrls = this.settings.store.urls_user || [];
+    const worldUrls = this.settings.store.urls_worlds || [];
+    const totalUrls = userUrls.length + worldUrls.length;
 
-    if (!urls || urls.length === 0) {
+    if (totalUrls === 0) {
       this.logger.warn("No tag URLs configured");
       return;
     }
 
-    this.logger.log(`Loading tags from ${urls.length} URLs...`);
+    this.logger.log(`Loading tags from ${totalUrls} URLs...`);
 
-    for (const url of urls) {
+    // Load user tags
+    for (const url of userUrls) {
       try {
-        await this.loadTagsFromUrl(url);
+        await this.loadTagsFromUrl(url, 'user');
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
+        this.logger.error(`Failed to load user tags from ${url}: ${errorMsg}`);
+      }
+    }
 
-        this.logger.error(`Failed to load tags from ${url}: ${errorMsg}`);
+    // Load world tags
+    for (const url of worldUrls) {
+      try {
+        await this.loadTagsFromUrl(url, 'world');
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        this.logger.error(`Failed to load world tags from ${url}: ${errorMsg}`);
       }
     }
 
@@ -219,14 +258,14 @@ class TagManagerPlugin extends CustomModule {
     // Emit tags-loaded event
     this.emit('tags-loaded', {
       totalTags,
-      sources: urls.length,
+      sources: totalUrls,
       timestamp: Date.now()
     });
   }
 
-  async loadTagsFromUrl(url) {
+  async loadTagsFromUrl(url, type = 'user') {
     try {
-      this.logger.log(`Fetching tags from: ${url}`);
+      this.logger.log(`Fetching ${type} tags from: ${url}`);
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -234,19 +273,30 @@ class TagManagerPlugin extends CustomModule {
       }
 
       const data = await response.json();
-      const tags = this.parseTagData(data, url);
+      
+      let tags;
+      if (type === 'world') {
+        tags = this.parseWorldData(data, url);
+      } else {
+        tags = this.parseTagData(data, url);
+      }
 
       if (tags.length > 0) {
         this.loadedTags.set(url, new Set(tags));
-        await this.applyTags(tags);
-        this.logger.log(`✓ Loaded ${tags.length} tags from ${url}`);
+        
+        if (type === 'world') {
+          await this.applyWorldTags(tags);
+        } else {
+          await this.applyTags(tags);
+        }
+        
+        this.logger.log(`✓ Loaded ${tags.length} ${type} tags from ${url}`);
       } else {
-        this.logger.warn(`No valid tags found in ${url}`);
+        this.logger.warn(`No valid ${type} tags found in ${url}`);
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-
-      this.logger.error(`Error loading tags from ${url}: ${errorMsg}`);
+      this.logger.error(`Error loading ${type} tags from ${url}: ${errorMsg}`);
       throw error;
     }
   }
@@ -283,6 +333,66 @@ class TagManagerPlugin extends CustomModule {
 
     // Validate and filter tags
     return tags.filter((tag) => this.validateTag(tag, url));
+  }
+
+  parseWorldData(data, url) {
+    const worldTags = [];
+
+    // Handle chatbox-club-blacklist format
+    if (data.worlds && Array.isArray(data.worlds)) {
+      const tagText = this.settings.store.worldTagText || "ChatBox Blacklisted";
+      const tagColor = this.settings.store.worldTagColor || "#FF0000";
+
+      for (const world of data.worlds) {
+        if (world.id && world.id.startsWith('wrld_')) {
+          worldTags.push({
+            WorldId: world.id,
+            WorldName: world.name || world.id,
+            Tag: tagText,
+            TagColour: tagColor,
+            Comment: world.comment || ''
+          });
+        }
+      }
+    }
+    // Handle alternative array format
+    else if (Array.isArray(data)) {
+      const tagText = this.settings.store.worldTagText || "ChatBox Blacklisted";
+      const tagColor = this.settings.store.worldTagColor || "#FF0000";
+
+      for (const world of data) {
+        if (world.id && world.id.startsWith('wrld_')) {
+          worldTags.push({
+            WorldId: world.id,
+            WorldName: world.name || world.id,
+            Tag: tagText,
+            TagColour: tagColor,
+            Comment: world.comment || ''
+          });
+        }
+      }
+    } else {
+      this.logger.warn(`Unknown world data structure in ${url}`);
+      return [];
+    }
+
+    return worldTags.filter((tag) => this.validateWorldTag(tag));
+  }
+
+  validateWorldTag(tag) {
+    if (!tag || typeof tag !== "object") {
+      return false;
+    }
+
+    if (!tag.WorldId || typeof tag.WorldId !== "string" || !tag.WorldId.startsWith('wrld_')) {
+      return false;
+    }
+
+    if (!tag.Tag || typeof tag.Tag !== "string") {
+      return false;
+    }
+
+    return true;
   }
 
   cleanTagText(tagText) {
@@ -335,13 +445,31 @@ class TagManagerPlugin extends CustomModule {
         });
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
-
         this.logger.error(`Error applying tag for user ${tag.UserId}: ${errorMsg}`);
       }
     }
 
     // Check friends and blocked players for tags
     await this.checkFriendsAndBlockedForTags();
+  }
+
+  async applyWorldTags(worldTags) {
+    const tagApi = window.customjs.getModule('tag-api');
+    if (!tagApi) {
+      this.logger.error("Tag API module not found - world tags disabled");
+      return;
+    }
+
+    for (const worldTag of worldTags) {
+      try {
+        tagApi.addWorldTag(worldTag.WorldId, worldTag.Tag, worldTag.TagColour);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        this.logger.error(`Error applying tag for world ${worldTag.WorldId}: ${errorMsg}`);
+      }
+    }
+
+    this.logger.log(`Applied ${worldTags.length} world tags via Tag API`);
   }
 
   /**
