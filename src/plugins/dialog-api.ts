@@ -70,9 +70,32 @@ class DialogApiPlugin extends CustomModule {
       payload: {
         location: 'string - Location tag',
         shortName: 'string - Optional short name',
+        dialog: 'object - Full dialog reference',
         timestamp: 'number - Unix timestamp'
       },
-      broadcastIPC: true,
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowGalleryDialog', {
+      description: 'Fired when gallery dialog is opened',
+      payload: {
+        dialog: 'object - Gallery dialog state',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowFavoriteDialog', {
+      description: 'Fired when favorite management dialog is opened',
+      payload: {
+        type: 'string - Favorite type (world/avatar)',
+        objectId: 'string - Object ID',
+        dialog: 'object - Favorite dialog state',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
       logToConsole: true
     });
 
@@ -93,66 +116,86 @@ class DialogApiPlugin extends CustomModule {
   }
 
   setupDialogHooks() {
-    // Hook into user store showUserDialog
-    this.registerPreHook('$pinia.user.showUserDialog', (args) => {
-      const userId = args[0];
-      if (userId) {
+    // Watch user dialog via store subscription
+    this.subscribe('USER', ({ userDialog }) => {
+      if (userDialog?.visible && userDialog?.id) {
         this.emit('ShowUserDialog', {
-          userId,
+          userId: userDialog.id,
+          dialog: userDialog,
           timestamp: Date.now()
         });
       }
     });
 
-    // Hook into world store showWorldDialog
-    this.registerPreHook('$pinia.world.showWorldDialog', (args) => {
-      const tag = args[0];
-      const shortName = args[1];
-      if (tag) {
+    // Watch world dialog
+    this.subscribe('WORLD', ({ worldDialog }) => {
+      if (worldDialog?.visible && worldDialog?.id) {
         this.emit('ShowWorldDialog', {
-          worldId: tag,
-          shortName: shortName || '',
+          worldId: worldDialog.id,
+          shortName: worldDialog.$location?.shortName || '',
+          dialog: worldDialog,
           timestamp: Date.now()
         });
       }
     });
 
-    // Hook into avatar store showAvatarDialog
-    this.registerPreHook('$pinia.avatar.showAvatarDialog', (args) => {
-      const avatarId = args[0];
-      if (avatarId) {
+    // Watch avatar dialog
+    this.subscribe('AVATAR', ({ avatarDialog }) => {
+      if (avatarDialog?.visible && avatarDialog?.id) {
         this.emit('ShowAvatarDialog', {
-          avatarId,
+          avatarId: avatarDialog.id,
+          dialog: avatarDialog,
           timestamp: Date.now()
         });
       }
     });
 
-    // Hook into group store showGroupDialog
-    this.registerPreHook('$pinia.group.showGroupDialog', (args) => {
-      const groupId = args[0];
-      if (groupId) {
+    // Watch group dialog
+    this.subscribe('GROUP', ({ groupDialog }) => {
+      if (groupDialog?.visible && groupDialog?.id) {
         this.emit('ShowGroupDialog', {
-          groupId,
+          groupId: groupDialog.id,
+          dialog: groupDialog,
           timestamp: Date.now()
         });
       }
     });
 
-    // Hook into launch store showLaunchDialog
-    this.registerPreHook('$pinia.launch.showLaunchDialog', (args) => {
-      const tag = args[0];
-      const shortName = args[1];
-      if (tag) {
+    // Watch launch dialog
+    this.subscribe('LAUNCH', ({ launchDialogData }) => {
+      if (launchDialogData?.visible && launchDialogData?.tag) {
         this.emit('ShowLaunchDialog', {
-          location: tag,
-          shortName: shortName || '',
+          location: launchDialogData.tag,
+          shortName: launchDialogData.shortName || '',
+          dialog: launchDialogData,
           timestamp: Date.now()
         });
       }
     });
 
-    this.logger.log("Dialog hooks registered for user, world, avatar, group, and launch dialogs");
+    // Watch gallery dialog
+    this.subscribe('GALLERY', (state) => {
+      if (state.galleryDialogVisible) {
+        this.emit('ShowGalleryDialog', {
+          dialog: state,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Watch favorite dialog
+    this.subscribe('FAVORITE', ({ favoriteDialog }) => {
+      if (favoriteDialog?.visible) {
+        this.emit('ShowFavoriteDialog', {
+          type: favoriteDialog.type,
+          objectId: favoriteDialog.objectId,
+          dialog: favoriteDialog,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    this.logger.log("Dialog watchers registered via store subscriptions");
   }
 
   async stop() {
