@@ -62,14 +62,16 @@ class OSCBridgePlugin extends CustomModule {
         type: 'string - Value type (bool, int, float)',
         value: 'any - Parameter value',
         timestamp: 'number - Unix timestamp'
-      }
+      },
+      logToConsole: false
     });
 
     this.registerEvent('osc-ready', {
       description: 'Fired when OSC bridge is connected',
       payload: {
         timestamp: 'number - Unix timestamp'
-      }
+      },
+      logToConsole: false
     });
 
     this.registerEvent('osc-error', {
@@ -77,7 +79,8 @@ class OSCBridgePlugin extends CustomModule {
       payload: {
         error: 'string - Error message',
         timestamp: 'number - Unix timestamp'
-      }
+      },
+      logToConsole: false
     });
 
     this.registerEvent('command-received', {
