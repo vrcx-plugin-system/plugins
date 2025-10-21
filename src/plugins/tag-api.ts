@@ -94,6 +94,8 @@ class TagAPIPlugin extends CustomModule {
       const tagData = {
         tag: worldTag.Tag || '',
         colour: worldTag.TagColour || '#FF0000',
+        url: worldTag.Url || '',
+        tooltip: worldTag.Tooltip || '',
         timestamp: Date.now()
       };
 
@@ -161,6 +163,8 @@ class TagAPIPlugin extends CustomModule {
       const tagData = {
         tag: userTag.Tag || '',
         colour: userTag.TagColour || '#FF00C6',
+        url: userTag.Url || '',
+        tooltip: userTag.Tooltip || '',
         timestamp: Date.now()
       };
 
