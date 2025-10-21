@@ -325,9 +325,6 @@ class TagAPIPlugin extends CustomModule {
   }
 
   injectCustomWorldTag(worldId: string) {
-    const tags = this.customWorldTags.get(worldId);
-    if (!tags || tags.length === 0) return;
-
     // Find the world dialog specifically (not user dialog)
     const worldDialog = document.querySelector('.x-world-dialog');
     if (!worldDialog) {
@@ -342,9 +339,13 @@ class TagAPIPlugin extends CustomModule {
       return;
     }
 
-    // Remove any previously injected custom tags
+    // ALWAYS remove old tags first (even if current world has no tags)
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-world-tag');
     existingCustomTags.forEach(el => el.remove());
+
+    // Now check if current world has tags to inject
+    const tags = this.customWorldTags.get(worldId);
+    if (!tags || tags.length === 0) return;
 
     this.logger.log(`[DEBUG] Injecting ${tags.length} world tags into dialog`);
 
@@ -383,9 +384,6 @@ class TagAPIPlugin extends CustomModule {
 
   injectCustomUserTags(userId: string) {
     this.logger.log(`[DEBUG] injectCustomUserTags called for userId: ${userId}`);
-    const tags = this.customUserTags.get(userId);
-    this.logger.log(`[DEBUG] Found ${tags?.length || 0} tags to inject`);
-    if (!tags || tags.length === 0) return;
 
     // Find the user dialog specifically (not world dialog)
     const userDialog = document.querySelector('.x-user-dialog');
@@ -412,9 +410,14 @@ class TagAPIPlugin extends CustomModule {
       return;
     }
 
-    // Remove any previously injected custom tags
+    // ALWAYS remove old tags first (even if current user has no tags)
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-user-tag');
     existingCustomTags.forEach(el => el.remove());
+
+    // Now check if current user has tags to inject
+    const tags = this.customUserTags.get(userId);
+    this.logger.log(`[DEBUG] Found ${tags?.length || 0} tags to inject`);
+    if (!tags || tags.length === 0) return;
 
     this.logger.log(`[DEBUG] Injecting ${tags.length} user tags into dialog`);
 
@@ -448,9 +451,6 @@ class TagAPIPlugin extends CustomModule {
   }
 
   injectCustomAvatarTags(avatarId: string) {
-    const tags = this.customAvatarTags.get(avatarId);
-    if (!tags || tags.length === 0) return;
-
     // Find the avatar dialog specifically
     const avatarDialog = document.querySelector('.x-avatar-dialog');
     if (!avatarDialog) {
@@ -465,9 +465,13 @@ class TagAPIPlugin extends CustomModule {
       return;
     }
 
-    // Remove any previously injected custom tags
+    // ALWAYS remove old tags first (even if current avatar has no tags)
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-avatar-tag');
     existingCustomTags.forEach(el => el.remove());
+
+    // Now check if current avatar has tags to inject
+    const tags = this.customAvatarTags.get(avatarId);
+    if (!tags || tags.length === 0) return;
 
     this.logger.log(`[DEBUG] Injecting ${tags.length} avatar tags into dialog`);
 
