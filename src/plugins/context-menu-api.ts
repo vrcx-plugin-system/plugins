@@ -296,12 +296,28 @@ class ContextMenuApiPlugin extends CustomModule {
     const items = this.items.get(menuType);
     if (!items || items.size === 0) return;
 
+    // Group items by plugin
+    const itemsByPlugin = new Map();
     items.forEach((item, itemId) => {
-      this.addMenuItemToContainer(menuContainer, menuType, itemId, item);
+      const pluginId = item.pluginId || 'unknown';
+      if (!itemsByPlugin.has(pluginId)) {
+        itemsByPlugin.set(pluginId, []);
+      }
+      itemsByPlugin.get(pluginId).push({ itemId, item });
+    });
+
+    // Add items with dividers between plugin groups
+    let isFirstPlugin = true;
+    itemsByPlugin.forEach((pluginItems, pluginId) => {
+      pluginItems.forEach((entry, index) => {
+        const shouldAddDivider = !isFirstPlugin && index === 0;
+        this.addMenuItemToContainer(menuContainer, menuType, entry.itemId, entry.item, shouldAddDivider);
+      });
+      isFirstPlugin = false;
     });
   }
 
-  addMenuItemToContainer(container, menuType, itemId, item) {
+  addMenuItemToContainer(container, menuType, itemId, item, addDivider = false) {
     // Check if already added
     if (container.querySelector(`[data-custom-item-id="${itemId}"]`)) {
       return;
@@ -312,6 +328,11 @@ class ContextMenuApiPlugin extends CustomModule {
     menuItem.className = "el-dropdown-menu__item";
     menuItem.setAttribute("data-custom-item-id", itemId);
     menuItem.tabIndex = -1;
+
+    // Add divider class if this is the first item of a new plugin group
+    if (addDivider) {
+      menuItem.classList.add("el-dropdown-menu__item--divided");
+    }
 
     // Add icon if provided
     if (item.icon) {
@@ -435,10 +456,23 @@ class ContextMenuApiPlugin extends CustomModule {
       return false;
     }
 
+    // Auto-detect plugin ID from stack trace if not provided
+    if (!item.pluginId) {
+      try {
+        const stack = new Error().stack || '';
+        const pluginMatch = stack.match(/\[CJS\|([^\]]+)\]/);
+        if (pluginMatch) {
+          item.pluginId = pluginMatch[1];
+        }
+      } catch (e) {
+        // Ignore errors in plugin detection
+      }
+    }
+
     const items = this.items.get(menuType);
     items.set(itemId, item);
 
-    this.logger.log(`Added ${menuType} menu item: ${itemId}`);
+    this.logger.log(`Added ${menuType} menu item: ${itemId}${item.pluginId ? ` (plugin: ${item.pluginId})` : ''}`);
     return true;
   }
 
