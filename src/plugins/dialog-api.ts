@@ -23,6 +23,59 @@ class DialogApiPlugin extends CustomModule {
   }
 
   async load() {
+    // Register events for all VRCX dialog types
+    this.registerEvent('ShowUserDialog', {
+      description: 'Fired when a user dialog is opened',
+      payload: {
+        userId: 'string - User ID that was opened',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowWorldDialog', {
+      description: 'Fired when a world dialog is opened',
+      payload: {
+        worldId: 'string - World ID or location tag',
+        shortName: 'string - Optional short name',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: true,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowAvatarDialog', {
+      description: 'Fired when an avatar dialog is opened',
+      payload: {
+        avatarId: 'string - Avatar ID that was opened',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: true,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowGroupDialog', {
+      description: 'Fired when a group dialog is opened',
+      payload: {
+        groupId: 'string - Group ID that was opened',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: true,
+      logToConsole: true
+    });
+
+    this.registerEvent('ShowLaunchDialog', {
+      description: 'Fired when a VRChat launch dialog is opened',
+      payload: {
+        location: 'string - Location tag',
+        shortName: 'string - Optional short name',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: true,
+      logToConsole: true
+    });
+
     this.logger.log("Dialog API ready");
     this.loaded = true;
   }
@@ -31,9 +84,75 @@ class DialogApiPlugin extends CustomModule {
     // Create dialog wrapper element
     await this.setupDialogWrapper();
 
+    // Setup hooks for VRCX native dialogs
+    this.setupDialogHooks();
+
     this.enabled = true;
     this.started = true;
     this.logger.log("Dialog API started");
+  }
+
+  setupDialogHooks() {
+    // Hook into user store showUserDialog
+    this.registerPreHook('$pinia.user.showUserDialog', (args) => {
+      const userId = args[0];
+      if (userId) {
+        this.emit('ShowUserDialog', {
+          userId,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Hook into world store showWorldDialog
+    this.registerPreHook('$pinia.world.showWorldDialog', (args) => {
+      const tag = args[0];
+      const shortName = args[1];
+      if (tag) {
+        this.emit('ShowWorldDialog', {
+          worldId: tag,
+          shortName: shortName || '',
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Hook into avatar store showAvatarDialog
+    this.registerPreHook('$pinia.avatar.showAvatarDialog', (args) => {
+      const avatarId = args[0];
+      if (avatarId) {
+        this.emit('ShowAvatarDialog', {
+          avatarId,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Hook into group store showGroupDialog
+    this.registerPreHook('$pinia.group.showGroupDialog', (args) => {
+      const groupId = args[0];
+      if (groupId) {
+        this.emit('ShowGroupDialog', {
+          groupId,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Hook into launch store showLaunchDialog
+    this.registerPreHook('$pinia.launch.showLaunchDialog', (args) => {
+      const tag = args[0];
+      const shortName = args[1];
+      if (tag) {
+        this.emit('ShowLaunchDialog', {
+          location: tag,
+          shortName: shortName || '',
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    this.logger.log("Dialog hooks registered for user, world, avatar, group, and launch dialogs");
   }
 
   async stop() {
