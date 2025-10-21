@@ -308,14 +308,30 @@ class TagManagerPlugin extends CustomModule {
     if (typeof data === "object" && !Array.isArray(data)) {
       for (const [userId, userData] of Object.entries(data)) {
         if (userData && (userData as any).tags && Array.isArray((userData as any).tags)) {
-          const mainTag = (userData as any).tag || (userData as any).tags[0] || "Custom Tag";
-          const tagColor = (userData as any).foreground_color || "#FF00C6";
+          // Iterate over all tags in the array
+          for (const tagStr of (userData as any).tags) {
+            if (typeof tagStr === 'string') {
+              // Parse color and text from format: <color=#e100ff>Femboy</color>
+              const colorMatch = tagStr.match(/<color=(#[0-9A-Fa-f]{6})>(.*?)<\/color>/);
+              
+              let tagText = tagStr;
+              let tagColor = (userData as any).foreground_color || "#FF00C6";
+              
+              if (colorMatch) {
+                tagColor = colorMatch[1];  // Extracted color like #e100ff
+                tagText = colorMatch[2];   // Extracted text like "Femboy"
+              } else {
+                // Fallback: clean any remaining HTML tags
+                tagText = tagStr.replace(/<[^>]*>/g, '');
+              }
 
-          tags.push({
-            UserId: userId,
-            Tag: this.cleanTagText(mainTag),
-            TagColour: tagColor,
-          });
+              tags.push({
+                UserId: userId,
+                Tag: this.cleanTagText(tagText),
+                TagColour: tagColor,
+              });
+            }
+          }
         }
       }
     }
