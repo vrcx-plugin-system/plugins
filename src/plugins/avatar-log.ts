@@ -17,7 +17,7 @@ class AvatarLogPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Logger", "Database", "Integration"],
-      required_dependencies: [],
+      required_dependencies: ["dialog-events-api"],
     });
 
     // Track processed avatars to avoid duplicates
@@ -229,17 +229,12 @@ class AvatarLogPlugin extends CustomModule {
         }
       });
 
-      // Hook into avatar store methods via $pinia
-      // Hook showAvatarDialog
-      this.registerPostHook(
-        "$pinia.avatar.showAvatarDialog",
-        (result, args) => {
-          const avatarId = args[0];
-          if (avatarId) {
-            this.processAvatarId(avatarId, "showAvatarDialog");
-          }
+      // Listen to ShowAvatarDialog event from dialog-events-api
+      this.on("ShowAvatarDialog", (data) => {
+        if (data?.avatarId) {
+          this.processAvatarId(data.avatarId, "showAvatarDialog");
         }
-      );
+      });
 
       // Hook addAvatarToHistory
       this.registerPostHook(

@@ -17,7 +17,7 @@ class YoinkerDetectorPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Security", "Social", "Integration"],
-      required_dependencies: [],
+      required_dependencies: ["dialog-events-api"],
     });
 
     // Track processed users to avoid duplicate checks
@@ -263,15 +263,14 @@ class YoinkerDetectorPlugin extends CustomModule {
   // Hook into VRCX user events
   hookUserEvents() {
     try {
-      // Hook into showUserDialog
+      // Listen to ShowUserDialog event from dialog-events-api
       if (this.settings.store.checkOnDialogOpen) {
-        this.registerPostHook("$pinia.user.showUserDialog", (result, args) => {
-          const userId = args[0];
-          if (userId) {
-            this.processUserId(userId, "User Dialog Opened");
+        this.on("ShowUserDialog", (data) => {
+          if (data?.userId) {
+            this.processUserId(data.userId, "User Dialog Opened");
           }
         });
-        this.logger.log("✅ User dialog hook registered");
+        this.logger.log("✅ ShowUserDialog event listener registered");
       }
 
       // Hook into player join events

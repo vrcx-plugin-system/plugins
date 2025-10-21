@@ -12,7 +12,7 @@ class TagAPIPlugin extends CustomModule {
         userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
       }],
       tags: ["API", "Enhancement"],
-      required_dependencies: [],
+      required_dependencies: ["dialog-events-api"],
     });
 
     this.customWorldTags = new Map();
@@ -91,13 +91,10 @@ class TagAPIPlugin extends CustomModule {
   }
 
   setupWorldDialogWatcher() {
-    const worldStore = window.$pinia?.world;
-    if (!worldStore) return;
-
-    // Watch for world dialog visibility changes
-    this.subscribe('WORLD', ({ worldDialog }) => {
-      if (worldDialog?.visible && worldDialog?.id) {
-        setTimeout(() => this.injectCustomWorldTag(worldDialog.id), 100);
+    // Listen for ShowWorldDialog event from dialog-events-api
+    this.on('ShowWorldDialog', (data) => {
+      if (data?.worldId) {
+        setTimeout(() => this.injectCustomWorldTag(data.worldId), 100);
       }
     });
 
