@@ -473,7 +473,9 @@ class TagManagerPlugin extends CustomModule {
       // Use tag-api for multi-tag support
       for (const tag of tags) {
         try {
-          tagApi.addUserTag(tag.UserId, tag.Tag, tag.TagColour);
+          const url = tag.Url || '';
+          const tooltip = tag.Tooltip || tag.Comment || '';
+          tagApi.addUserTag(tag.UserId, tag.Tag, tag.TagColour, url, tooltip);
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : String(error);
           this.logger.error(`Error applying tag for user ${tag.UserId}: ${errorMsg}`);
@@ -496,7 +498,9 @@ class TagManagerPlugin extends CustomModule {
 
     for (const worldTag of worldTags) {
       try {
-        tagApi.addWorldTag(worldTag.WorldId, worldTag.Tag, worldTag.TagColour);
+        const url = worldTag.Url || '';
+        const tooltip = worldTag.Tooltip || worldTag.Comment || '';
+        tagApi.addWorldTag(worldTag.WorldId, worldTag.Tag, worldTag.TagColour, url, tooltip);
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         this.logger.error(`Error applying tag for world ${worldTag.WorldId}: ${errorMsg}`);

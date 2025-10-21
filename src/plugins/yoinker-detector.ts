@@ -528,14 +528,27 @@ class YoinkerDetectorPlugin extends CustomModule {
   // Apply yoinker tag to user
   applyYoinkerTag(userId) {
     try {
+      const tagName = this.settings.store.tagName;
+      const tagColor = this.settings.store.tagColor;
+      const tooltip = 'Detected as potential avatar ripper by yoinker database';
+      const url = 'https://github.com/Bluscream/yoinker-list';
+
+      // Try to use tag-api for multi-tag support with tooltip/URL
+      const tagApi = window.customjs.getModule('tag-api') as any;
+      if (tagApi && tagApi.addUserTag) {
+        tagApi.addUserTag(userId, tagName, tagColor, url, tooltip);
+        if (this.settings.store.logToConsole) {
+          this.logger.log(`🏷️ Applied tag "${tagName}" to user ${userId} via tag-api`);
+        }
+        return;
+      }
+
+      // Fallback to userStore
       const userStore = window.$pinia?.user;
       if (!userStore) {
         this.logger.warn("User store not available, cannot apply tag");
         return;
       }
-
-      const tagName = this.settings.store.tagName;
-      const tagColor = this.settings.store.tagColor;
 
       userStore.addCustomTag({
         UserId: userId,
