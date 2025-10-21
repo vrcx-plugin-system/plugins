@@ -26,6 +26,7 @@ const DEFAULT_ENABLED = [
   "nav-menu-api",
   "dialog-api",
   "dialog-events-api",
+  "tag-api",
   "plugin-analyzer",
   "invite-message-api",
   "plugin-manager-ui",
