@@ -1,12 +1,13 @@
 // 
 class TagAPIPlugin extends CustomModule {
-  customWorldTags: Map<string, any>;
+  customWorldTags: Map<string, any[]>; // worldId -> array of tags
   customUserTags: Map<string, any[]>; // userId -> array of tags
+  customAvatarTags: Map<string, any[]>; // avatarId -> array of tags
 
   constructor() {
     super({
       name: "Tag API 🏷️",
-      description: "Provides custom tag API for users and worlds",
+      description: "Provides custom tag API for users, worlds, and avatars",
       authors: [{
         name: "Bluscream",
         description: "VRCX Plugin System Maintainer",
@@ -18,6 +19,7 @@ class TagAPIPlugin extends CustomModule {
 
     this.customWorldTags = new Map();
     this.customUserTags = new Map();
+    this.customAvatarTags = new Map();
   }
 
   async load() {
@@ -45,6 +47,18 @@ class TagAPIPlugin extends CustomModule {
       logToConsole: false
     });
 
+    this.registerEvent('avatar-tag-added', {
+      description: 'Fired when a custom avatar tag is added',
+      payload: {
+        avatarId: 'string - Avatar ID',
+        tag: 'string - Tag text',
+        color: 'string - Tag color',
+        timestamp: 'number - Unix timestamp'
+      },
+      broadcastIPC: false,
+      logToConsole: false
+    });
+
     this.loaded = true;
     this.logger.log("Tag API plugin loaded");
   }
@@ -52,8 +66,10 @@ class TagAPIPlugin extends CustomModule {
   async start() {
     this.patchWorldStore();
     this.patchUserStore();
+    this.patchAvatarStore();
     this.setupWorldDialogWatcher();
     this.setupUserDialogWatcher();
+    this.setupAvatarDialogWatcher();
     this.enabled = true;
     this.started = true;
     this.logger.log("Tag API started");
@@ -74,32 +90,52 @@ class TagAPIPlugin extends CustomModule {
         return;
       }
 
-      self.customWorldTags.set(worldTag.WorldId, {
+      const worldId = worldTag.WorldId;
+      const tagData = {
         tag: worldTag.Tag || '',
         colour: worldTag.TagColour || '#FF0000',
         timestamp: Date.now()
-      });
+      };
 
-      self.emit('world-tag-added', {
-        worldId: worldTag.WorldId,
-        tag: worldTag.Tag,
-        color: worldTag.TagColour,
-        timestamp: Date.now()
-      });
+      // Get existing tags or create new array
+      const existingTags = self.customWorldTags.get(worldId) || [];
+      
+      // Check if tag already exists
+      const tagExists = existingTags.some((t: any) => t.tag === tagData.tag);
+      if (!tagExists) {
+        existingTags.push(tagData);
+        self.customWorldTags.set(worldId, existingTags);
+
+        self.emit('world-tag-added', {
+          worldId: worldId,
+          tag: tagData.tag,
+          color: tagData.colour,
+          timestamp: Date.now()
+        });
+      }
     };
 
-    worldStore.getCustomWorldTag = function(worldId: string) {
-      return self.customWorldTags.get(worldId);
+    worldStore.getCustomWorldTags = function(worldId: string) {
+      return self.customWorldTags.get(worldId) || [];
     };
 
-    worldStore.removeCustomWorldTag = function(worldId: string) {
-      return self.customWorldTags.delete(worldId);
+    worldStore.removeCustomWorldTag = function(worldId: string, tag: string) {
+      const tags = self.customWorldTags.get(worldId);
+      if (!tags) return false;
+
+      const filtered = tags.filter((t: any) => t.tag !== tag);
+      if (filtered.length === 0) {
+        self.customWorldTags.delete(worldId);
+      } else {
+        self.customWorldTags.set(worldId, filtered);
+      }
+      return true;
     };
 
     worldStore.getAllCustomWorldTags = function() {
-      return Array.from(self.customWorldTags.entries()).map(([worldId, tag]) => ({
+      return Array.from(self.customWorldTags.entries()).map(([worldId, tags]) => ({
         worldId,
-        ...tag
+        tags
       }));
     };
 
@@ -184,6 +220,73 @@ class TagAPIPlugin extends CustomModule {
     this.logger.log("World dialog watcher setup");
   }
 
+  patchAvatarStore() {
+    const avatarStore = window.$pinia?.avatar;
+    if (!avatarStore) {
+      this.logger.warn("Avatar store not available");
+      return;
+    }
+
+    // Inject custom avatar tag functionality
+    const self = this;
+    
+    avatarStore.addCustomAvatarTag = function(avatarTag: any) {
+      if (!avatarTag || !avatarTag.AvatarId) {
+        return;
+      }
+
+      const avatarId = avatarTag.AvatarId;
+      const tagData = {
+        tag: avatarTag.Tag || '',
+        colour: avatarTag.TagColour || '#00C6FF',
+        timestamp: Date.now()
+      };
+
+      // Get existing tags or create new array
+      const existingTags = self.customAvatarTags.get(avatarId) || [];
+      
+      // Check if tag already exists
+      const tagExists = existingTags.some((t: any) => t.tag === tagData.tag);
+      if (!tagExists) {
+        existingTags.push(tagData);
+        self.customAvatarTags.set(avatarId, existingTags);
+
+        self.emit('avatar-tag-added', {
+          avatarId: avatarId,
+          tag: tagData.tag,
+          color: tagData.colour,
+          timestamp: Date.now()
+        });
+      }
+    };
+
+    avatarStore.getCustomAvatarTags = function(avatarId: string) {
+      return self.customAvatarTags.get(avatarId) || [];
+    };
+
+    avatarStore.removeCustomAvatarTag = function(avatarId: string, tag: string) {
+      const tags = self.customAvatarTags.get(avatarId);
+      if (!tags) return false;
+
+      const filtered = tags.filter((t: any) => t.tag !== tag);
+      if (filtered.length === 0) {
+        self.customAvatarTags.delete(avatarId);
+      } else {
+        self.customAvatarTags.set(avatarId, filtered);
+      }
+      return true;
+    };
+
+    avatarStore.getAllCustomAvatarTags = function() {
+      return Array.from(self.customAvatarTags.entries()).map(([avatarId, tags]) => ({
+        avatarId,
+        tags
+      }));
+    };
+
+    this.logger.log("Avatar store patched with custom tag support");
+  }
+
   setupUserDialogWatcher() {
     // Listen for ShowUserDialog event from dialog-events-api
     this.on('ShowUserDialog', (data) => {
@@ -195,9 +298,20 @@ class TagAPIPlugin extends CustomModule {
     this.logger.log("User dialog watcher setup");
   }
 
+  setupAvatarDialogWatcher() {
+    // Listen for ShowAvatarDialog event from dialog-events-api
+    this.on('ShowAvatarDialog', (data) => {
+      if (data?.avatarId) {
+        setTimeout(() => this.injectCustomAvatarTags(data.avatarId), 100);
+      }
+    });
+
+    this.logger.log("Avatar dialog watcher setup");
+  }
+
   injectCustomWorldTag(worldId: string) {
-    const tag = this.customWorldTags.get(worldId);
-    if (!tag) return;
+    const tags = this.customWorldTags.get(worldId);
+    if (!tags || tags.length === 0) return;
 
     // Find the world dialog tag container
     const tagContainers = document.querySelectorAll('.el-dialog__body > div > div > div');
@@ -205,25 +319,26 @@ class TagAPIPlugin extends CustomModule {
 
     const tagContainer = tagContainers[1]; // Second div usually has the tags
 
-    // Check if we already injected this tag
-    if (tagContainer.querySelector('.vrcx-custom-world-tag')) {
-      return;
-    }
+    // Remove any previously injected custom tags
+    const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-world-tag');
+    existingCustomTags.forEach(el => el.remove());
 
-    // Create custom tag element
-    const tagEl = document.createElement('span');
-    tagEl.className = 'el-tag el-tag--danger el-tag--plain el-tag--small vrcx-custom-world-tag';
-    tagEl.style.marginRight = '5px';
-    tagEl.style.marginTop = '5px';
-    tagEl.style.color = tag.colour;
-    tagEl.style.borderColor = tag.colour;
-    tagEl.textContent = tag.tag;
+    // Inject each custom tag
+    for (const tag of tags) {
+      const tagEl = document.createElement('span');
+      tagEl.className = 'el-tag el-tag--danger el-tag--plain el-tag--small vrcx-custom-world-tag';
+      tagEl.style.marginRight = '5px';
+      tagEl.style.marginTop = '5px';
+      tagEl.style.color = tag.colour;
+      tagEl.style.borderColor = tag.colour;
+      tagEl.textContent = tag.tag;
 
-    // Insert at the beginning of tag container
-    if (tagContainer.firstChild) {
-      tagContainer.insertBefore(tagEl, tagContainer.firstChild);
-    } else {
-      tagContainer.appendChild(tagEl);
+      // Insert at the beginning of tag container
+      if (tagContainer.firstChild) {
+        tagContainer.insertBefore(tagEl, tagContainer.firstChild);
+      } else {
+        tagContainer.appendChild(tagEl);
+      }
     }
   }
 
@@ -256,8 +371,37 @@ class TagAPIPlugin extends CustomModule {
     }
   }
 
+  injectCustomAvatarTags(avatarId: string) {
+    const tags = this.customAvatarTags.get(avatarId);
+    if (!tags || tags.length === 0) return;
+
+    // Find the avatar dialog tag container
+    const tagContainers = document.querySelectorAll('.el-dialog__body > div > div');
+    if (tagContainers.length < 2) return;
+
+    const tagContainer = tagContainers[1]; // Second div usually has the avatar tags
+
+    // Remove any previously injected custom tags
+    const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-avatar-tag');
+    existingCustomTags.forEach(el => el.remove());
+
+    // Inject each custom tag
+    for (const tag of tags) {
+      const tagEl = document.createElement('span');
+      tagEl.className = 'el-tag el-tag--success el-tag--plain el-tag--small vrcx-custom-avatar-tag';
+      tagEl.style.marginRight = '5px';
+      tagEl.style.marginTop = '5px';
+      tagEl.style.color = tag.colour;
+      tagEl.style.borderColor = tag.colour;
+      tagEl.textContent = tag.tag;
+
+      // Append to tag container
+      tagContainer.appendChild(tagEl);
+    }
+  }
+
   /**
-   * Add a custom tag to a world
+   * Add a custom tag to a world (supports multiple tags per world)
    */
   addWorldTag(worldId: string, tag: string, color: string = '#FF0000') {
     const worldStore = window.$pinia?.world;
@@ -281,16 +425,32 @@ class TagAPIPlugin extends CustomModule {
   }
 
   /**
-   * Get a custom tag for a world
+   * Get all custom tags for a world
    */
-  getWorldTag(worldId: string) {
-    return this.customWorldTags.get(worldId);
+  getWorldTags(worldId: string) {
+    return this.customWorldTags.get(worldId) || [];
   }
 
   /**
-   * Remove a custom tag from a world
+   * Remove a specific custom tag from a world
    */
-  removeWorldTag(worldId: string) {
+  removeWorldTag(worldId: string, tag: string) {
+    const tags = this.customWorldTags.get(worldId);
+    if (!tags) return false;
+
+    const filtered = tags.filter((t: any) => t.tag !== tag);
+    if (filtered.length === 0) {
+      this.customWorldTags.delete(worldId);
+    } else {
+      this.customWorldTags.set(worldId, filtered);
+    }
+    return true;
+  }
+
+  /**
+   * Remove all custom tags from a world
+   */
+  removeAllWorldTags(worldId: string) {
     return this.customWorldTags.delete(worldId);
   }
 
@@ -298,11 +458,13 @@ class TagAPIPlugin extends CustomModule {
    * Get all custom world tags
    */
   getAllWorldTags() {
-    return Array.from(this.customWorldTags.entries()).map(([worldId, tag]) => ({
+    return Array.from(this.customWorldTags.entries()).map(([worldId, tags]) => ({
       worldId,
-      tag: tag.tag,
-      colour: tag.colour,
-      timestamp: tag.timestamp
+      tags: tags.map(t => ({
+        tag: t.tag,
+        colour: t.colour,
+        timestamp: t.timestamp
+      }))
     }));
   }
 
@@ -388,6 +550,82 @@ class TagAPIPlugin extends CustomModule {
   clearAllUserTags() {
     this.customUserTags.clear();
     this.logger.log("All custom user tags cleared");
+  }
+
+  /**
+   * Add a custom tag to an avatar (supports multiple tags per avatar)
+   */
+  addAvatarTag(avatarId: string, tag: string, color: string = '#00C6FF') {
+    const avatarStore = window.$pinia?.avatar;
+    if (!avatarStore || !avatarStore.addCustomAvatarTag) {
+      this.logger.error("Avatar store not available or not patched");
+      return false;
+    }
+
+    try {
+      avatarStore.addCustomAvatarTag({
+        AvatarId: avatarId,
+        Tag: tag,
+        TagColour: color
+      });
+      return true;
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to add avatar tag: ${errorMsg}`);
+      return false;
+    }
+  }
+
+  /**
+   * Get all custom tags for an avatar
+   */
+  getAvatarTags(avatarId: string) {
+    return this.customAvatarTags.get(avatarId) || [];
+  }
+
+  /**
+   * Remove a specific custom tag from an avatar
+   */
+  removeAvatarTag(avatarId: string, tag: string) {
+    const tags = this.customAvatarTags.get(avatarId);
+    if (!tags) return false;
+
+    const filtered = tags.filter((t: any) => t.tag !== tag);
+    if (filtered.length === 0) {
+      this.customAvatarTags.delete(avatarId);
+    } else {
+      this.customAvatarTags.set(avatarId, filtered);
+    }
+    return true;
+  }
+
+  /**
+   * Remove all custom tags from an avatar
+   */
+  removeAllAvatarTags(avatarId: string) {
+    return this.customAvatarTags.delete(avatarId);
+  }
+
+  /**
+   * Get all custom avatar tags
+   */
+  getAllAvatarTags() {
+    return Array.from(this.customAvatarTags.entries()).map(([avatarId, tags]) => ({
+      avatarId,
+      tags: tags.map(t => ({
+        tag: t.tag,
+        colour: t.colour,
+        timestamp: t.timestamp
+      }))
+    }));
+  }
+
+  /**
+   * Clear all custom avatar tags
+   */
+  clearAllAvatarTags() {
+    this.customAvatarTags.clear();
+    this.logger.log("All custom avatar tags cleared");
   }
 
   async stop() {
