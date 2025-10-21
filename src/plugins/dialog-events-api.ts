@@ -245,13 +245,15 @@ class DialogEventsApiPlugin extends CustomModule {
     this.logger.log(`[DEBUG] $pinia.world available: ${!!window.$pinia?.world}`);
     
     // Watch user dialog via store subscription
-    const userUnsubscribe = this.subscribe('USER', ({ userDialog }) => {
-      this.logger.log(`[DEBUG] USER subscription triggered - visible: ${userDialog?.visible}, id: ${userDialog?.id}`);
-      if (userDialog?.visible && userDialog?.id) {
-        this.logger.log(`[DEBUG] Emitting ShowUserDialog for ${userDialog.id}`);
+    const userUnsubscribe = this.subscribe('USER', (state) => {
+      this.logger.log(`[DEBUG] USER subscription triggered - state keys: ${Object.keys(state).join(', ')}`);
+      this.logger.log(`[DEBUG] USER state.userDialog exists: ${!!state.userDialog}, visible: ${state.userDialog?.visible}, id: ${state.userDialog?.id}`);
+      
+      if (state.userDialog?.visible && state.userDialog?.id) {
+        this.logger.log(`[DEBUG] Emitting ShowUserDialog for ${state.userDialog.id}`);
         this.emit('ShowUserDialog', {
-          userId: userDialog.id,
-          dialog: userDialog,
+          userId: state.userDialog.id,
+          dialog: state.userDialog,
           timestamp: Date.now()
         });
       }
