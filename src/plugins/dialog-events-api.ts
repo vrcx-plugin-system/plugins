@@ -239,21 +239,46 @@ class DialogEventsApiPlugin extends CustomModule {
   }
 
   setupDialogWatchers() {
+    // Track previous visibility state to detect open transitions
+    let lastUserDialogVisible = false;
+    let lastWorldDialogVisible = false;
+    let lastAvatarDialogVisible = false;
+    let lastGroupDialogVisible = false;
+    let lastModerateGroupDialogVisible = false;
+    let lastGroupMemberModerationVisible = false;
+    let lastLaunchDialogVisible = false;
+    let lastGalleryDialogVisible = false;
+    let lastFullscreenImageDialogVisible = false;
+    let lastFavoriteDialogVisible = false;
+    let lastWorldImportDialogVisible = false;
+    let lastAvatarImportDialogVisible = false;
+    let lastFriendImportDialogVisible = false;
+    let lastPreviousInstancesDialogVisible = false;
+    let lastRegistryBackupDialogVisible = false;
+    let lastVRCXUpdateDialogVisible = false;
+    let lastChangeLogDialogVisible = false;
+    let lastEditInviteMessageDialogVisible = false;
+    let lastAvatarProviderDialogVisible = false;
     
     // Watch user dialog via store subscription
     this.subscribe('USER', ({ userDialog }) => {
-      if (userDialog?.visible && userDialog?.id) {
+      const isVisible = userDialog?.visible && userDialog?.id;
+      if (isVisible && !lastUserDialogVisible) {
+        // Dialog just opened (transition from false -> true)
         this.emit('ShowUserDialog', {
           userId: userDialog.id,
           dialog: userDialog,
           timestamp: Date.now()
         });
       }
+      lastUserDialogVisible = !!isVisible;
     });
 
     // Watch world dialog
     this.subscribe('WORLD', ({ worldDialog }) => {
-      if (worldDialog?.visible && worldDialog?.id) {
+      const isVisible = worldDialog?.visible && worldDialog?.id;
+      if (isVisible && !lastWorldDialogVisible) {
+        // Dialog just opened (transition from false -> true)
         this.emit('ShowWorldDialog', {
           worldId: worldDialog.id,
           shortName: worldDialog.$location?.shortName || '',
@@ -261,17 +286,20 @@ class DialogEventsApiPlugin extends CustomModule {
           timestamp: Date.now()
         });
       }
+      lastWorldDialogVisible = !!isVisible;
     });
 
     // Watch avatar dialog
     this.subscribe('AVATAR', ({ avatarDialog }) => {
-      if (avatarDialog?.visible && avatarDialog?.id) {
+      const isVisible = avatarDialog?.visible && avatarDialog?.id;
+      if (isVisible && !lastAvatarDialogVisible) {
         this.emit('ShowAvatarDialog', {
           avatarId: avatarDialog.id,
           dialog: avatarDialog,
           timestamp: Date.now()
         });
       }
+      lastAvatarDialogVisible = !!isVisible;
     });
 
     // Hook showAvatarAuthorDialog function (helper that calls other dialogs)
@@ -287,21 +315,28 @@ class DialogEventsApiPlugin extends CustomModule {
 
     // Watch GROUP store (consolidate all group-related dialogs)
     this.subscribe('GROUP', ({ groupDialog, moderateGroupDialog, groupMemberModeration }) => {
-      if (groupDialog?.visible && groupDialog?.id) {
+      const isGroupDialogVisible = groupDialog?.visible && groupDialog?.id;
+      if (isGroupDialogVisible && !lastGroupDialogVisible) {
         this.emit('ShowGroupDialog', {
           groupId: groupDialog.id,
           dialog: groupDialog,
           timestamp: Date.now()
         });
       }
-      if (moderateGroupDialog?.visible && moderateGroupDialog?.userId) {
+      lastGroupDialogVisible = !!isGroupDialogVisible;
+      
+      const isModerateGroupDialogVisible = moderateGroupDialog?.visible && moderateGroupDialog?.userId;
+      if (isModerateGroupDialogVisible && !lastModerateGroupDialogVisible) {
         this.emit('ShowModerateGroupDialog', {
           userId: moderateGroupDialog.userId,
           dialog: moderateGroupDialog,
           timestamp: Date.now()
         });
       }
-      if (groupMemberModeration?.visible && groupMemberModeration?.id) {
+      lastModerateGroupDialogVisible = !!isModerateGroupDialogVisible;
+      
+      const isGroupMemberModerationVisible = groupMemberModeration?.visible && groupMemberModeration?.id;
+      if (isGroupMemberModerationVisible && !lastGroupMemberModerationVisible) {
         this.emit('ShowGroupMemberModerationDialog', {
           groupId: groupMemberModeration.id,
           userId: groupMemberModeration.openWithUserId || '',
@@ -309,11 +344,13 @@ class DialogEventsApiPlugin extends CustomModule {
           timestamp: Date.now()
         });
       }
+      lastGroupMemberModerationVisible = !!isGroupMemberModerationVisible;
     });
 
     // Watch launch dialog
     this.subscribe('LAUNCH', ({ launchDialogData }) => {
-      if (launchDialogData?.visible && launchDialogData?.tag) {
+      const isVisible = launchDialogData?.visible && launchDialogData?.tag;
+      if (isVisible && !lastLaunchDialogVisible) {
         this.emit('ShowLaunchDialog', {
           location: launchDialogData.tag,
           shortName: launchDialogData.shortName || '',
@@ -321,17 +358,22 @@ class DialogEventsApiPlugin extends CustomModule {
           timestamp: Date.now()
         });
       }
+      lastLaunchDialogVisible = !!isVisible;
     });
 
     // Watch GALLERY store (consolidate gallery and fullscreen image dialogs)
     this.subscribe('GALLERY', (state) => {
-      if (state.galleryDialogVisible) {
+      const isGalleryVisible = !!state.galleryDialogVisible;
+      if (isGalleryVisible && !lastGalleryDialogVisible) {
         this.emit('ShowGalleryDialog', {
           dialog: state,
           timestamp: Date.now()
         });
       }
-      if (state.fullscreenImageDialog?.visible) {
+      lastGalleryDialogVisible = isGalleryVisible;
+      
+      const isFullscreenImageVisible = !!state.fullscreenImageDialog?.visible;
+      if (isFullscreenImageVisible && !lastFullscreenImageDialogVisible) {
         this.emit('ShowFullscreenImageDialog', {
           imageUrl: state.fullscreenImageDialog.imageUrl,
           fileName: state.fullscreenImageDialog.fileName || '',
@@ -339,11 +381,13 @@ class DialogEventsApiPlugin extends CustomModule {
           timestamp: Date.now()
         });
       }
+      lastFullscreenImageDialogVisible = isFullscreenImageVisible;
     });
 
     // Watch favorite dialog
     this.subscribe('FAVORITE', ({ favoriteDialog, worldImportDialogVisible, avatarImportDialogVisible, friendImportDialogVisible }) => {
-      if (favoriteDialog?.visible) {
+      const isFavoriteDialogVisible = !!favoriteDialog?.visible;
+      if (isFavoriteDialogVisible && !lastFavoriteDialogVisible) {
         this.emit('ShowFavoriteDialog', {
           type: favoriteDialog.type,
           objectId: favoriteDialog.objectId,
@@ -351,74 +395,97 @@ class DialogEventsApiPlugin extends CustomModule {
           timestamp: Date.now()
         });
       }
-      if (worldImportDialogVisible) {
+      lastFavoriteDialogVisible = isFavoriteDialogVisible;
+      
+      const isWorldImportVisible = !!worldImportDialogVisible;
+      if (isWorldImportVisible && !lastWorldImportDialogVisible) {
         this.emit('ShowWorldImportDialog', {
           timestamp: Date.now()
         });
       }
-      if (avatarImportDialogVisible) {
+      lastWorldImportDialogVisible = isWorldImportVisible;
+      
+      const isAvatarImportVisible = !!avatarImportDialogVisible;
+      if (isAvatarImportVisible && !lastAvatarImportDialogVisible) {
         this.emit('ShowAvatarImportDialog', {
           timestamp: Date.now()
         });
       }
-      if (friendImportDialogVisible) {
+      lastAvatarImportDialogVisible = isAvatarImportVisible;
+      
+      const isFriendImportVisible = !!friendImportDialogVisible;
+      if (isFriendImportVisible && !lastFriendImportDialogVisible) {
         this.emit('ShowFriendImportDialog', {
           timestamp: Date.now()
         });
       }
+      lastFriendImportDialogVisible = isFriendImportVisible;
     });
 
     // Watch instance dialog
     this.subscribe('INSTANCE', ({ previousInstancesInfoDialogVisible, previousInstancesInfoDialogInstanceId }) => {
-      if (previousInstancesInfoDialogVisible && previousInstancesInfoDialogInstanceId) {
+      const isVisible = previousInstancesInfoDialogVisible && previousInstancesInfoDialogInstanceId;
+      if (isVisible && !lastPreviousInstancesDialogVisible) {
         this.emit('ShowPreviousInstancesInfoDialog', {
           instanceId: previousInstancesInfoDialogInstanceId,
           timestamp: Date.now()
         });
       }
+      lastPreviousInstancesDialogVisible = !!isVisible;
     });
 
     // Watch VRCX system dialogs
     this.subscribe('VRCX', ({ isRegistryBackupDialogVisible }) => {
-      if (isRegistryBackupDialogVisible) {
+      const isVisible = !!isRegistryBackupDialogVisible;
+      if (isVisible && !lastRegistryBackupDialogVisible) {
         this.emit('ShowRegistryBackupDialog', {
           timestamp: Date.now()
         });
       }
+      lastRegistryBackupDialogVisible = isVisible;
     });
 
     this.subscribe('VRCXUPDATER', ({ VRCXUpdateDialog, changeLogDialog }) => {
-      if (VRCXUpdateDialog?.visible) {
+      const isVRCXUpdateVisible = !!VRCXUpdateDialog?.visible;
+      if (isVRCXUpdateVisible && !lastVRCXUpdateDialogVisible) {
         this.emit('ShowVRCXUpdateDialog', {
           dialog: VRCXUpdateDialog,
           timestamp: Date.now()
         });
       }
-      if (changeLogDialog?.visible) {
+      lastVRCXUpdateDialogVisible = isVRCXUpdateVisible;
+      
+      const isChangeLogVisible = !!changeLogDialog?.visible;
+      if (isChangeLogVisible && !lastChangeLogDialogVisible) {
         this.emit('ShowChangeLogDialog', {
           dialog: changeLogDialog,
           timestamp: Date.now()
         });
       }
+      lastChangeLogDialogVisible = isChangeLogVisible;
     });
 
     // Watch invite message dialog
     this.subscribe('INVITE', ({ editInviteMessageDialog }) => {
-      if (editInviteMessageDialog?.visible) {
+      const isVisible = !!editInviteMessageDialog?.visible;
+      if (isVisible && !lastEditInviteMessageDialogVisible) {
         this.emit('ShowEditInviteMessageDialog', {
           dialog: editInviteMessageDialog,
           timestamp: Date.now()
         });
       }
+      lastEditInviteMessageDialogVisible = isVisible;
     });
 
     // Watch avatar provider dialog
     this.subscribe('AVATARPROVIDER', ({ isAvatarProviderDialogVisible }) => {
-      if (isAvatarProviderDialogVisible) {
+      const isVisible = !!isAvatarProviderDialogVisible;
+      if (isVisible && !lastAvatarProviderDialogVisible) {
         this.emit('ShowAvatarProviderDialog', {
           timestamp: Date.now()
         });
       }
+      lastAvatarProviderDialogVisible = isVisible;
     });
 
     this.logger.log("Dialog watchers registered via store subscriptions");
