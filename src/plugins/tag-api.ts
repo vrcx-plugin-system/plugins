@@ -333,12 +333,14 @@ class TagAPIPlugin extends CustomModule {
     }
 
     // Find the div that contains native tags (Public, PC, etc.)
-    // It's a div with margin-top: 5px containing .el-tag elements
-    const allDivs = Array.from(worldDialog.querySelectorAll('div[style*="margin-top: 5px"]'));
+    // In world dialog, it's just a plain div (no style attribute) containing .el-tag elements
+    const allDivs = Array.from(worldDialog.querySelectorAll('.el-dialog__body div'));
     let tagContainer = null;
     
     for (const div of allDivs) {
-      if (div.querySelector('.el-tag')) {
+      const tags = div.querySelectorAll('.el-tag');
+      // Look for div that DIRECTLY contains .el-tag elements (not nested deeper)
+      if (tags.length > 0 && div.querySelector('.el-tag')?.parentElement === div) {
         tagContainer = div;
         break;
       }
