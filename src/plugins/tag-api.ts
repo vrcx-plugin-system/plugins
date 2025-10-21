@@ -394,15 +394,23 @@ class TagAPIPlugin extends CustomModule {
       return;
     }
 
-    // Find the represented group section to inject tags after
-    const representedGroupDiv = userDialog.querySelector('.detail .extra > div');
-    if (!representedGroupDiv) {
-      this.logger.log(`[DEBUG] Represented group section not found, trying alternative location`);
-      return;
+    // Find the tag container (the div with margin-top: 5px that contains the platform/status tags)
+    // It's the second div with style containing "margin-top: 5px" in the user info section
+    const allDivs = userDialog.querySelectorAll('div[style*="margin-top: 5px"]');
+    let tagContainer = null;
+    
+    // Find the one that contains .el-tag elements (Trusted User, PC tags)
+    for (const div of allDivs) {
+      if (div.querySelector('.el-tag')) {
+        tagContainer = div;
+        break;
+      }
     }
 
-    const tagContainer = representedGroupDiv.parentElement;
-    if (!tagContainer) return;
+    if (!tagContainer) {
+      this.logger.log(`[DEBUG] Native tag container not found in user dialog`);
+      return;
+    }
 
     // Remove any previously injected custom tags
     const existingCustomTags = tagContainer.querySelectorAll('.vrcx-custom-user-tag');
@@ -434,7 +442,7 @@ class TagAPIPlugin extends CustomModule {
         });
       }
 
-      // Append to tag container
+      // Append to tag container (after native tags)
       tagContainer.appendChild(tagEl);
     }
   }
