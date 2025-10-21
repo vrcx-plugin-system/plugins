@@ -37,6 +37,7 @@ class TagAPIPlugin extends CustomModule {
 
   async start() {
     this.patchWorldStore();
+    this.setupWorldDialogWatcher();
     this.enabled = true;
     this.started = true;
     this.logger.log("Tag API started");
@@ -87,6 +88,52 @@ class TagAPIPlugin extends CustomModule {
     };
 
     this.logger.log("World store patched with custom tag support");
+  }
+
+  setupWorldDialogWatcher() {
+    const worldStore = window.$pinia?.world;
+    if (!worldStore) return;
+
+    // Watch for world dialog visibility changes
+    this.subscribe('WORLD', ({ worldDialog }) => {
+      if (worldDialog?.visible && worldDialog?.id) {
+        setTimeout(() => this.injectCustomWorldTag(worldDialog.id), 100);
+      }
+    });
+
+    this.logger.log("World dialog watcher setup");
+  }
+
+  injectCustomWorldTag(worldId: string) {
+    const tag = this.customWorldTags.get(worldId);
+    if (!tag) return;
+
+    // Find the world dialog tag container
+    const tagContainers = document.querySelectorAll('.el-dialog__body > div > div > div');
+    if (tagContainers.length < 2) return;
+
+    const tagContainer = tagContainers[1]; // Second div usually has the tags
+
+    // Check if we already injected this tag
+    if (tagContainer.querySelector('.vrcx-custom-world-tag')) {
+      return;
+    }
+
+    // Create custom tag element
+    const tagEl = document.createElement('span');
+    tagEl.className = 'el-tag el-tag--danger el-tag--plain el-tag--small vrcx-custom-world-tag';
+    tagEl.style.marginRight = '5px';
+    tagEl.style.marginTop = '5px';
+    tagEl.style.color = tag.colour;
+    tagEl.style.borderColor = tag.colour;
+    tagEl.textContent = tag.tag;
+
+    // Insert at the beginning of tag container
+    if (tagContainer.firstChild) {
+      tagContainer.insertBefore(tagEl, tagContainer.firstChild);
+    } else {
+      tagContainer.appendChild(tagEl);
+    }
   }
 
   /**
