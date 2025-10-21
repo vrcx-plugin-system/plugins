@@ -332,10 +332,20 @@ class TagAPIPlugin extends CustomModule {
       return;
     }
 
-    // Find tag container within world dialog
-    const tagContainer = worldDialog.querySelector('.el-dialog__body > div > div > div:nth-child(2)');
+    // Find the div that contains native tags (Public, PC, etc.)
+    // It's a div with margin-top: 5px containing .el-tag elements
+    const allDivs = worldDialog.querySelectorAll('div[style*="margin-top: 5px"]');
+    let tagContainer = null;
+    
+    for (const div of allDivs) {
+      if (div.querySelector('.el-tag')) {
+        tagContainer = div;
+        break;
+      }
+    }
+
     if (!tagContainer) {
-      this.logger.log(`[DEBUG] Tag container not found in world dialog`);
+      this.logger.log(`[DEBUG] Native tag container not found in world dialog`);
       return;
     }
 
@@ -373,12 +383,8 @@ class TagAPIPlugin extends CustomModule {
         });
       }
 
-      // Insert at the beginning of tag container
-      if (tagContainer.firstChild) {
-        tagContainer.insertBefore(tagEl, tagContainer.firstChild);
-      } else {
-        tagContainer.appendChild(tagEl);
-      }
+      // Append to tag container (after native tags like Public, PC)
+      tagContainer.appendChild(tagEl);
     }
   }
 
