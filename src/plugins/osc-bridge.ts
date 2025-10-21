@@ -201,8 +201,8 @@ class OSCBridgePlugin extends CustomModule {
       // Filter out "IPC:" messages for OSC_RECEIVED_BULK unless logging is enabled
       if (args.length >= 2 && args[0] === 'IPC:' && typeof args[1] === 'object') {
         const data = args[1];
-        // Only suppress OSC_RECEIVED_BULK messages when logging is disabled
-        if (data?.Type === 'VrcxMessage' && data?.MsgType === 'OSC_RECEIVED_BULK') {
+        // Only suppress OSC_RECEIVED_BULK messages when logging is disabled (sent as Event7List or VrcxMessage)
+        if ((data?.Type === 'Event7List' || data?.Type === 'VrcxMessage') && data?.MsgType === 'OSC_RECEIVED_BULK') {
           if (!self.settings?.store?.logOscParams) {
             return; // Suppress this log
           }
