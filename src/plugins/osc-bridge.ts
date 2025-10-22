@@ -35,6 +35,9 @@ class OSCBridgePlugin extends CustomModule {
         description: "Send test ping to OSC application",
         callback: async () => {
           this.sendChatBox('VRCX Plugin Test');
+          this.setChatState('test', 'Test State');
+          this.triggerChatEvent('test', 'Test Event');
+          this.storeChatVariable('test', 'Test Variable');
           this.logger.showInfo("Test message sent to OSC app");
         },
       },
