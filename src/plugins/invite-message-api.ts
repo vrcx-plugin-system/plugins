@@ -293,32 +293,15 @@ class InviteMessageApiPlugin extends CustomModule {
 
     // Edit the message using the VRChat API
     try {
-      // Access the inviteMessagesRequest API from window.$app or through the API
-      const inviteMessagesRequest =
-        window.customjs?.functions?.inviteMessagesRequest ||
-        window.$app?.API?.inviteMessages;
-
+      const inviteMessagesRequest = (window as any).request?.inviteMessagesRequest;
       if (!inviteMessagesRequest) {
-        // Try to use the API directly from the source
-        const { default: inviteMessagesReq } = await import(
-          "/src/api/inviteMessages.js"
-        );
-        if (inviteMessagesReq) {
-          await inviteMessagesReq.editInviteMessage(
-            { message: newText },
-            "message",
-            message.slot
-          );
-        } else {
-          throw new Error("inviteMessagesRequest API not available");
-        }
-      } else {
-        await inviteMessagesRequest.editInviteMessage(
-          { message: newText },
-          "message",
-          message.slot
-        );
+        throw new Error("inviteMessagesRequest API not available");
       }
+      await inviteMessagesRequest.editInviteMessage(
+        { message: newText },
+        "message",
+        message.slot
+      );
 
       // Update the local message object
       message.message = newText;
@@ -409,32 +392,15 @@ class InviteMessageApiPlugin extends CustomModule {
 
     // Edit the message using the VRChat API
     try {
-      // Access the inviteMessagesRequest API
-      const inviteMessagesRequest =
-        window.customjs?.functions?.inviteMessagesRequest ||
-        window.$app?.API?.inviteMessages;
-
+      const inviteMessagesRequest = (window as any).request?.inviteMessagesRequest;
       if (!inviteMessagesRequest) {
-        // Try to use the API directly from the source
-        const { default: inviteMessagesReq } = await import(
-          "/src/api/inviteMessages.js"
-        );
-        if (inviteMessagesReq) {
-          await inviteMessagesReq.editInviteMessage(
-            { message: newText },
-            "response",
-            message.slot
-          );
-        } else {
-          throw new Error("inviteMessagesRequest API not available");
-        }
-      } else {
-        await inviteMessagesRequest.editInviteMessage(
-          { message: newText },
-          "response",
-          message.slot
-        );
+        throw new Error("inviteMessagesRequest API not available");
       }
+      await inviteMessagesRequest.editInviteMessage(
+        { message: newText },
+        "response",
+        message.slot
+      );
 
       // Update the local message object
       message.message = newText;
@@ -525,30 +491,15 @@ class InviteMessageApiPlugin extends CustomModule {
 
     // Edit the message using the VRChat API
     try {
-      const inviteMessagesRequest =
-        window.customjs?.functions?.inviteMessagesRequest ||
-        window.$app?.API?.inviteMessages;
-
+      const inviteMessagesRequest = (window as any).request?.inviteMessagesRequest;
       if (!inviteMessagesRequest) {
-        const { default: inviteMessagesReq } = await import(
-          "/src/api/inviteMessages.js"
-        );
-        if (inviteMessagesReq) {
-          await inviteMessagesReq.editInviteMessage(
-            { message: newText },
-            "request",
-            message.slot
-          );
-        } else {
-          throw new Error("inviteMessagesRequest API not available");
-        }
-      } else {
-        await inviteMessagesRequest.editInviteMessage(
-          { message: newText },
-          "request",
-          message.slot
-        );
+        throw new Error("inviteMessagesRequest API not available");
       }
+      await inviteMessagesRequest.editInviteMessage(
+        { message: newText },
+        "request",
+        message.slot
+      );
 
       // Update the local message object
       message.message = newText;
@@ -639,30 +590,15 @@ class InviteMessageApiPlugin extends CustomModule {
 
     // Edit the message using the VRChat API
     try {
-      const inviteMessagesRequest =
-        window.customjs?.functions?.inviteMessagesRequest ||
-        window.$app?.API?.inviteMessages;
-
+      const inviteMessagesRequest = (window as any).request?.inviteMessagesRequest;
       if (!inviteMessagesRequest) {
-        const { default: inviteMessagesReq } = await import(
-          "/src/api/inviteMessages.js"
-        );
-        if (inviteMessagesReq) {
-          await inviteMessagesReq.editInviteMessage(
-            { message: newText },
-            "requestResponse",
-            message.slot
-          );
-        } else {
-          throw new Error("inviteMessagesRequest API not available");
-        }
-      } else {
-        await inviteMessagesRequest.editInviteMessage(
-          { message: newText },
-          "requestResponse",
-          message.slot
-        );
+        throw new Error("inviteMessagesRequest API not available");
       }
+      await inviteMessagesRequest.editInviteMessage(
+        { message: newText },
+        "requestResponse",
+        message.slot
+      );
 
       // Update the local message object
       message.message = newText;
