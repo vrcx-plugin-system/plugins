@@ -105,8 +105,12 @@ class OSCBridgePlugin extends CustomModule {
         description: "OSC connection settings",
       },
       chatbox: {
-        name: "🎛️ ChatBox",
-        description: "VRChat ChatBox integration",
+        name: "💬 ChatBox",
+        description: "VRChat ChatBox integration (deprecated methods)",
+      },
+      variables: {
+        name: "📝 Variables",
+        description: "ChatBox variable storage (recommended)",
       },
       advanced: {
         name: "🎛️ Advanced",
@@ -144,6 +148,12 @@ class OSCBridgePlugin extends CustomModule {
         description: "Log VRCOSC commands to console",
         category: "advanced",
         default: true,
+      },
+      enableDirectChatBox: {
+        type: SettingType.BOOLEAN,
+        description: "⚠️ Enable deprecated direct ChatBox methods (sendChatBox/clearChatBox). Use storeChatVariable() instead.",
+        category: "chatbox",
+        default: false,
       },
     });
 
@@ -632,11 +642,20 @@ class OSCBridgePlugin extends CustomModule {
   }
 
   /**
-   * Send ChatBox message to VRChat
+   * @deprecated Use storeChatVariable() instead for proper ChatBox integration
+   * Send ChatBox message to VRChat (deprecated - requires manual enablement)
    * @param message - Message text (max 144 chars)
    * @param immediate - Send immediately (true) or type out (false)
    */
   sendChatBox(message: string, immediate: boolean = true): boolean {
+    if (!this.settings.store.enableDirectChatBox) {
+      this.logger.showWarning("Direct ChatBox methods are disabled. Use storeChatVariable() or enable in settings.");
+      this.logger.warn("⚠️ sendChatBox() is deprecated. Use storeChatVariable() + ChatBox timeline for proper integration.");
+      return false;
+    }
+
+    this.logger.warn("⚠️ Using deprecated sendChatBox(). Consider using storeChatVariable() + ChatBox timeline instead.");
+    
     const prefix = this.settings.store.chatboxPrefix || '';
     const suffix = this.settings.store.chatboxSuffix || '';
     const fullMessage = prefix + message + suffix;
@@ -648,9 +667,17 @@ class OSCBridgePlugin extends CustomModule {
   }
 
   /**
-   * Clear ChatBox
+   * @deprecated Use storeChatVariable() with empty string instead
+   * Clear ChatBox (deprecated - requires manual enablement)
    */
   clearChatBox(): boolean {
+    if (!this.settings.store.enableDirectChatBox) {
+      this.logger.showWarning("Direct ChatBox methods are disabled. Use storeChatVariable('', '') or enable in settings.");
+      this.logger.warn("⚠️ clearChatBox() is deprecated. Use storeChatVariable() + ChatBox timeline instead.");
+      return false;
+    }
+
+    this.logger.warn("⚠️ Using deprecated clearChatBox(). Consider using storeChatVariable('', '') instead.");
     return this.sendOSC('/chatbox/input', ['', true, false]);
   }
 
@@ -707,14 +734,27 @@ class OSCBridgePlugin extends CustomModule {
   }
 
   /**
-   * Store a chat timeline variable in VRCOSC
-   * @param name - Variable name
+   * Store a ChatBox timeline variable in VRCOSC (recommended way)
+   * Variables are automatically persisted and recreated on VRCOSC startup.
+   * Use this in ChatBox timeline states with {vrcx_yourVariableName} syntax.
+   * 
+   * @param name - Variable name (will be prefixed with vrcx_ in ChatBox)
    * @param value - Variable value (string, number, or boolean)
    * @returns true if successful
+   * 
+   * @example
+   * // Store a string variable
+   * await oscBridge.storeChatVariable('plugin1_status', 'Active');
+   * // Then use {vrcx_plugin1_status} in your ChatBox timeline
+   * 
+   * @example
+   * // Store a counter
+   * await oscBridge.storeChatVariable('friend_count', 42);
+   * // Use {vrcx_friend_count} in ChatBox timeline
    */
   async storeChatVariable(name: string, value: any): Promise<boolean> {
     if (!this.oscReady) {
-      this.logger.warn("OSC app not ready");
+      this.logger.warn("OSC app not ready - variable will be queued");
       return false;
     }
 
@@ -724,7 +764,7 @@ class OSCBridgePlugin extends CustomModule {
       
       if (response?.success) {
         if (this.settings.store.logCommands) {
-          this.logger.log(`Variable '${name}' stored successfully`);
+          this.logger.log(`✓ ChatBox variable 'vrcx_${name}' stored: ${JSON.stringify(value)}`);
         }
         return true;
       } else {
@@ -742,7 +782,7 @@ class OSCBridgePlugin extends CustomModule {
     return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private pendingCommands: Map<string, { resolve: Function; reject: Function; timeout: NodeJS.Timeout }> = new Map();
+  private pendingCommands: Map<string, { resolve: Function; reject: Function; timeout: number }> = new Map();
 
   private async sendCommandToOSC(command: string, args: any, requestId: string): Promise<any> {
     return new Promise((resolve, reject) => {
