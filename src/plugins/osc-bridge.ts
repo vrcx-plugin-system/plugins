@@ -573,7 +573,7 @@ class OSCBridgePlugin extends CustomModule {
     const { query, params = [] } = args;
     
     try {
-      const SQLite = window.SQLite;
+      const SQLite = (window as any).SQLite;
       if (!SQLite) {
         return { success: false, error: 'SQLite not available' };
       }
