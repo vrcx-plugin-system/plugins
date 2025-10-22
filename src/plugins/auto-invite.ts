@@ -355,8 +355,8 @@ class AutoInvitePlugin extends CustomModule {
 
     // Try to get world name using utils
     try {
-      if ((window as any).utils?.getWorldName) {
-        worldName = await (window as any).utils.getWorldName(destination) || worldName;
+      if (window.utils?.getWorldName) {
+        worldName = await window.utils.getWorldName(destination) || worldName;
       }
     } catch (error) {
       this.logger.warn(`Failed to get world name: ${error.message}`);
