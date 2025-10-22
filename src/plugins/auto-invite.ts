@@ -406,6 +406,9 @@ class AutoInvitePlugin extends CustomModule {
             );
           }
 
+          // Send group invite if needed (for group-only instances)
+          await this.sendGroupInviteIfNeeded(user.id, user.displayName, destination);
+
           // Build invite params
           const inviteParams = {
             instanceId: instanceId,
@@ -447,6 +450,48 @@ class AutoInvitePlugin extends CustomModule {
     } catch (error) {
       this.logger.error(`Failed to send invites: ${error.message}`);
     }
+  }
+
+  async sendGroupInviteIfNeeded(userId: string, displayName: string, destination: string): Promise<boolean> {
+    const L = (window as any).utils.parseLocation(destination);
+    
+    if (!L.groupId) {
+      return false; // Not a group instance
+    }
+    
+    // Check what type of group instance it is
+    if (L.groupAccessType === 'public') {
+      // Public group instances don't require membership
+      return false;
+    }
+    
+    try {
+      // Check if user is already in the group
+      const member = await (window as any).request.groupRequest.getGroupMember({
+        groupId: L.groupId,
+        userId: userId
+      });
+      
+      if (member?.json) {
+        // User is already in group
+        return false;
+      }
+    } catch (e) {
+      // User not in group, try to send invite
+      try {
+        await (window as any).request.groupRequest.sendGroupInvite({
+          groupId: L.groupId,
+          userId: userId
+        });
+        this.logger.log(`✓ Sent group invite for ${L.groupId} to ${displayName}`);
+        return true;
+      } catch (error: any) {
+        this.logger.warn(`Failed to send group invite: ${error.message}`);
+        return false;
+      }
+    }
+    
+    return false;
   }
 
   /**

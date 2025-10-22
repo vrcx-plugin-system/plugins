@@ -374,6 +374,9 @@ class AutoFollowPlugin extends CustomModule {
       (L.accessType === "group" && L.groupId);
 
     if (isJoinable) {
+      // Join group if needed (for group-only instances)
+      await this.joinGroupIfNeeded(location, userName);
+
       // Send ourselves an invite to join them
       this.logger.log(
         `Sending self-invite to join ${userName} in "${worldName}" (${L.accessType})`
@@ -411,6 +414,9 @@ class AutoFollowPlugin extends CustomModule {
         );
       }
     } else if (isPrivateInviteOnly || L.accessType === "invite") {
+      // Join group if needed (for group-only instances)
+      await this.joinGroupIfNeeded(location, userName);
+
       // This is a private instance, send them an invite request
       this.logger.log(
         `Requesting invite from ${userName} to private instance "${worldName}"`
@@ -511,6 +517,56 @@ class AutoFollowPlugin extends CustomModule {
         `Unknown instance type "${L.accessType}" for ${userName} in ${worldName}, skipping`
       );
     }
+  }
+
+  async joinGroupIfNeeded(location: string, userName: string): Promise<boolean> {
+    const L = (window as any).utils.parseLocation(location);
+    
+    if (!L.groupId) {
+      return false; // Not a group instance
+    }
+    
+    // Check what type of group instance it is
+    if (L.groupAccessType === 'public') {
+      // Public group instances don't require membership
+      return false;
+    }
+    
+    try {
+      const currentUser = window.$pinia?.user?.currentUser;
+      if (!currentUser?.id) return false;
+
+      // Check if we're already in the group
+      const member = await (window as any).request.groupRequest.getGroupMember({
+        groupId: L.groupId,
+        userId: currentUser.id
+      });
+      
+      if (member?.json) {
+        // Already in group
+        return false;
+      }
+    } catch (e) {
+      // Not in group, try to join
+      try {
+        const result = await (window as any).request.groupRequest.joinGroup({
+          groupId: L.groupId
+        });
+        
+        // Check if we joined or sent a request
+        if (result?.json?.membershipStatus === 'member') {
+          this.logger.log(`✓ Joined group ${L.groupId} to follow ${userName}`);
+        } else if (result?.json?.membershipStatus === 'requested') {
+          this.logger.log(`✓ Sent join request for group ${L.groupId} to follow ${userName}`);
+        }
+        return true;
+      } catch (error: any) {
+        this.logger.warn(`Failed to join group: ${error.message}`);
+        return false;
+      }
+    }
+    
+    return false;
   }
 
   /**
