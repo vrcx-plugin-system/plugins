@@ -472,18 +472,21 @@ class AutoInvitePlugin extends CustomModule {
     }
     
     try {
-      // Check if user is already in the group
-      const member = await (window as any).request.groupRequest.getGroupMember({
-        groupId: L.groupId,
+      // Get user's groups to check if they're already a member
+      const userGroups = await (window as any).request.groupRequest.getGroups({
         userId: userId
       });
       
-      if (member?.json) {
-        // User is already in group
-        return false;
+      if (userGroups?.json) {
+        // Check if user is already in the group
+        const isMember = userGroups.json.some((group: any) => group.id === L.groupId);
+        if (isMember) {
+          // User is already in group, no need to invite
+          return false;
+        }
       }
-    } catch (e) {
-      // User not in group, try to send invite
+      
+      // Try to send group invite
       try {
         await (window as any).request.groupRequest.sendGroupInvite({
           groupId: L.groupId,
@@ -492,12 +495,14 @@ class AutoInvitePlugin extends CustomModule {
         this.logger.log(`✓ Sent group invite for ${L.groupId} to ${displayName}`);
         return true;
       } catch (error: any) {
-        this.logger.warn(`Failed to send group invite: ${error.message}`);
+        // Silently fail if we don't have permission (403) or other errors
+        // This is normal for groups where we're not moderators
         return false;
       }
+    } catch (error: any) {
+      // Failed to get user's groups, skip group invite
+      return false;
     }
-    
-    return false;
   }
 
   /**

@@ -556,18 +556,21 @@ class AutoFollowPlugin extends CustomModule {
       const currentUser = window.$pinia?.user?.currentUser;
       if (!currentUser?.id) return false;
 
-      // Check if we're already in the group
-      const member = await (window as any).request.groupRequest.getGroupMember({
-        groupId: L.groupId,
+      // Get our own groups to check if we're already a member
+      const myGroups = await (window as any).request.groupRequest.getGroups({
         userId: currentUser.id
       });
       
-      if (member?.json) {
-        // Already in group
-        return false;
+      if (myGroups?.json) {
+        // Check if we're already in the group
+        const isMember = myGroups.json.some((group: any) => group.id === L.groupId);
+        if (isMember) {
+          // Already in group
+          return false;
+        }
       }
-    } catch (e) {
-      // Not in group, try to join
+      
+      // Try to join the group
       try {
         const result = await (window as any).request.groupRequest.joinGroup({
           groupId: L.groupId
@@ -581,12 +584,13 @@ class AutoFollowPlugin extends CustomModule {
         }
         return true;
       } catch (error: any) {
-        this.logger.warn(`Failed to join group: ${error.message}`);
+        // Silently fail if we can't join (closed group, banned, etc.)
         return false;
       }
+    } catch (error: any) {
+      // Failed to get our groups, skip group join
+      return false;
     }
-    
-    return false;
   }
 
   /**
