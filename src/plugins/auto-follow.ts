@@ -110,6 +110,11 @@ class AutoFollowPlugin extends CustomModule {
     const SettingType = window.customjs.types.SettingType;
 
     this.settings = this.defineSettings({
+      useCustomInviteMessage: {
+        type: SettingType.BOOLEAN,
+        description: "Use custom invite messages via invite-message-api (falls back to direct message if unavailable)",
+        default: true,
+      },
       customInviteRequestMessage: {
         type: SettingType.STRING,
         description:
@@ -431,8 +436,26 @@ class AutoFollowPlugin extends CustomModule {
           worldName: worldName,
         };
 
-        // Only add message if we have one
-        if (customMessage) {
+        // Try to use invite-message-api if available and enabled
+        const useCustomMessage = this.settings.store.useCustomInviteMessage !== false;
+        const inviteMessageApi = window.customjs.getModule('invite-message-api') as any;
+
+        if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteRequestMessage) {
+          try {
+            const result = await inviteMessageApi.requestInviteRequestMessage(customMessage);
+            if (result && result.message) {
+              // Use message slot instead of direct message
+              (inviteParams as any).messageSlot = result.message.slot;
+              this.logger.log(`Using invite request message slot ${result.message.slot} for ${userName}`);
+            } else {
+              // Fallback: send without message if slot unavailable
+              this.logger.warn(`Invite request message slot unavailable, sending without message to ${userName}`);
+            }
+          } catch (error) {
+            this.logger.warn(`Failed to use invite-message-api: ${error.message}, sending without message`);
+          }
+        } else if (customMessage && !inviteMessageApi) {
+          // Fallback: use direct message if invite-message-api not available
           (inviteParams as any).message = customMessage;
         }
 

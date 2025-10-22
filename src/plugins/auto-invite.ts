@@ -89,6 +89,11 @@ class AutoInvitePlugin extends CustomModule {
     const SettingType = window.customjs.types.SettingType;
 
     this.settings = this.defineSettings({
+      useCustomInviteMessage: {
+        type: SettingType.BOOLEAN,
+        description: "Use custom invite messages via invite-message-api (falls back to direct message if unavailable)",
+        default: true,
+      },
       customInviteMessage: {
         type: SettingType.STRING,
         description: "Message to send when inviting users automatically",
@@ -268,7 +273,7 @@ class AutoInvitePlugin extends CustomModule {
 
       this.autoInviteItem = this.contextMenuApi.addUserItem("autoInvite", {
         text: "Auto Invite",
-        icon: "ri-mail-send-line",
+        icon: "ri-mail-send-line", // uses Remix Icon: https://remixicon.com/icon/mail-send-line (exists)
         pluginId: "auto-invite",
         onClick: (user) => this.toggleAutoInvite(user),
       });
@@ -348,9 +353,11 @@ class AutoInvitePlugin extends CustomModule {
     let worldId = destination.split(":")[0];
     let worldName = "Unknown World";
 
-    // Try to get world name
+    // Try to get world name using utils
     try {
-      worldName = await window.$app.getWorldName(worldId);
+      if ((window as any).utils?.getWorldName) {
+        worldName = await (window as any).utils.getWorldName(destination) || worldName;
+      }
     } catch (error) {
       this.logger.warn(`Failed to get world name: ${error.message}`);
     }
@@ -370,9 +377,13 @@ class AutoInvitePlugin extends CustomModule {
         "Auto-invite from VRCX"
       );
 
+      // Check if we should use custom invite messages
+      const useCustomMessage = this.settings.store.useCustomInviteMessage !== false;
+      const inviteMessageApi = window.customjs.getModule('invite-message-api') as any;
+
       // Send invites to all users in the list
       const invitePromises = Array.from(this.autoInviteUsers.values()).map(
-        (user) => {
+        async (user) => {
           // Process template for each user
           let customMessage = null;
 
@@ -402,8 +413,23 @@ class AutoInvitePlugin extends CustomModule {
             worldName: worldName,
           };
 
-          // Only add message if we have one
-          if (customMessage) {
+          // Try to use invite-message-api if available and enabled
+          if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteMessage) {
+            try {
+              const result = await inviteMessageApi.requestInviteMessage(customMessage);
+              if (result && result.message) {
+                // Use message slot instead of direct message
+                (inviteParams as any).messageSlot = result.message.slot;
+                this.logger.log(`Using invite message slot ${result.message.slot} for ${user.displayName}`);
+              } else {
+                // Fallback: send without message if slot unavailable
+                this.logger.warn(`Invite message slot unavailable, sending invite without message to ${user.displayName}`);
+              }
+            } catch (error) {
+              this.logger.warn(`Failed to use invite-message-api: ${error.message}, sending without message`);
+            }
+          } else if (customMessage && !inviteMessageApi) {
+            // Fallback: use direct message if invite-message-api not available
             (inviteParams as any).message = customMessage;
           }
 
