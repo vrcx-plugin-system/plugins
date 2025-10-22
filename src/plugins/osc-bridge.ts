@@ -888,7 +888,7 @@ class OSCBridgePlugin extends CustomModule {
    * 
    * @example
    * // Create event with default text containing variable references
-   * await oscBridge.createChatEvent('player_joined', 'Player {vrcx_player_name} joined');
+   * await oscBridge.createChatEvent('Player joined your instance', 'Player {vrcx_player_name} joined');
    */
   async createChatEvent(name: string, displayName?: string): Promise<boolean> {
     if (!this.oscReady) {
@@ -926,7 +926,7 @@ class OSCBridgePlugin extends CustomModule {
    * // Set variables first, then trigger event (auto-creates if needed)
    * await oscBridge.setChatVariable('player_name', 'John');
    * await oscBridge.setChatVariable('player_id', 'usr_xxx');
-   * await oscBridge.triggerChatEvent('player_joined', 'Player {vrcx_player_name} joined');
+   * await oscBridge.triggerChatEvent('Player joined your instance', 'Player {vrcx_player_name} joined');
    */
   async triggerChatEvent(name: string, displayName?: string): Promise<boolean> {
     if (!this.oscReady) {

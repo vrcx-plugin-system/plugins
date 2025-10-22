@@ -2,6 +2,11 @@
 class ChatBoxEventsPlugin extends CustomModule {
   lastSentMessages: Map<string, number>;
   oscBridge: any;
+  vrcoscData: {
+    variables: Record<string, { key: string; name: string; value: any }>;
+    events: Record<string, { key: string; name: string; defaultText: string }>;
+    states: Record<string, { key: string; name: string; defaultText: string }>;
+  };
 
   constructor() {
     super({
@@ -17,6 +22,25 @@ class ChatBoxEventsPlugin extends CustomModule {
     });
 
     this.lastSentMessages = new Map();
+
+    // Centralized VRCOSC data definitions
+    this.vrcoscData = {
+      variables: {
+        player_name: { key: 'player_name', name: 'Player Name', value: '' },
+        player_id: { key: 'player_id', name: 'Player ID', value: '' },
+        api_error: { key: 'api_error', name: 'API Error Message', value: '' },
+        api_code: { key: 'api_code', name: 'API Error Code', value: 0 },
+        status_text: { key: 'status_text', name: 'VRChat Status', value: '' }
+      },
+      events: {
+        player_joined: { key: 'player_joined', name: 'Player Joined', defaultText: 'Player {vrcx_player_name} joined' },
+        player_left: { key: 'player_left', name: 'Player Left', defaultText: 'Player {vrcx_player_name} left' },
+        api_error: { key: 'api_error', name: 'API Error', defaultText: 'API Error: {vrcx_api_error}' },
+        vrc_status_operational: { key: 'vrc_status_operational', name: 'VRChat Services Operational', defaultText: 'VRChat: {vrcx_status_text}' },
+        vrc_status_issue: { key: 'vrc_status_issue', name: 'VRChat Services Issue', defaultText: 'VRChat: {vrcx_status_text}' }
+      },
+      states: {}
+    };
   }
 
   async load() {
@@ -147,6 +171,18 @@ class ChatBoxEventsPlugin extends CustomModule {
       },
     });
 
+    this.actionButtons = [
+      {
+        title: "Create VRCOSC Data",
+        color: "primary",
+        icon: "ri-signal-tower-line",
+        description: "Create Variables, States and Events required so you can set them up in VRCOSC",
+        callback: async () => {
+          await this.createVRCOSCData();
+        },
+      },
+    ];
+
     this.loaded = true;
     this.logger.log("ChatBox Events plugin loaded");
   }
@@ -159,20 +195,77 @@ class ChatBoxEventsPlugin extends CustomModule {
       return;
     }
 
-    // Create ChatBox events with default text (including variable references)
-    await this.oscBridge.createChatEvent('player_joined', 'Player {vrcx_player_name} joined');
-    await this.oscBridge.createChatEvent('player_left', 'Player {vrcx_player_name} left');
-    await this.oscBridge.createChatEvent('api_error', 'API Error: {vrcx_api_error}');
-    await this.oscBridge.createChatEvent('vrc_status', 'VRChat: {vrcx_status_text}');
-    this.logger.log("ChatBox events created");
-
     this.setupGameLogMonitoring();
     this.setupApiErrorMonitoring();
     this.setupVrcStatusMonitoring();
 
     this.enabled = true;
     this.started = true;
-    this.logger.log("ChatBox Events started and monitoring events");
+    this.logger.log("ChatBox Events started and monitoring (events will auto-create on first trigger)");
+  }
+
+  async createVRCOSCData() {
+    if (!this.oscBridge) {
+      this.oscBridge = window.customjs.getModule("osc-bridge");
+      if (!this.oscBridge) {
+        this.logger.showError("OSC Bridge module not found - cannot create VRCOSC data");
+        return;
+      }
+    }
+
+    this.logger.showInfo("Creating VRCOSC variables, states, and events...");
+    let created = 0;
+    let failed = 0;
+
+    try {
+      // Create all variables
+      for (const variable of Object.values(this.vrcoscData.variables)) {
+        try {
+          await this.oscBridge.setChatVariable(variable.key, variable.value);
+          created++;
+        } catch (error) {
+          this.logger.error(`Failed to create variable '${variable.name}': ${error}`);
+          failed++;
+        }
+      }
+
+      // Create all states
+      for (const state of Object.values(this.vrcoscData.states)) {
+        try {
+          await this.oscBridge.createChatState(state.key, state.defaultText);
+          created++;
+        } catch (error) {
+          this.logger.error(`Failed to create state '${state.name}': ${error}`);
+          failed++;
+        }
+      }
+
+      // Create all events
+      for (const event of Object.values(this.vrcoscData.events)) {
+        try {
+          await this.oscBridge.createChatEvent(event.key, event.defaultText);
+          created++;
+        } catch (error) {
+          this.logger.error(`Failed to create event '${event.name}': ${error}`);
+          failed++;
+        }
+      }
+
+      const summary = [];
+      const varCount = Object.keys(this.vrcoscData.variables).length;
+      const stateCount = Object.keys(this.vrcoscData.states).length;
+      const eventCount = Object.keys(this.vrcoscData.events).length;
+      
+      if (varCount > 0) summary.push(`${varCount} variables`);
+      if (stateCount > 0) summary.push(`${stateCount} states`);
+      if (eventCount > 0) summary.push(`${eventCount} events`);
+
+      this.logger.showSuccess(`Created ${created} VRCOSC items${failed > 0 ? ` (${failed} failed)` : ''}`);
+      this.logger.log(`✓ ${summary.join(', ')}`);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.showError(`Failed to create VRCOSC data: ${errorMsg}`);
+    }
   }
 
   setupGameLogMonitoring() {
@@ -249,10 +342,10 @@ class ChatBoxEventsPlugin extends CustomModule {
       if (!isFriend) return;
     }
 
-    // Set variables and trigger event
-    await this.oscBridge.setChatVariable('player_name', displayName);
-    await this.oscBridge.setChatVariable('player_id', userId);
-    await this.oscBridge.triggerChatEvent('player_joined');
+    // Set variables and trigger event (auto-creates event on first trigger)
+    await this.oscBridge.setChatVariable(this.vrcoscData.variables.player_name.key, displayName);
+    await this.oscBridge.setChatVariable(this.vrcoscData.variables.player_id.key, userId);
+    await this.oscBridge.triggerChatEvent(this.vrcoscData.events.player_joined.key, this.vrcoscData.events.player_joined.defaultText);
   }
 
   async handlePlayerLeft(entry: any) {
@@ -265,10 +358,10 @@ class ChatBoxEventsPlugin extends CustomModule {
       if (!isFriend) return;
     }
 
-    // Set variables and trigger event
-    await this.oscBridge.setChatVariable('player_name', displayName);
-    await this.oscBridge.setChatVariable('player_id', userId);
-    await this.oscBridge.triggerChatEvent('player_left');
+    // Set variables and trigger event (auto-creates event on first trigger)
+    await this.oscBridge.setChatVariable(this.vrcoscData.variables.player_name.key, displayName);
+    await this.oscBridge.setChatVariable(this.vrcoscData.variables.player_id.key, userId);
+    await this.oscBridge.triggerChatEvent(this.vrcoscData.events.player_left.key, this.vrcoscData.events.player_left.defaultText);
   }
 
   async isFriend(userId: string): Promise<boolean> {
@@ -300,10 +393,10 @@ class ChatBoxEventsPlugin extends CustomModule {
       message = `Error ${code}`;
     }
 
-    // Set variables and trigger event
-    await this.oscBridge.setChatVariable('api_error', message);
-    await this.oscBridge.setChatVariable('api_code', code);
-    await this.oscBridge.triggerChatEvent('api_error');
+    // Set variables and trigger event (auto-creates event on first trigger)
+    await this.oscBridge.setChatVariable(this.vrcoscData.variables.api_error.key, message);
+    await this.oscBridge.setChatVariable(this.vrcoscData.variables.api_code.key, code);
+    await this.oscBridge.triggerChatEvent(this.vrcoscData.events.api_error.key, this.vrcoscData.events.api_error.defaultText);
   }
 
   getErrorSeverity(statusCode: number): string {
@@ -317,13 +410,13 @@ class ChatBoxEventsPlugin extends CustomModule {
     // If statusText is empty, services are operational
     if (!statusText) {
       if (this.settings.store.vrcStatusRecovery) {
-        await this.oscBridge.setChatVariable('status_text', 'Services operational');
-        await this.oscBridge.triggerChatEvent('vrc_status');
+        await this.oscBridge.setChatVariable(this.vrcoscData.variables.status_text.key, 'Services operational');
+        await this.oscBridge.triggerChatEvent(this.vrcoscData.events.vrc_status_operational.key, this.vrcoscData.events.vrc_status_operational.defaultText);
       }
     } else {
       // Services have issues
-      await this.oscBridge.setChatVariable('status_text', statusText);
-      await this.oscBridge.triggerChatEvent('vrc_status');
+      await this.oscBridge.setChatVariable(this.vrcoscData.variables.status_text.key, statusText);
+      await this.oscBridge.triggerChatEvent(this.vrcoscData.events.vrc_status_issue.key, this.vrcoscData.events.vrc_status_issue.defaultText);
     }
   }
 
