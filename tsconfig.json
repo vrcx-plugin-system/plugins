@@ -21,8 +21,17 @@
     "strictPropertyInitialization": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "typeRoots": ["../vrcx-plugin-system/src/types", "./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "vrcx-plugin-system": ["../vrcx-plugin-system/src/index.ts"],
+      "vrcx-plugin-system/*": ["../vrcx-plugin-system/src/*"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "../vrcx-plugin-system/src/types/**/*.d.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

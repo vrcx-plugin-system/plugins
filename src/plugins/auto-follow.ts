@@ -1,4 +1,3 @@
-// 
 /**
  * Auto Follow Plugin
  * Automatic location tracking system that follows selected users
