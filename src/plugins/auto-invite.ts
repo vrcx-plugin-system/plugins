@@ -422,8 +422,15 @@ class AutoInvitePlugin extends CustomModule {
             worldName: worldName,
           };
 
+          // Check if message contains personalized placeholders
+          const hasPersonalization = customMessage && (
+            customMessage.includes('{userId}') ||
+            customMessage.includes('{userName}') ||
+            customMessage.includes('{userDisplayName}')
+          );
+
           // Try to use invite-message-api if available and enabled
-          if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteMessage) {
+          if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteMessage && !hasPersonalization) {
             try {
               const result = await inviteMessageApi.requestInviteMessage(customMessage);
               if (result && result.message) {
@@ -437,8 +444,11 @@ class AutoInvitePlugin extends CustomModule {
             } catch (error) {
               this.logger.warn(`Failed to use invite-message-api: ${error.message}, sending without message`);
             }
-          } else if (customMessage && !inviteMessageApi) {
-            // Fallback: use direct message if invite-message-api not available
+          } else if (customMessage) {
+            // Use direct message for personalized messages or when invite-message-api not available
+            if (hasPersonalization) {
+              this.logger.log(`Using direct invite message for ${user.displayName} (personalized): "${customMessage}"`);
+            }
             (inviteParams as any).message = customMessage;
           }
 
