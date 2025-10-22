@@ -778,6 +778,159 @@ class OSCBridgePlugin extends CustomModule {
     }
   }
 
+  /**
+   * Get all ChatBox variables
+   * @returns Object with variable information
+   */
+  async getChatVariables(): Promise<any> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return null;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('GET_VARIABLES', {}, requestId);
+      
+      if (response?.success) {
+        return response.variables || [];
+      } else {
+        this.logger.error(`Failed to get variables: ${response?.error || 'Unknown error'}`);
+        return null;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to get variables: ${errorMsg}`);
+      return null;
+    }
+  }
+
+  /**
+   * Change to a ChatBox state (auto-creates if doesn't exist)
+   * @param name - State name to switch to (will be prefixed with vrcx_)
+   * @param displayName - Optional display name (only used if state doesn't exist yet)
+   * @returns true if successful
+   * 
+   * @example
+   * await oscBridge.setChatState('idle', 'Idle State');
+   * await oscBridge.setChatState('idle'); // Switch to existing state
+   */
+  async setChatState(name: string, displayName?: string): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('SET_STATE', { name, displayName }, requestId);
+      
+      if (response?.success) {
+        if (this.settings.store.logCommands) {
+          this.logger.log(`✓ Changed to state 'vrcx_${name}'`);
+        }
+        return true;
+      } else {
+        this.logger.error(`Failed to set state '${name}': ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to set state '${name}': ${errorMsg}`);
+      return false;
+    }
+  }
+
+  /**
+   * Trigger a ChatBox event (auto-creates if doesn't exist)
+   * @param name - Event name to trigger (will be prefixed with vrcx_)
+   * @param displayName - Optional display name (only used if event doesn't exist yet)
+   * @returns true if successful
+   * 
+   * @example
+   * await oscBridge.triggerChatEvent('friend_joined', 'Friend Joined');
+   * await oscBridge.triggerChatEvent('friend_joined'); // Trigger existing event
+   */
+  async triggerChatEvent(name: string, displayName?: string): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('TRIGGER_EVENT', { name, displayName }, requestId);
+      
+      if (response?.success) {
+        if (this.settings.store.logCommands) {
+          this.logger.log(`✓ Triggered event 'vrcx_${name}'`);
+        }
+        return true;
+      } else {
+        this.logger.error(`Failed to trigger event '${name}': ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to trigger event '${name}': ${errorMsg}`);
+      return false;
+    }
+  }
+
+  /**
+   * Get all ChatBox states
+   * @returns Array of states with name, key, and displayName
+   */
+  async getChatStates(): Promise<any> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return null;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('GET_STATES', {}, requestId);
+      
+      if (response?.success) {
+        return response.states || [];
+      } else {
+        this.logger.error(`Failed to get states: ${response?.error || 'Unknown error'}`);
+        return null;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to get states: ${errorMsg}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get all ChatBox events
+   * @returns Array of events with name, key, and displayName
+   */
+  async getChatEvents(): Promise<any> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return null;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('GET_EVENTS', {}, requestId);
+      
+      if (response?.success) {
+        return response.events || [];
+      } else {
+        this.logger.error(`Failed to get events: ${response?.error || 'Unknown error'}`);
+        return null;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to get events: ${errorMsg}`);
+      return null;
+    }
+  }
+
   private generateRequestId(): string {
     return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
