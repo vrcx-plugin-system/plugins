@@ -422,21 +422,14 @@ class AutoInvitePlugin extends CustomModule {
             worldName: worldName,
           };
 
-          // Check if message contains personalized placeholders
-          const hasPersonalization = customMessage && (
-            customMessage.includes('{userId}') ||
-            customMessage.includes('{userName}') ||
-            customMessage.includes('{userDisplayName}')
-          );
-
           // Try to use invite-message-api if available and enabled
-          if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteMessage && !hasPersonalization) {
+          if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteMessage) {
             try {
               const result = await inviteMessageApi.requestInviteMessage(customMessage);
               if (result && result.message) {
                 // Use message slot instead of direct message
                 (inviteParams as any).messageSlot = result.message.slot;
-                this.logger.log(`Using invite message slot ${result.message.slot} for ${user.displayName}`);
+                this.logger.log(`Using invite message slot ${result.message.slot} for ${user.displayName}: "${customMessage}"`);
               } else {
                 // Fallback: send without message if slot unavailable
                 this.logger.warn(`Invite message slot unavailable, sending invite without message to ${user.displayName}`);
@@ -444,11 +437,8 @@ class AutoInvitePlugin extends CustomModule {
             } catch (error) {
               this.logger.warn(`Failed to use invite-message-api: ${error.message}, sending without message`);
             }
-          } else if (customMessage) {
-            // Use direct message for personalized messages or when invite-message-api not available
-            if (hasPersonalization) {
-              this.logger.log(`Using direct invite message for ${user.displayName} (personalized): "${customMessage}"`);
-            }
+          } else if (customMessage && !inviteMessageApi) {
+            // Fallback: use direct message if invite-message-api not available
             (inviteParams as any).message = customMessage;
           }
 

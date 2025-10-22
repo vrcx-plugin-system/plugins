@@ -222,10 +222,12 @@ class InviteMessageApiPlugin extends CustomModule {
     // Find a message with matching text (no cooldown check needed since we're not editing)
     for (const message of messages) {
       if (message.message === text) {
+        this.logger.log(`Found existing message in slot ${message.slot}: "${message.message}"`);
         return message;
       }
     }
 
+    this.logger.log(`No existing message found for: "${text}"`);
     return null;
   }
 

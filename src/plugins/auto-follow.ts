@@ -443,17 +443,6 @@ class AutoFollowPlugin extends CustomModule {
       );
 
       try {
-        // Get custom message template from settings
-        const messageTemplate =
-          this.settings.store.customInviteRequestMessage || "Can I join you?";
-
-        // Process template
-        const customMessage = this.processInviteMessageTemplate(
-          messageTemplate,
-          user,
-          worldName,
-          location
-        );
 
         // Build invite request params
         const inviteParams = {
@@ -464,9 +453,20 @@ class AutoFollowPlugin extends CustomModule {
 
         // Try to use invite-message-api if available and enabled
         const useCustomMessage = this.settings.store.useCustomInviteMessage !== false;
+        // Get custom message template from settings
+        const messageTemplate =
+          this.settings.store.customInviteRequestMessage || "Can I join you?";
         const inviteMessageApi = window.customjs.getModule('invite-message-api') as any;
+          // Process template
+          const customMessage = this.processInviteMessageTemplate(
+            messageTemplate,
+            user,
+            worldName,
+            location
+          );
 
         if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteRequestMessage) {
+          console.log(`Formatted Custom message: ${customMessage}`);
           try {
             const result = await inviteMessageApi.requestInviteRequestMessage(customMessage);
             if (result && result.message) {
@@ -511,7 +511,7 @@ class AutoFollowPlugin extends CustomModule {
           displayName: user.displayName,
           type: "requestInvite",
           created_at: new Date().toJSON(),
-          message: customMessage || "Auto Follow: Requested invite",
+          message: customMessage,
           senderUserId: currentUser?.id,
           senderUsername: currentUser?.displayName,
           details: {
