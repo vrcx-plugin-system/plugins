@@ -371,12 +371,6 @@ class AutoInvitePlugin extends CustomModule {
     );
 
     try {
-      // Get custom message template from config
-      const messageTemplate = this.get(
-        "messages.customInviteMessage",
-        "Auto-invite from VRCX"
-      );
-
       // Check if we should use custom invite messages
       const useCustomMessage = this.settings.store.useCustomInviteMessage !== false;
       const inviteMessageApi = window.customjs.getModule('invite-message-api') as any;
@@ -391,26 +385,10 @@ class AutoInvitePlugin extends CustomModule {
           }
 
           // Process template for each user
-          let customMessage = null;
-
-          if (messageTemplate) {
-            customMessage = this.processInviteMessageTemplate(
-              messageTemplate,
-              user,
-              worldName,
-              instanceId
-            );
-          }
-
-          // Fallback to default config if null
-          if (!customMessage && this.settings.store.customInviteMessage) {
-            customMessage = this.processInviteMessageTemplate(
-              this.settings.store.customInviteMessage,
-              user,
-              worldName,
-              instanceId
-            );
-          }
+          const messageTemplate = this.settings.store.customInviteMessage;
+          const customMessage = messageTemplate 
+            ? this.processInviteMessageTemplate(messageTemplate, user, worldName, instanceId)
+            : null;
 
           // Send group invite if needed (for group-only instances)
           await this.sendGroupInviteIfNeeded(user.id, user.displayName, destination);
