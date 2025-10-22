@@ -466,7 +466,7 @@ class AutoFollowPlugin extends CustomModule {
           );
 
         if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteRequestMessage) {
-          console.log(`Formatted Custom message: ${customMessage}`);
+          this.logger.log(`Formatted Custom Invite message: ${customMessage}`);
           try {
             const result = await inviteMessageApi.requestInviteRequestMessage(customMessage);
             if (result && result.message) {

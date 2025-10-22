@@ -424,6 +424,7 @@ class AutoInvitePlugin extends CustomModule {
 
           // Try to use invite-message-api if available and enabled
           if (useCustomMessage && customMessage && inviteMessageApi?.requestInviteMessage) {
+            this.logger.log(`Formatted Custom Invite message: ${customMessage}`);
             try {
               const result = await inviteMessageApi.requestInviteMessage(customMessage);
               if (result && result.message) {
