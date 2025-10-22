@@ -34,11 +34,12 @@ class OSCBridgePlugin extends CustomModule {
         icon: "ri-signal-tower-line",
         description: "Send test ping to OSC application",
         callback: async () => {
-          this.sendChatBox('VRCX Plugin Test');
-          this.setChatState('test', 'Test State');
-          this.triggerChatEvent('test', 'Test Event');
-          this.storeChatVariable('test', 'Test Variable');
-          this.logger.showInfo("Test message sent to OSC app");
+          let success = 0;
+          try {this.setChatState('test', 'Test State');success++;} catch (error) {this.logger.error(`Failed to set state: ${error}`); }
+          try {this.triggerChatEvent('test', 'Test Event');success++;} catch (error) {this.logger.error(`Failed to trigger event: ${error}`); }
+          try {this.storeChatVariable('test', 'Test Variable');success++;} catch (error) {this.logger.error(`Failed to store variable: ${error}`); }
+          try {this.sendChatBox('VRCX Plugin Test');success++;} catch (error) {this.logger.error(`Failed to send chat box: ${error}`); }
+          this.logger.showInfo(`${success}/4 osc tests sucessfull, check console for details`);
         },
       },
       {
