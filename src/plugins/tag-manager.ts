@@ -842,11 +842,31 @@ class TagManagerPlugin extends CustomModule {
    * @returns {object|null} Tag object or null
    */
   getUserTag(userId) {
-    const customTags = window.$pinia?.user?.customUserTags;
-    if (!customTags || customTags.size === 0) {
-      return null;
+    // Try to use tag-api for multi-tag support
+    const tagApi = window.customjs.getModule('tag-api') as any;
+    if (tagApi && tagApi.getUserTags) {
+      const tags = tagApi.getUserTags(userId);
+      if (tags && tags.length > 0) {
+        return tags[0];
+      }
     }
-    return customTags.get(userId) || null;
+    
+    // Fallback to userStore method if tag-api not available
+    const userStore = window.$pinia?.user;
+    if (userStore && userStore.getCustomUserTags) {
+      const tags = userStore.getCustomUserTags(userId);
+      if (tags && tags.length > 0) {
+        return tags[0];
+      }
+    }
+    
+    // Legacy fallback to direct pinia store access
+    const customTags = window.$pinia?.user?.customUserTags;
+    if (customTags && customTags.size > 0) {
+      return customTags.get(userId) || null;
+    }
+    
+    return null;
   }
 
   /**
