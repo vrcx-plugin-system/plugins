@@ -22,6 +22,7 @@ const DEFAULT_ENABLED = [
   "bio-symbols-patch",
   "api-retry-patch",
   "user-badge-pipeline-patch",
+  "invite-params-fix",
   "context-menu-api",
   "nav-menu-api",
   "dialog-api",
