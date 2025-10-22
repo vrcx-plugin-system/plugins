@@ -384,6 +384,12 @@ class AutoInvitePlugin extends CustomModule {
       // Send invites to all users in the list
       const invitePromises = Array.from(this.autoInviteUsers.values()).map(
         async (user) => {
+          // Skip if user is already in the target instance
+          if (user.location === destination) {
+            this.logger.log(`Skipping ${user.displayName} - already in target instance`);
+            return Promise.resolve();
+          }
+
           // Process template for each user
           let customMessage = null;
 

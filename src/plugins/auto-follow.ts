@@ -374,6 +374,16 @@ class AutoFollowPlugin extends CustomModule {
       (L.accessType === "group" && L.groupId);
 
     if (isJoinable) {
+      // Check if we're already in or traveling to this instance
+      const locationStore = window.$pinia?.location;
+      const currentLocation = locationStore?.lastLocation?.location;
+      const travelingTo = locationStore?.lastLocationDestination;
+      
+      if (currentLocation === location || travelingTo === location) {
+        this.logger.log(`Skipping self-invite - already in or traveling to instance`);
+        return;
+      }
+
       // Join group if needed (for group-only instances)
       await this.joinGroupIfNeeded(location, userName);
 
@@ -414,6 +424,16 @@ class AutoFollowPlugin extends CustomModule {
         );
       }
     } else if (isPrivateInviteOnly || L.accessType === "invite") {
+      // Check if we're already in or traveling to this instance
+      const locationStore = window.$pinia?.location;
+      const currentLocation = locationStore?.lastLocation?.location;
+      const travelingTo = locationStore?.lastLocationDestination;
+      
+      if (currentLocation === location || travelingTo === location) {
+        this.logger.log(`Skipping invite request - already in or traveling to instance`);
+        return;
+      }
+
       // Join group if needed (for group-only instances)
       await this.joinGroupIfNeeded(location, userName);
 
