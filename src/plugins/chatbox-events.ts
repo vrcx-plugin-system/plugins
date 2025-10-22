@@ -159,6 +159,13 @@ class ChatBoxEventsPlugin extends CustomModule {
       return;
     }
 
+    // Create ChatBox events with default text (including variable references)
+    await this.oscBridge.createChatEvent('player_joined', 'Player {vrcx_player_name} joined');
+    await this.oscBridge.createChatEvent('player_left', 'Player {vrcx_player_name} left');
+    await this.oscBridge.createChatEvent('api_error', 'API Error: {vrcx_api_error}');
+    await this.oscBridge.createChatEvent('vrc_status', 'VRChat: {vrcx_status_text}');
+    this.logger.log("ChatBox events created");
+
     this.setupGameLogMonitoring();
     this.setupApiErrorMonitoring();
     this.setupVrcStatusMonitoring();
@@ -234,7 +241,7 @@ class ChatBoxEventsPlugin extends CustomModule {
 
   async handlePlayerJoined(entry: any) {
     const displayName = entry.displayName || "Unknown";
-    const userId = entry.userId;
+    const userId = entry.userId || "";
 
     // Check if friend filter is enabled
     if (this.settings.store.onlyFriends && userId) {
@@ -242,13 +249,15 @@ class ChatBoxEventsPlugin extends CustomModule {
       if (!isFriend) return;
     }
 
-    const message = `${displayName} joined`;
-    this.sendToChatBox(message);
+    // Set variables and trigger event
+    await this.oscBridge.setChatVariable('player_name', displayName);
+    await this.oscBridge.setChatVariable('player_id', userId);
+    await this.oscBridge.triggerChatEvent('player_joined');
   }
 
   async handlePlayerLeft(entry: any) {
     const displayName = entry.displayName || "Unknown";
-    const userId = entry.userId;
+    const userId = entry.userId || "";
 
     // Check if friend filter is enabled
     if (this.settings.store.onlyFriends && userId) {
@@ -256,8 +265,10 @@ class ChatBoxEventsPlugin extends CustomModule {
       if (!isFriend) return;
     }
 
-    const message = `${displayName} left`;
-    this.sendToChatBox(message);
+    // Set variables and trigger event
+    await this.oscBridge.setChatVariable('player_name', displayName);
+    await this.oscBridge.setChatVariable('player_id', userId);
+    await this.oscBridge.triggerChatEvent('player_left');
   }
 
   async isFriend(userId: string): Promise<boolean> {
@@ -266,7 +277,7 @@ class ChatBoxEventsPlugin extends CustomModule {
     return friends.includes(userId);
   }
 
-  handleApiError(code: number, error: any, endpoint: string) {
+  async handleApiError(code: number, error: any, endpoint: string) {
     const severity = this.getErrorSeverity(code);
     const minSeverity = this.settings.store.apiErrorMinSeverity;
 
@@ -276,25 +287,23 @@ class ChatBoxEventsPlugin extends CustomModule {
     
     let message = "";
     if (code === 429) {
-      message = "Rate limited by VRChat API";
+      message = "Rate limited";
     } else if (code === 401) {
-      message = "API authentication failed";
+      message = "Auth failed";
     } else if (code === 403) {
-      message = "API access forbidden";
+      message = "Access forbidden";
     } else if (code === 404) {
-      message = "API endpoint not found";
+      message = "Not found";
     } else if (code >= 500) {
-      message = "VRChat API server error";
+      message = "Server error";
     } else {
-      message = `API error ${code}`;
+      message = `Error ${code}`;
     }
 
-    // Add endpoint info if available
-    if (endpoint && this.settings.store.apiErrorMinSeverity === "all") {
-      message += ` (${endpoint.split('/')[0]})`;
-    }
-
-    this.sendToChatBox(message);
+    // Set variables and trigger event
+    await this.oscBridge.setChatVariable('api_error', message);
+    await this.oscBridge.setChatVariable('api_code', code);
+    await this.oscBridge.triggerChatEvent('api_error');
   }
 
   getErrorSeverity(statusCode: number): string {
@@ -304,15 +313,17 @@ class ChatBoxEventsPlugin extends CustomModule {
     return "all";
   }
 
-  handleVrcStatusChange(statusText: string) {
+  async handleVrcStatusChange(statusText: string) {
     // If statusText is empty, services are operational
     if (!statusText) {
       if (this.settings.store.vrcStatusRecovery) {
-        this.sendToChatBox("VRChat services operational");
+        await this.oscBridge.setChatVariable('status_text', 'Services operational');
+        await this.oscBridge.triggerChatEvent('vrc_status');
       }
     } else {
       // Services have issues
-      this.sendToChatBox(`VRChat issue: ${statusText}`);
+      await this.oscBridge.setChatVariable('status_text', statusText);
+      await this.oscBridge.triggerChatEvent('vrc_status');
     }
   }
 

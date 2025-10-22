@@ -35,9 +35,9 @@ class OSCBridgePlugin extends CustomModule {
         description: "Send test ping to OSC application",
         callback: async () => {
           let success = 0;
-          try {this.setChatState('test', 'Test State');success++;} catch (error) {this.logger.error(`Failed to set state: ${error}`); }
-          try {this.triggerChatEvent('test', 'Test Event');success++;} catch (error) {this.logger.error(`Failed to trigger event: ${error}`); }
-          try {this.storeChatVariable('test', 'Test Variable');success++;} catch (error) {this.logger.error(`Failed to store variable: ${error}`); }
+          try {await this.setChatState('test', 'Test State');success++;} catch (error) {this.logger.error(`Failed to set state: ${error}`); }
+          try {await this.setChatVariable('test', 'Test Variable');success++;} catch (error) {this.logger.error(`Failed to set variable: ${error}`); }
+          try {await this.triggerChatEvent('test', 'Test Event: {vrcx_test}');success++;} catch (error) {this.logger.error(`Failed to trigger event: ${error}`); }
           try {this.sendChatBox('VRCX Plugin Test');success++;} catch (error) {this.logger.error(`Failed to send chat box: ${error}`); }
           this.logger.showInfo(`${success}/4 osc tests sucessfull, check console for details`);
         },
@@ -155,7 +155,7 @@ class OSCBridgePlugin extends CustomModule {
       },
       enableDirectChatBox: {
         type: SettingType.BOOLEAN,
-        description: "⚠️ Enable deprecated direct ChatBox methods (sendChatBox/clearChatBox). Use storeChatVariable() instead.",
+        description: "⚠️ Enable deprecated direct ChatBox methods (sendChatBox/clearChatBox). Use setChatVariable() instead.",
         category: "chatbox",
         default: false,
       },
@@ -646,19 +646,19 @@ class OSCBridgePlugin extends CustomModule {
   }
 
   /**
-   * @deprecated Use storeChatVariable() instead for proper ChatBox integration
+   * @deprecated Use setChatVariable() instead for proper ChatBox integration
    * Send ChatBox message to VRChat (deprecated - requires manual enablement)
    * @param message - Message text (max 144 chars)
    * @param immediate - Send immediately (true) or type out (false)
    */
   sendChatBox(message: string, immediate: boolean = true): boolean {
     if (!this.settings.store.enableDirectChatBox) {
-      this.logger.showWarning("Direct ChatBox methods are disabled. Use storeChatVariable() or enable in settings.");
-      this.logger.warn("⚠️ sendChatBox() is deprecated. Use storeChatVariable() + ChatBox timeline for proper integration.");
+      this.logger.showWarning("Direct ChatBox methods are disabled. Use setChatVariable() or enable in settings.");
+      this.logger.warn("⚠️ sendChatBox() is deprecated. Use setChatVariable() + ChatBox timeline for proper integration.");
       return false;
     }
 
-    this.logger.warn("⚠️ Using deprecated sendChatBox(). Consider using storeChatVariable() + ChatBox timeline instead.");
+    this.logger.warn("⚠️ Using deprecated sendChatBox(). Consider using setChatVariable() + ChatBox timeline instead.");
     
     const prefix = this.settings.store.chatboxPrefix || '';
     const suffix = this.settings.store.chatboxSuffix || '';
@@ -671,17 +671,17 @@ class OSCBridgePlugin extends CustomModule {
   }
 
   /**
-   * @deprecated Use storeChatVariable() with empty string instead
+   * @deprecated Use setChatVariable() with empty string instead
    * Clear ChatBox (deprecated - requires manual enablement)
    */
   clearChatBox(): boolean {
     if (!this.settings.store.enableDirectChatBox) {
-      this.logger.showWarning("Direct ChatBox methods are disabled. Use storeChatVariable('', '') or enable in settings.");
-      this.logger.warn("⚠️ clearChatBox() is deprecated. Use storeChatVariable() + ChatBox timeline instead.");
+      this.logger.showWarning("Direct ChatBox methods are disabled. Use setChatVariable('', '') or enable in settings.");
+      this.logger.warn("⚠️ clearChatBox() is deprecated. Use setChatVariable() + ChatBox timeline instead.");
       return false;
     }
 
-    this.logger.warn("⚠️ Using deprecated clearChatBox(). Consider using storeChatVariable('', '') instead.");
+    this.logger.warn("⚠️ Using deprecated clearChatBox(). Consider using setChatVariable('', '') instead.");
     return this.sendOSC('/chatbox/input', ['', true, false]);
   }
 
@@ -748,15 +748,15 @@ class OSCBridgePlugin extends CustomModule {
    * 
    * @example
    * // Store a string variable
-   * await oscBridge.storeChatVariable('plugin1_status', 'Active');
+   * await oscBridge.setChatVariable('plugin1_status', 'Active');
    * // Then use {vrcx_plugin1_status} in your ChatBox timeline
    * 
    * @example
    * // Store a counter
-   * await oscBridge.storeChatVariable('friend_count', 42);
+   * await oscBridge.setChatVariable('friend_count', 42);
    * // Use {vrcx_friend_count} in ChatBox timeline
    */
-  async storeChatVariable(name: string, value: any): Promise<boolean> {
+  async setChatVariable(name: string, value: any): Promise<boolean> {
     if (!this.oscReady) {
       this.logger.warn("OSC app not ready - variable will be queued");
       return false;
@@ -810,13 +810,48 @@ class OSCBridgePlugin extends CustomModule {
   }
 
   /**
-   * Change to a ChatBox state (auto-creates if doesn't exist)
-   * @param name - State name to switch to (will be prefixed with vrcx_)
-   * @param displayName - Optional display name (only used if state doesn't exist yet)
+   * Create a ChatBox state
+   * @param name - State name (will be prefixed with vrcx_)
+   * @param displayName - Optional display name
    * @returns true if successful
    * 
    * @example
-   * await oscBridge.setChatState('idle', 'Idle State');
+   * await oscBridge.createChatState('idle', 'Idle State');
+   */
+  async createChatState(name: string, displayName?: string): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('CREATE_STATE', { name, displayName }, requestId);
+      
+      if (response?.success) {
+        if (this.settings.store.logCommands) {
+          this.logger.log(`✓ ChatBox state 'vrcx_${name}' created`);
+        }
+        return true;
+      } else {
+        this.logger.error(`Failed to create state '${name}': ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to create state '${name}': ${errorMsg}`);
+      return false;
+    }
+  }
+
+  /**
+   * Change to a ChatBox state (auto-creates if doesn't exist)
+   * @param name - State name to switch to (will be prefixed with vrcx_)
+   * @param displayName - Optional display name (only used if auto-creating)
+   * @returns true if successful
+   * 
+   * @example
+   * await oscBridge.setChatState('idle', 'Idle State'); // Auto-creates if needed
    * await oscBridge.setChatState('idle'); // Switch to existing state
    */
   async setChatState(name: string, displayName?: string): Promise<boolean> {
@@ -846,14 +881,52 @@ class OSCBridgePlugin extends CustomModule {
   }
 
   /**
-   * Trigger a ChatBox event (auto-creates if doesn't exist)
-   * @param name - Event name to trigger (will be prefixed with vrcx_)
-   * @param displayName - Optional display name (only used if event doesn't exist yet)
+   * Create a ChatBox event
+   * @param name - Event name (will be prefixed with vrcx_)
+   * @param displayName - Optional display name
    * @returns true if successful
    * 
    * @example
-   * await oscBridge.triggerChatEvent('friend_joined', 'Friend Joined');
-   * await oscBridge.triggerChatEvent('friend_joined'); // Trigger existing event
+   * // Create event with default text containing variable references
+   * await oscBridge.createChatEvent('player_joined', 'Player {vrcx_player_name} joined');
+   */
+  async createChatEvent(name: string, displayName?: string): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('CREATE_EVENT', { name, displayName }, requestId);
+      
+      if (response?.success) {
+        if (this.settings.store.logCommands) {
+          this.logger.log(`✓ ChatBox event 'vrcx_${name}' created`);
+        }
+        return true;
+      } else {
+        this.logger.error(`Failed to create event '${name}': ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to create event '${name}': ${errorMsg}`);
+      return false;
+    }
+  }
+
+  /**
+   * Trigger a ChatBox event (auto-creates if doesn't exist, set variables before triggering!)
+   * @param name - Event name to trigger (will be prefixed with vrcx_)
+   * @param displayName - Optional display name (only used if auto-creating)
+   * @returns true if successful
+   * 
+   * @example
+   * // Set variables first, then trigger event (auto-creates if needed)
+   * await oscBridge.setChatVariable('player_name', 'John');
+   * await oscBridge.setChatVariable('player_id', 'usr_xxx');
+   * await oscBridge.triggerChatEvent('player_joined', 'Player {vrcx_player_name} joined');
    */
   async triggerChatEvent(name: string, displayName?: string): Promise<boolean> {
     if (!this.oscReady) {
