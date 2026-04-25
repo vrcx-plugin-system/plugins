@@ -124,8 +124,8 @@ class DebugPlugin extends CustomModule {
 
       // VRCX state access
       getCurrentUser: () => (window as any).$pinia?.user?.currentUser,
-      getCurrentLocation: () => (window as any).$app?.lastLocation,
-      getFriends: () => (window as any).$pinia?.user?.currentUser?.friends,
+      getCurrentLocation: () => (window as any).$pinia?.location?.lastLocation,
+      getFriends: () => (window as any).$pinia?.friend?.friends,
       getCustomTags: () => (window as any).$pinia?.user?.customUserTags,
       getStores: () => (window as any).$pinia,
 

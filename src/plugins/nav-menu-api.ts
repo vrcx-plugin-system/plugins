@@ -83,11 +83,11 @@ class NavMenuApiPlugin extends CustomModule {
       const maxAttempts = 50; // 5 seconds max wait for items
 
       const checkNav = () => {
-        this.navMenu = document.querySelector(".el-menu");
+        this.navMenu = document.querySelector('[data-sidebar="menu"]');
 
         if (this.navMenu) {
           // Check if VRCX menu items are rendered
-          const navItems = this.navMenu.querySelectorAll(".el-menu-item");
+          const navItems = this.navMenu.querySelectorAll('[data-sidebar="menu-item"]');
 
           if (navItems.length > 0) {
             this.logger.log("Navigation menu found with items");
@@ -114,7 +114,7 @@ class NavMenuApiPlugin extends CustomModule {
   async setupContentArea() {
     return new Promise<void>((resolve) => {
       const findContentArea = () => {
-        this.contentParent = document.querySelector(".el-splitter");
+        this.contentParent = document.querySelector('[data-sidebar="inset"]') || document.querySelector('.group\/main-layout');
 
         if (this.contentParent) {
           this.logger.log("Content area found, ready to add tab content");
@@ -230,9 +230,9 @@ class NavMenuApiPlugin extends CustomModule {
       );
       if (menuItem) {
         if (activeIndex === itemId) {
-          menuItem.classList.add("is-active");
+          const btn = menuItem.querySelector('[data-sidebar="menu-button"]'); if (btn) btn.setAttribute("data-active", "true");
         } else {
-          menuItem.classList.remove("is-active");
+          const btn2 = menuItem.querySelector('[data-sidebar="menu-button"]'); if (btn2) btn2.setAttribute("data-active", "false");
         }
       }
     });
@@ -326,8 +326,8 @@ class NavMenuApiPlugin extends CustomModule {
       container.innerHTML = content;
     }
 
-    // Find the first el-splitter-panel and append to it
-    const panel = this.contentParent.querySelector(".el-splitter-panel");
+    // Find the first resizable panel or use contentParent directly
+    const panel = this.contentParent.querySelector('[data-panel]') || this.contentParent;
     if (panel) {
       panel.appendChild(container);
       this.contentContainers.set(id, container);
@@ -428,7 +428,7 @@ class NavMenuApiPlugin extends CustomModule {
 
     // If item has positioning requirements, ensure VRCX items are loaded
     if (item.position !== null || item.before || item.after) {
-      const navItems = this.navMenu.querySelectorAll(".el-menu-item");
+      const navItems = this.navMenu.querySelectorAll('[data-sidebar="menu-item"]');
       const vrcxItems = Array.from(navItems).filter(
         (el: Element) => !el.hasAttribute("data-custom-nav-item")
       );
@@ -449,31 +449,34 @@ class NavMenuApiPlugin extends CustomModule {
       }
     }
 
-    // Create the menu item element
+    // Create the menu item element (matches SidebarMenuItem structure)
     const menuItem = document.createElement("li");
-    menuItem.className = "el-menu-item";
+    menuItem.setAttribute("data-slot", "sidebar-menu-item");
+    menuItem.setAttribute("data-sidebar", "menu-item");
+    menuItem.className = "group/menu-item relative";
     menuItem.setAttribute("data-custom-nav-item", item.id);
     menuItem.setAttribute("role", "menuitem");
     menuItem.setAttribute("tabindex", "-1");
 
+    // Create button wrapper (matches SidebarMenuButton structure)
+    const button = document.createElement("button");
+    button.setAttribute("data-slot", "sidebar-menu-button");
+    button.setAttribute("data-sidebar", "menu-button");
+    button.setAttribute("data-size", "default");
+    button.className = "flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-8 text-sm group-data-[collapsible=icon]:!p-0";
+    button.setAttribute("title", item.label);
+
     // Create icon
     const icon = document.createElement("i");
-    icon.className = item.icon;
-    icon.style.fontSize = "19px";
-    icon.style.width = "24px";
-    icon.style.height = "24px";
-    icon.style.display = "inline-flex";
-    icon.style.alignItems = "center";
-    icon.style.justifyContent = "center";
+    icon.className = item.icon + " inline-flex size-6 items-center justify-center text-lg relative";
 
-    // Create tooltip wrapper
-    const tooltip = document.createElement("span");
-    tooltip.className = "el-tooltip__trigger";
-    tooltip.textContent = item.label;
-    tooltip.style.display = "none"; // Hidden until hover
+    // Create label span
+    const label = document.createElement("span");
+    label.textContent = item.label;
 
-    menuItem.appendChild(icon);
-    menuItem.appendChild(tooltip);
+    button.appendChild(icon);
+    button.appendChild(label);
+    menuItem.appendChild(button);
 
     // Add click handler with automatic cleanup
     const clickHandler = (e) => {
@@ -488,14 +491,14 @@ class NavMenuApiPlugin extends CustomModule {
 
       // If item has content, treat as tab - manage active state and switch content
       if (item.content) {
-        // Remove active class from all menu items (including VRCX native)
-        const allMenuItems = this.navMenu?.querySelectorAll(".el-menu-item");
-        allMenuItems?.forEach((el) => {
-          el.classList.remove("is-active");
+        // Remove active state from all menu buttons (including VRCX native)
+        const allMenuButtons = this.navMenu?.querySelectorAll('[data-sidebar="menu-button"]');
+        allMenuButtons?.forEach((el) => {
+          el.setAttribute("data-active", "false");
         });
 
         // Add active class to clicked item immediately
-        menuItem.classList.add("is-active");
+        button.setAttribute("data-active", "true");
 
         // Hide all VRCX native content containers
         if (this.contentParent) {
@@ -541,9 +544,9 @@ class NavMenuApiPlugin extends CustomModule {
       // If no content, treat as button - don't manage active state or switch tabs
       else {
         // Just flash the item to show it was clicked
-        menuItem.classList.add("is-active");
+        button.setAttribute("data-active", "true");
         setTimeout(() => {
-          menuItem.classList.remove("is-active");
+          button.setAttribute("data-active", "false");
         }, 200);
       }
 
@@ -553,21 +556,21 @@ class NavMenuApiPlugin extends CustomModule {
       }
     };
 
-    this.registerListener(menuItem, "click", clickHandler);
+    this.registerListener(button, "click", clickHandler);
 
     // Add hover effect to show tooltip
     const hoverHandler = () => {
       menuItem.setAttribute("title", item.label);
     };
 
-    this.registerListener(menuItem, "mouseenter", hoverHandler);
+    this.registerListener(button, "mouseenter", hoverHandler);
 
     // Determine insertion position
     let referenceNode = null;
 
     // Position takes precedence (absolute index)
     if (item.position !== null) {
-      const allItems = this.navMenu.querySelectorAll(".el-menu-item");
+      const allItems = this.navMenu.querySelectorAll('[data-sidebar="menu-item"]');
       if (item.position >= 0 && item.position < allItems.length) {
         referenceNode = allItems[item.position];
       } else if (item.position < 0) {
@@ -580,7 +583,7 @@ class NavMenuApiPlugin extends CustomModule {
       // If position is >= length, referenceNode stays null and item appends to end
     } else if (item.before) {
       // Insert before a specific item
-      const allItems = this.navMenu.querySelectorAll(".el-menu-item");
+      const allItems = this.navMenu.querySelectorAll('[data-sidebar="menu-item"]');
       for (const existingItem of Array.from(allItems)) {
         const index = existingItem.getAttribute("index");
         if (index === item.before) {
@@ -590,7 +593,7 @@ class NavMenuApiPlugin extends CustomModule {
       }
     } else if (item.after) {
       // Insert after a specific item
-      const allItems = this.navMenu.querySelectorAll(".el-menu-item");
+      const allItems = this.navMenu.querySelectorAll('[data-sidebar="menu-item"]');
       for (const existingItem of Array.from(allItems)) {
         const index = existingItem.getAttribute("index");
         if (index === item.after) {

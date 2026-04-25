@@ -480,7 +480,7 @@ class OSCBridgePlugin extends CustomModule {
 
   executeGetFriendsList(args: any) {
     const { onlineOnly = false } = args || {};
-    const friends = window.$pinia?.friends?.friends || [];
+    const friends = window.$pinia?.friend?.friends || [];
     
     const filteredFriends = onlineOnly 
       ? friends.filter((f: any) => f.location && f.location !== 'offline' && f.location !== 'private')
@@ -556,7 +556,7 @@ class OSCBridgePlugin extends CustomModule {
   }
 
   executeGetOnlineFriends() {
-    const friends = window.$pinia?.friends?.friends || [];
+    const friends = window.$pinia?.friend?.friends || [];
     const online = friends.filter((f: any) => 
       f.location && f.location !== 'offline' && f.location !== 'private'
     );
@@ -659,7 +659,7 @@ class OSCBridgePlugin extends CustomModule {
     }
 
     this.logger.warn("⚠️ Using deprecated sendChatBox(). Consider using setChatVariable() + ChatBox timeline instead.");
-    
+
     const prefix = this.settings.store.chatboxPrefix || '';
     const suffix = this.settings.store.chatboxSuffix || '';
     const fullMessage = prefix + message + suffix;
@@ -868,7 +868,7 @@ class OSCBridgePlugin extends CustomModule {
         if (this.settings.store.logCommands) {
           this.logger.log(`✓ Changed to state 'vrcx_${name}'`);
         }
-        return true;
+      return true;
       } else {
         this.logger.error(`Failed to set state '${name}': ${response?.error || 'Unknown error'}`);
         return false;
@@ -1005,6 +1005,118 @@ class OSCBridgePlugin extends CustomModule {
       const errorMsg = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to get events: ${errorMsg}`);
       return null;
+    }
+  }
+
+  /**
+   * Force VRCOSC to flush all persistent data to disk immediately
+   * @returns true if successful
+   */
+  async flushToDisk(): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('FLUSH_TO_DISK', {}, requestId);
+      
+      if (response?.success) {
+        this.logger.log("✓ Forced VRCOSC to flush data to disk");
+        return true;
+      } else {
+        this.logger.error(`Failed to flush to disk: ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to flush to disk: ${errorMsg}`);
+      return false;
+    }
+  }
+
+  /**
+   * Force VRCOSC to reload all persistent data from disk
+   * @returns true if successful
+   */
+  async loadFromDisk(): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('LOAD_FROM_DISK', {}, requestId);
+      
+      if (response?.success) {
+        this.logger.log("✓ Forced VRCOSC to reload data from disk");
+        return true;
+      } else {
+        this.logger.error(`Failed to load from disk: ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to load from disk: ${errorMsg}`);
+      return false;
+    }
+  }
+
+  /**
+   * Stop all VRCOSC modules (same as clicking stop button in UI)
+   * @returns true if successful
+   */
+  async stopModules(): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+      try {
+        const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('STOP_MODULES', {}, requestId);
+      
+      if (response?.success) {
+        this.logger.log("✓ Stopped all VRCOSC modules");
+        return true;
+      } else {
+        this.logger.error(`Failed to stop modules: ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to stop modules: ${errorMsg}`);
+      return false;
+    }
+  }
+
+  /**
+   * Start all VRCOSC modules (same as clicking play button in UI)
+   * @returns true if successful
+   */
+  async startModules(): Promise<boolean> {
+    if (!this.oscReady) {
+      this.logger.warn("OSC app not ready");
+      return false;
+    }
+
+    try {
+      const requestId = this.generateRequestId();
+      const response = await this.sendCommandToOSC('START_MODULES', {}, requestId);
+      
+      if (response?.success) {
+        this.logger.log("✓ Started all VRCOSC modules");
+        return true;
+      } else {
+        this.logger.error(`Failed to start modules: ${response?.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to start modules: ${errorMsg}`);
+      return false;
     }
   }
 

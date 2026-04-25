@@ -72,7 +72,6 @@ class TestLoggerPlugin extends CustomModule {
     inputLabel.textContent = "Test Message:";
 
     const textarea = document.createElement("textarea");
-    textarea.className = "el-textarea__inner";
     textarea.value = this.testMessage;
     textarea.rows = 3;
     textarea.style.cssText = `
@@ -131,114 +130,50 @@ class TestLoggerPlugin extends CustomModule {
     // Create button sections
     const sections = [
       {
-        title: "Element Plus (via globalProperties)",
+        title: "Notification Bridge (customjs.notify)",
         buttons: [
           {
-            label: "$message.success()",
+            label: "notify('success')",
             color: "#67c23a",
             test: async () => {
-              const $message = window.$app?.config?.globalProperties?.$message;
-              if ($message?.success) {
-                $message.success(this.testMessage);
+              if (window.customjs?.notify) {
+                window.customjs.notify(this.testMessage, 'success');
                 return { success: true };
               }
-              throw new Error("Not available");
+              throw new Error("customjs.notify not available");
             },
           },
           {
-            label: "$message.warning()",
+            label: "notify('warning')",
             color: "#e6a23c",
             test: async () => {
-              const $message = window.$app?.config?.globalProperties?.$message;
-              if ($message?.warning) {
-                $message.warning(this.testMessage);
+              if (window.customjs?.notify) {
+                window.customjs.notify(this.testMessage, 'warning');
                 return { success: true };
               }
-              throw new Error("Not available");
+              throw new Error("customjs.notify not available");
             },
           },
           {
-            label: "$message.error()",
+            label: "notify('error')",
             color: "#f56c6c",
             test: async () => {
-              const $message = window.$app?.config?.globalProperties?.$message;
-              if ($message?.error) {
-                $message.error(this.testMessage);
+              if (window.customjs?.notify) {
+                window.customjs.notify(this.testMessage, 'error');
                 return { success: true };
               }
-              throw new Error("Not available");
+              throw new Error("customjs.notify not available");
             },
           },
           {
-            label: "$message.info()",
+            label: "notify('info')",
             color: "#409eff",
             test: async () => {
-              const $message = window.$app?.config?.globalProperties?.$message;
-              if ($message?.info) {
-                $message.info(this.testMessage);
+              if (window.customjs?.notify) {
+                window.customjs.notify(this.testMessage, 'info');
                 return { success: true };
               }
-              throw new Error("Not available");
-            },
-          },
-          {
-            label: "$notify.success()",
-            color: "#67c23a",
-            test: async () => {
-              const $notify = window.$app?.config?.globalProperties?.$notify;
-              if ($notify?.success) {
-                $notify.success({
-                  title: "Logger Test",
-                  message: this.testMessage,
-                });
-                return { success: true };
-              }
-              throw new Error("Not available");
-            },
-          },
-          {
-            label: "$notify.warning()",
-            color: "#e6a23c",
-            test: async () => {
-              const $notify = window.$app?.config?.globalProperties?.$notify;
-              if ($notify?.warning) {
-                $notify.warning({
-                  title: "Logger Test",
-                  message: this.testMessage,
-                });
-                return { success: true };
-              }
-              throw new Error("Not available");
-            },
-          },
-          {
-            label: "$notify.error()",
-            color: "#f56c6c",
-            test: async () => {
-              const $notify = window.$app?.config?.globalProperties?.$notify;
-              if ($notify?.error) {
-                $notify.error({
-                  title: "Logger Test",
-                  message: this.testMessage,
-                });
-                return { success: true };
-              }
-              throw new Error("Not available");
-            },
-          },
-          {
-            label: "$notify.info()",
-            color: "#409eff",
-            test: async () => {
-              const $notify = window.$app?.config?.globalProperties?.$notify;
-              if ($notify?.info) {
-                $notify.info({
-                  title: "Logger Test",
-                  message: this.testMessage,
-                });
-                return { success: true };
-              }
-              throw new Error("Not available");
+              throw new Error("customjs.notify not available");
             },
           },
         ],
@@ -597,7 +532,6 @@ class TestLoggerPlugin extends CustomModule {
 
       section.buttons.forEach((btnConfig) => {
         const btn = document.createElement("button");
-        btn.className = "el-button el-button--small";
         btn.style.cssText = `
           padding: 10px 15px;
           background: ${btnConfig.color};
@@ -651,13 +585,16 @@ class TestLoggerPlugin extends CustomModule {
     testAllSection.style.cssText = "margin-top: 30px;";
 
     const testAllBtn = document.createElement("button");
-    testAllBtn.className = "el-button el-button--large el-button--primary";
     testAllBtn.style.cssText = `
       width: 100%;
       padding: 15px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
+      background: #409eff;
+      color: white;
+      border: none;
+      border-radius: 4px;
     `;
     testAllBtn.innerHTML = '<i class="ri-play-circle-line"></i> Test All';
 
@@ -681,71 +618,27 @@ class TestLoggerPlugin extends CustomModule {
 
     const tests = [
       {
-        name: "🧪 $message.success()",
+        name: "🧪 notify('success')",
         fn: async () => {
-          window.$app?.config?.globalProperties?.$message?.success(
-            this.testMessage
-          );
+          window.customjs?.notify?.(this.testMessage, 'success');
         },
       },
       {
-        name: "🧪 $message.warning()",
+        name: "🧪 notify('warning')",
         fn: async () => {
-          window.$app?.config?.globalProperties?.$message?.warning(
-            this.testMessage
-          );
+          window.customjs?.notify?.(this.testMessage, 'warning');
         },
       },
       {
-        name: "🧪 $message.error()",
+        name: "🧪 notify('error')",
         fn: async () => {
-          window.$app?.config?.globalProperties?.$message?.error(
-            this.testMessage
-          );
+          window.customjs?.notify?.(this.testMessage, 'error');
         },
       },
       {
-        name: "🧪 $message.info()",
+        name: "🧪 notify('info')",
         fn: async () => {
-          window.$app?.config?.globalProperties?.$message?.info(
-            this.testMessage
-          );
-        },
-      },
-      {
-        name: "🧪 $notify.success()",
-        fn: async () => {
-          window.$app?.config?.globalProperties?.$notify?.success({
-            title: "Logger Test",
-            message: this.testMessage,
-          });
-        },
-      },
-      {
-        name: "🧪 $notify.warning()",
-        fn: async () => {
-          window.$app?.config?.globalProperties?.$notify?.warning({
-            title: "Logger Test",
-            message: this.testMessage,
-          });
-        },
-      },
-      {
-        name: "🧪 $notify.error()",
-        fn: async () => {
-          window.$app?.config?.globalProperties?.$notify?.error({
-            title: "Logger Test",
-            message: this.testMessage,
-          });
-        },
-      },
-      {
-        name: "🧪 $notify.info()",
-        fn: async () => {
-          window.$app?.config?.globalProperties?.$notify?.info({
-            title: "Logger Test",
-            message: this.testMessage,
-          });
+          window.customjs?.notify?.(this.testMessage, 'info');
         },
       },
       {

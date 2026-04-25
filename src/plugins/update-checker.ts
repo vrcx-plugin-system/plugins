@@ -611,7 +611,7 @@ class UpdateCheckerPlugin extends CustomModule {
     }
 
     private async showNewPluginsModal(newPlugins: any[]): Promise<void> {
-        const dialogApi = (window as any).customjs?.getModule('dialog-api');
+        const dialogApi = await (window as any).customjs?.waitForModule('dialog-api');
         if (!dialogApi) return;
         
         const pluginList = newPlugins.map(p => 
@@ -773,7 +773,7 @@ class UpdateCheckerPlugin extends CustomModule {
     }
 
     private async handlePluginUpdates(updates: PluginUpdateInfo[], manual: boolean): Promise<void> {
-        const dialogApi = (window as any).customjs?.getModule('dialog-api');
+        const dialogApi = await (window as any).customjs?.waitForModule('dialog-api');
         
         if (!dialogApi) {
             this.logger.showWarning(`${updates.length} plugin update(s) available, but dialog-api not found`);

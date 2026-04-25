@@ -188,8 +188,8 @@ class ChatBoxEventsPlugin extends CustomModule {
   }
 
   async start() {
-    // Get OSC Bridge module
-    this.oscBridge = window.customjs.getModule("osc-bridge");
+    // Wait for OSC Bridge module
+    this.oscBridge = await window.customjs.waitForModule("osc-bridge");
     if (!this.oscBridge) {
       this.logger.error("OSC Bridge module not found - ChatBox Events disabled");
       return;
@@ -206,7 +206,7 @@ class ChatBoxEventsPlugin extends CustomModule {
 
   async createVRCOSCData() {
     if (!this.oscBridge) {
-      this.oscBridge = window.customjs.getModule("osc-bridge");
+      this.oscBridge = await window.customjs.waitForModule("osc-bridge");
       if (!this.oscBridge) {
         this.logger.showError("OSC Bridge module not found - cannot create VRCOSC data");
         return;

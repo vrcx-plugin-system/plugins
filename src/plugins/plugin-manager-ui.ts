@@ -57,10 +57,66 @@ class PluginManagerUIPlugin extends CustomModule {
     }
 
     this.setupNavMenuItem();
+    this.injectCompatStyles();
 
     this.enabled = true;
     this.started = true;
     this.logger.log("Plugin Manager UI started");
+  }
+
+  /**
+   * Injects Element Plus compatibility CSS for el-button classes.
+   * Since VRCX no longer bundles Element Plus, we provide minimal
+   * button styling to keep the plugin manager UI functional.
+   */
+  injectCompatStyles() {
+    if (document.getElementById('customjs-el-compat-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'customjs-el-compat-styles';
+    style.textContent = `
+      .el-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 16px;
+        border: 1px solid #dcdfe6;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        color: #e0e0e0;
+        background: #2d2d2d;
+        transition: all 0.2s;
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .el-button:hover { opacity: 0.85; }
+      .el-button:disabled { opacity: 0.5; cursor: not-allowed; }
+      .el-button--small { padding: 5px 10px; font-size: 12px; }
+      .el-button--large { padding: 12px 20px; font-size: 16px; }
+      .el-button--primary { background: #409eff; border-color: #409eff; color: #fff; }
+      .el-button--success { background: #67c23a; border-color: #67c23a; color: #fff; }
+      .el-button--warning { background: #e6a23c; border-color: #e6a23c; color: #fff; }
+      .el-button--danger { background: #f56c6c; border-color: #f56c6c; color: #fff; }
+      .el-button--info { background: #909399; border-color: #909399; color: #fff; }
+      .el-input__inner {
+        padding: 8px 12px;
+        border: 1px solid #5a5a5a;
+        border-radius: 4px;
+        font-size: 13px;
+        background: #1e1e1e;
+        color: #e0e0e0;
+      }
+      .el-switch { cursor: pointer; display: flex; align-items: center; }
+      .el-tag {
+        display: inline-block;
+        padding: 2px 8px;
+        border: 1px solid;
+        border-radius: 3px;
+        font-size: 12px;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   async onLogin(user) {
@@ -1783,7 +1839,7 @@ class PluginManagerUIPlugin extends CustomModule {
     this.togglingPlugins.add(pluginId);
 
     try {
-      const plugin = window.customjs.getModule(pluginId);
+      const plugin = await window.customjs.waitForModule(pluginId);
 
       if (!plugin) {
         // Plugin not loaded - it's a disabled plugin stub

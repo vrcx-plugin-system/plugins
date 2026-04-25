@@ -326,10 +326,10 @@ class TemplatePlugin extends CustomModule {
     this.logger.log(`📍 Current location: ${location || "Unknown"}`);
 
     // Example: Access friend data
-    const friendsStore = window.$pinia?.friends;
+    const friendsStore = window.$pinia?.friend;
     if (friendsStore) {
       this.logger.log(
-        `👥 Online friends: ${friendsStore.onlineFriends?.length || 0}`
+        `👥 Online friends: ${friendsStore.onlineFriendCount || 0}`
       );
     }
 
@@ -383,7 +383,7 @@ class TemplatePlugin extends CustomModule {
     if (this.contextMenuApi) {
       this.contextMenuApi.addUserItem("template-action", {
         text: "🔧 Template Action",
-        icon: "el-icon-star",
+        icon: "⭐",
         onClick: (userData) => this.handleUserClick(userData),
       });
       this.logger.log("📝 Added context menu item");
@@ -466,13 +466,13 @@ class TemplatePlugin extends CustomModule {
         this.settings.store.lastRunTime
       ).toLocaleString()}</p>
       <hr>
-      <button id="template-test-btn" class="el-button el-button--primary">
+      <button id="template-test-btn" style="display:inline-block;padding:8px 16px;border:none;border-radius:4px;cursor:pointer;color:#fff;background:#409eff;margin-right:8px;">
         🧪 Test Button
       </button>
-      <button id="template-emit-btn" class="el-button el-button--success">
+      <button id="template-emit-btn" style="display:inline-block;padding:8px 16px;border:none;border-radius:4px;cursor:pointer;color:#fff;background:#67c23a;margin-right:8px;">
         📡 Emit Event
       </button>
-      <button id="template-save-btn" class="el-button el-button--info">
+      <button id="template-save-btn" style="display:inline-block;padding:8px 16px;border:none;border-radius:4px;cursor:pointer;color:#fff;background:#909399;">
         💾 Save Settings
       </button>
     `;

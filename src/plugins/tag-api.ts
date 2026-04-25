@@ -316,14 +316,16 @@ class TagAPIPlugin extends CustomModule {
   }
 
   injectCustomWorldTag(worldId: string) {
-    // Find the world dialog specifically (not user dialog)
-    const worldDialog = document.querySelector('.x-world-dialog');
-    if (!worldDialog) return;
+    // Find the currently-open dialog (shared container for all dialog types)
+    const dialog = document.querySelector('.x-dialog');
+    if (!dialog) return;
+
+    // Verify this is actually a world dialog by checking for world-specific content
+    const worldDialog = dialog;
 
     // Find the div that contains native tags (Public, PC, etc.)
-    // It's a div that contains .el-tag with text "Public" or "PC"
     let tagContainer: Element | null = null;
-    const tagsInDialog = Array.from(worldDialog.querySelectorAll('.el-tag'));
+    const tagsInDialog = Array.from(worldDialog.querySelectorAll('[data-slot="badge"]'));
     
     for (const tag of tagsInDialog) {
       const text = tag.textContent || '';
@@ -348,11 +350,20 @@ class TagAPIPlugin extends CustomModule {
     // Inject each custom tag
     for (const tag of tags) {
       const tagEl = document.createElement('span');
-      tagEl.className = 'el-tag el-tag--danger el-tag--plain el-tag--small vrcx-custom-world-tag';
-      tagEl.style.marginRight = '5px';
-      tagEl.style.marginTop = '5px';
-      tagEl.style.color = tag.colour;
-      tagEl.style.borderColor = tag.colour;
+      tagEl.className = 'vrcx-custom-world-tag';
+      tagEl.style.cssText = `
+        display: inline-flex;
+        align-items: center;
+        padding: 1px 8px;
+        border: 1px solid ${tag.colour};
+        border-radius: 9999px;
+        font-size: 12px;
+        line-height: 1.5;
+        font-weight: 500;
+        color: ${tag.colour};
+        white-space: nowrap;
+        gap: 4px;
+      `;
       tagEl.textContent = tag.tag;
 
       // Add tooltip if provided
@@ -375,18 +386,16 @@ class TagAPIPlugin extends CustomModule {
   }
 
   injectCustomUserTags(userId: string) {
-    // Find the user dialog specifically (not world dialog)
-    const userDialog = document.querySelector('.x-user-dialog');
-    if (!userDialog) return;
+    // Find the currently-open dialog (shared container for all dialog types)
+    const dialog = document.querySelector('.x-dialog');
+    if (!dialog) return;
+    const userDialog = dialog;
 
-    // Find the tag container (the div with margin-top: 5px that contains the platform/status tags)
-    // It's the second div with style containing "margin-top: 5px" in the user info section
-    const allDivs = Array.from(userDialog.querySelectorAll('div[style*="margin-top: 5px"]'));
-    let tagContainer = null;
-    
-    // Find the one that contains .el-tag elements (Trusted User, PC tags)
-    for (const div of allDivs) {
-      if (div.querySelector('.el-tag')) {
+    // Find the tag container: the div with class 'mt-2 flex items-center gap-1' that contains Badge components
+    let tagContainer: Element | null = null;
+    const candidateDivs = Array.from(userDialog.querySelectorAll('div.mt-2'));
+    for (const div of candidateDivs) {
+      if (div.querySelector('[data-slot="badge"]')) {
         tagContainer = div;
         break;
       }
@@ -408,11 +417,20 @@ class TagAPIPlugin extends CustomModule {
     // Inject each custom tag
     for (const tag of tags) {
       const tagEl = document.createElement('span');
-      tagEl.className = 'el-tag el-tag--info el-tag--plain el-tag--small vrcx-custom-user-tag';
-      tagEl.style.marginRight = '5px';
-      tagEl.style.marginTop = '5px';
-      tagEl.style.color = tag.colour;
-      tagEl.style.borderColor = tag.colour;
+      tagEl.className = 'vrcx-custom-user-tag';
+      tagEl.style.cssText = `
+        display: inline-flex;
+        align-items: center;
+        padding: 1px 8px;
+        border: 1px solid ${tag.colour};
+        border-radius: 9999px;
+        font-size: 12px;
+        line-height: 1.5;
+        font-weight: 500;
+        color: ${tag.colour};
+        white-space: nowrap;
+        gap: 4px;
+      `;
       tagEl.textContent = tag.tag;
 
       // Add tooltip if provided
@@ -440,12 +458,13 @@ class TagAPIPlugin extends CustomModule {
   }
 
   injectCustomAvatarTags(avatarId: string) {
-    // Find the avatar dialog specifically
-    const avatarDialog = document.querySelector('.x-avatar-dialog');
-    if (!avatarDialog) return;
+    // Find the currently-open dialog (shared container for all dialog types)
+    const dialog = document.querySelector('.x-dialog');
+    if (!dialog) return;
+    const avatarDialog = dialog;
 
-    // Find tag container within avatar dialog
-    const tagContainer = avatarDialog.querySelector('.el-dialog__body > div > div:nth-child(2)');
+    // Find the tag container within avatar dialog header
+    const tagContainer = avatarDialog.querySelector('div.mt-2') || avatarDialog.querySelector('[data-slot="badge"]')?.parentElement;
     if (!tagContainer) return;
 
     // ALWAYS remove old tags first (even if current avatar has no tags)
@@ -459,11 +478,20 @@ class TagAPIPlugin extends CustomModule {
     // Inject each custom tag
     for (const tag of tags) {
       const tagEl = document.createElement('span');
-      tagEl.className = 'el-tag el-tag--success el-tag--plain el-tag--small vrcx-custom-avatar-tag';
-      tagEl.style.marginRight = '5px';
-      tagEl.style.marginTop = '5px';
-      tagEl.style.color = tag.colour;
-      tagEl.style.borderColor = tag.colour;
+      tagEl.className = 'vrcx-custom-avatar-tag';
+      tagEl.style.cssText = `
+        display: inline-flex;
+        align-items: center;
+        padding: 1px 8px;
+        border: 1px solid ${tag.colour};
+        border-radius: 9999px;
+        font-size: 12px;
+        line-height: 1.5;
+        font-weight: 500;
+        color: ${tag.colour};
+        white-space: nowrap;
+        gap: 4px;
+      `;
       tagEl.textContent = tag.tag;
 
       // Add tooltip if provided

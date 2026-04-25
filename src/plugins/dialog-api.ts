@@ -130,33 +130,15 @@ class DialogApiPlugin extends CustomModule {
   // The base implementation calls this plugin's showConfirmDialogAsync method
 
   /**
-   * Show confirmation dialog using Element Plus or fallback to native confirm
+   * Show confirmation dialog using native browser confirm
+   * (Element Plus was removed from VRCX; native confirm is the universal fallback)
    * @param title - Dialog title
    * @param message - Dialog message
    * @returns True if confirmed, false if cancelled
    */
   async showConfirmDialogAsync(title: string, message: string, type: "info" | "warning" | "error" = "info", confirmText: string = "Confirm", cancelText: string = "Cancel"): Promise<boolean> {
     try {
-      // Try Element Plus $confirm (Vue global properties)
-      const $confirm = (window as any).$app?.config?.globalProperties?.$confirm;
-      if ($confirm) {
-        try {
-          await $confirm(message, title, {
-            confirmButtonText: confirmText,
-            cancelButtonText: cancelText,
-            type: type,
-          });
-          return true; // User confirmed
-        } catch (error) {
-          // User cancelled or closed dialog
-          return false;
-        }
-      }
-
-      // Fallback to native browser confirm
-      this.logger.log(
-        "Using native confirm dialog (Element Plus not available)"
-      );
+      // Use native browser confirm (Element Plus $confirm no longer exists)
       const fullMessage = `${title}\n\n${message}`;
       return confirm(fullMessage);
     } catch (error: any) {

@@ -204,9 +204,10 @@ class SelfInviteOnBlockedPlayerPlugin extends CustomModule {
 
   createSelfInvite(worldId, blockedPlayerName) {
     try {
-      // Check if $app is available
-      if (!window.$app?.newInstanceSelfInvite) {
-        this.logger.error("$app.newInstanceSelfInvite not available");
+      // Use the VRCX request API to create a self-invite
+      // $app.newInstanceSelfInvite no longer exists in the rewrite
+      if (!window.request?.instanceRequest?.selfInvite) {
+        this.logger.error("Instance request API not available");
         return;
       }
 
@@ -214,10 +215,15 @@ class SelfInviteOnBlockedPlayerPlugin extends CustomModule {
       const locationStore = window.$pinia?.location;
       const worldName = locationStore?.lastLocation?.worldName || "this world";
 
-      // Create self-invite to new instance
-      window.$app.newInstanceSelfInvite(worldId);
-
-      this.logger.log(`✓ Self-invite created for world: ${worldId}`);
+      // Create self-invite to new instance via request API
+      window.request.instanceRequest.selfInvite({ 
+        instanceId: '', 
+        worldId: worldId 
+      }).then(() => {
+        this.logger.log(`✓ Self-invite created for world: ${worldId}`);
+      }).catch((err) => {
+        this.logger.error(`Self-invite request failed: ${err?.message || err}`);
+      });
 
       // Show notification if enabled
       if (this.settings.store.showNotification) {

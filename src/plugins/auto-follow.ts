@@ -176,7 +176,7 @@ class AutoFollowPlugin extends CustomModule {
 
     // Remove context menu items
     const contextMenu =
-      window.customjs?.getModule("context-menu-api");
+      await window.customjs?.waitForModule("context-menu-api");
     if (contextMenu) {
       (contextMenu as any).removeUserItem("autoFollow");
       (contextMenu as any).removeUserItem("clearAutoFollow");
@@ -455,7 +455,7 @@ class AutoFollowPlugin extends CustomModule {
         // Get custom message template from settings
         const messageTemplate =
           this.settings.store.customInviteRequestMessage || "Can I join you?";
-        const inviteMessageApi = window.customjs.getModule('invite-message-api') as any;
+        const inviteMessageApi = await window.customjs.waitForModule('invite-message-api') as any;
           // Process template
           const customMessage = this.processInviteMessageTemplate(
             messageTemplate,
@@ -668,18 +668,18 @@ class AutoFollowPlugin extends CustomModule {
     if (this.autoFollowUsers.size === 0) {
       this.contextMenuApi.updateUserItem("autoFollow", {
         text: "Auto Follow",
-        icon: "el-icon-position",
+        icon: "ri-map-pin-line",
       });
     } else if (this.autoFollowUsers.size === 1) {
       const data = Array.from(this.autoFollowUsers.values())[0];
       this.contextMenuApi.updateUserItem("autoFollow", {
         text: `Auto Follow: ${data.user.displayName}`,
-        icon: "el-icon-position",
+        icon: "ri-map-pin-line",
       });
     } else {
       this.contextMenuApi.updateUserItem("autoFollow", {
         text: `Auto Follow (${this.autoFollowUsers.size} users)`,
-        icon: "el-icon-position",
+        icon: "ri-map-pin-line",
       });
     }
   }

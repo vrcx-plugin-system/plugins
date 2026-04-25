@@ -526,7 +526,7 @@ class YoinkerDetectorPlugin extends CustomModule {
   }
 
   // Apply yoinker tag to user
-  applyYoinkerTag(userId) {
+  async applyYoinkerTag(userId) {
     try {
       const tagName = this.settings.store.tagName;
       const tagColor = this.settings.store.tagColor;
@@ -534,7 +534,7 @@ class YoinkerDetectorPlugin extends CustomModule {
       const url = 'https://github.com/Bluscream/yoinker-list';
 
       // Try to use tag-api for multi-tag support with tooltip/URL
-      const tagApi = window.customjs.getModule('tag-api') as any;
+      const tagApi = await window.customjs.waitForModule('tag-api') as any;
       if (tagApi && tagApi.addUserTag) {
         tagApi.addUserTag(userId, tagName, tagColor, url, tooltip);
         if (this.settings.store.logToConsole) {

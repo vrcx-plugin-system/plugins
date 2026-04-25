@@ -158,7 +158,7 @@ class AutoInvitePlugin extends CustomModule {
 
     // Remove context menu items
     const contextMenu =
-      window.customjs?.getModule("context-menu-api");
+      await window.customjs?.waitForModule("context-menu-api");
     if (contextMenu) {
       (contextMenu as any).removeUserItem("autoInvite");
       (contextMenu as any).removeUserItem("clearAutoInvite");
@@ -205,24 +205,10 @@ class AutoInvitePlugin extends CustomModule {
   }
 
   setupLocationAPIHook() {
-    // Hook into setCurrentUserLocation if available
-    if (
-      !window.customjs?.functions?.["$app.setCurrentUserLocation"] &&
-      window.$app?.setCurrentUserLocation
-    ) {
-      // Use the hook system to intercept location changes
-      this.registerPostHook("$app.setCurrentUserLocation", (result, args) => {
-        const [location, travelingToLocation] = args;
-        setTimeout(async () => {
-          await this.onCurrentUserLocationChanged(
-            location,
-            travelingToLocation
-          );
-        }, 1000);
-      });
-
-      this.logger.log("Hooked into setCurrentUserLocation");
-    }
+    // Note: $app.setCurrentUserLocation no longer exists in the VRCX rewrite.
+    // Location changes are now tracked via the Pinia location store subscription
+    // in setupLocationStoreMonitor() instead.
+    this.logger.log("Location tracking uses Pinia store (no legacy $app hook)");
   }
 
   setupLocationStoreMonitor() {
@@ -373,7 +359,7 @@ class AutoInvitePlugin extends CustomModule {
     try {
       // Check if we should use custom invite messages
       const useCustomMessage = this.settings.store.useCustomInviteMessage !== false;
-      const inviteMessageApi = window.customjs.getModule('invite-message-api') as any;
+      const inviteMessageApi = await window.customjs.waitForModule('invite-message-api') as any;
 
       // Send invites to all users in the list
       const invitePromises = Array.from(this.autoInviteUsers.values()).map(
@@ -546,18 +532,18 @@ class AutoInvitePlugin extends CustomModule {
     if (this.autoInviteUsers.size === 0) {
       this.contextMenuApi.updateUserItem("autoInvite", {
         text: "Auto Invite",
-        icon: "el-icon-message",
+        icon: "ri-mail-send-line",
       });
     } else if (this.autoInviteUsers.size === 1) {
       const user = Array.from(this.autoInviteUsers.values())[0];
       this.contextMenuApi.updateUserItem("autoInvite", {
         text: `Auto Invite: ${user.displayName}`,
-        icon: "el-icon-message",
+        icon: "ri-mail-send-line",
       });
     } else {
       this.contextMenuApi.updateUserItem("autoInvite", {
         text: `Auto Invite (${this.autoInviteUsers.size} users)`,
-        icon: "el-icon-message",
+        icon: "ri-mail-send-line",
       });
     }
   }

@@ -267,17 +267,34 @@ class BioSymbolsPatchPlugin extends CustomModule {
   /**
    * Inject patched function if original not found
    */
-  injectPatchedFunction() {
+  injectPatchedFunction(retryCount = 0) {
+    const MAX_RETRIES = 10;
+    const RETRY_DELAY_MS = 500;
+
     if (!(window as any).utils) {
-      this.logger.warn("window.utils not available, cannot inject patch");
+      if (retryCount < MAX_RETRIES) {
+        this.logger.log(
+          `window.utils not available yet, retrying in ${RETRY_DELAY_MS}ms (${retryCount + 1}/${MAX_RETRIES})`
+        );
+        setTimeout(() => this.injectPatchedFunction(retryCount + 1), RETRY_DELAY_MS);
+        return;
+      }
+      this.logger.warn(
+        `window.utils not available after ${MAX_RETRIES} retries, giving up`
+      );
       return;
     }
 
-    // Create and inject the patched function
-    (window as any).utils.replaceBioSymbols = this.createPatchedFunction(null);
-    this.patched = true;
-
-    this.logger.log("✓ Injected patched replaceBioSymbols into window.utils");
+    // window.utils is now available — check if replaceBioSymbols exists and patch it
+    if ((window as any).utils.replaceBioSymbols) {
+      this.logger.log("Found replaceBioSymbols in window.utils (delayed)");
+      this.patchFunction((window as any).utils, "replaceBioSymbols");
+    } else {
+      // Create and inject the patched function
+      (window as any).utils.replaceBioSymbols = this.createPatchedFunction(null);
+      this.patched = true;
+      this.logger.log("✓ Injected patched replaceBioSymbols into window.utils");
+    }
   }
 
   /**
