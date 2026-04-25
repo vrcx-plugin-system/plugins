@@ -114,7 +114,7 @@ class NavMenuApiPlugin extends CustomModule {
   async setupContentArea() {
     return new Promise<void>((resolve) => {
       const findContentArea = () => {
-        this.contentParent = document.querySelector('[data-sidebar="inset"]') || document.querySelector('.group\/main-layout');
+        this.contentParent = document.querySelector('[data-sidebar="inset"]') || document.getElementsByClassName('group/main-layout')[0] as HTMLElement || null;
 
         if (this.contentParent) {
           this.logger.log("Content area found, ready to add tab content");

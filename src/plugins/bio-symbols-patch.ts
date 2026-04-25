@@ -268,8 +268,8 @@ class BioSymbolsPatchPlugin extends CustomModule {
    * Inject patched function if original not found
    */
   injectPatchedFunction(retryCount = 0) {
-    const MAX_RETRIES = 10;
-    const RETRY_DELAY_MS = 500;
+    const MAX_RETRIES = 30;
+    const RETRY_DELAY_MS = 1000;
 
     if (!(window as any).utils) {
       if (retryCount < MAX_RETRIES) {
