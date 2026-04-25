@@ -267,31 +267,73 @@ class BioSymbolsPatchPlugin extends CustomModule {
   /**
    * Inject patched function if original not found
    */
-  injectPatchedFunction(retryCount = 0) {
-    const MAX_RETRIES = 30;
-    const RETRY_DELAY_MS = 1000;
-
-    if (!(window as any).utils) {
-      if (retryCount < MAX_RETRIES) {
-        this.logger.log(
-          `window.utils not available yet, retrying in ${RETRY_DELAY_MS}ms (${retryCount + 1}/${MAX_RETRIES})`
-        );
-        setTimeout(() => this.injectPatchedFunction(retryCount + 1), RETRY_DELAY_MS);
-        return;
-      }
-      this.logger.warn(
-        `window.utils not available after ${MAX_RETRIES} retries, giving up`
-      );
+  injectPatchedFunction() {
+    // If window.utils is already available, patch immediately
+    if ((window as any).utils) {
+      this.applyUtilsPatch((window as any).utils);
       return;
     }
 
-    // window.utils is now available — check if replaceBioSymbols exists and patch it
-    if ((window as any).utils.replaceBioSymbols) {
-      this.logger.log("Found replaceBioSymbols in window.utils (delayed)");
-      this.patchFunction((window as any).utils, "replaceBioSymbols");
+    // window.utils is not yet available — this is expected because custom.js
+    // runs as a classic script before ES modules execute.
+    // Use Object.defineProperty to intercept the exact moment it gets assigned.
+    this.logger.log("window.utils not available yet, setting up property trap...");
+
+    let _utilsValue: any = undefined;
+    const self = this;
+
+    try {
+      Object.defineProperty(window, 'utils', {
+        configurable: true,
+        enumerable: true,
+        get() {
+          return _utilsValue;
+        },
+        set(newValue) {
+          _utilsValue = newValue;
+          self.logger.log("✓ window.utils assigned — applying patch");
+          // Restore normal property behavior before patching
+          Object.defineProperty(window, 'utils', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: newValue
+          });
+          self.applyUtilsPatch(newValue);
+        }
+      });
+      this.logger.log("Property trap installed on window.utils");
+    } catch (e) {
+      // Fallback: if defineProperty fails, use polling
+      this.logger.warn("Could not install property trap, falling back to polling");
+      this.pollForUtils(0);
+    }
+  }
+
+  private pollForUtils(retryCount: number) {
+    const MAX_RETRIES = 60;
+    const RETRY_DELAY_MS = 2000;
+
+    if ((window as any).utils) {
+      this.applyUtilsPatch((window as any).utils);
+      return;
+    }
+
+    if (retryCount < MAX_RETRIES) {
+      setTimeout(() => this.pollForUtils(retryCount + 1), RETRY_DELAY_MS);
     } else {
-      // Create and inject the patched function
-      (window as any).utils.replaceBioSymbols = this.createPatchedFunction(null);
+      this.logger.warn(`window.utils not available after ${MAX_RETRIES * RETRY_DELAY_MS / 1000}s, giving up`);
+    }
+  }
+
+  private applyUtilsPatch(utils: any) {
+    if (this.patched) return; // Already patched
+
+    if (utils.replaceBioSymbols) {
+      this.logger.log("Found replaceBioSymbols in window.utils");
+      this.patchFunction(utils, "replaceBioSymbols");
+    } else {
+      utils.replaceBioSymbols = this.createPatchedFunction(null);
       this.patched = true;
       this.logger.log("✓ Injected patched replaceBioSymbols into window.utils");
     }
