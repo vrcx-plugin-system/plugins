@@ -14,7 +14,7 @@ class ProtocolLinksPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Utility", "Integration"],
-      required_dependencies: ["context-menu-api"],
+      required_dependencies: [],
     });
   }
 
@@ -28,9 +28,7 @@ class ProtocolLinksPlugin extends CustomModule {
     this.utils = (window as any).customjs.utils;
 
     // Wait for dependencies
-    this.contextMenuApi = await window.customjs.waitForModule(
-      "context-menu-api"
-    );
+    this.contextMenuApi = window.customjs.api.contextMenu;
 
     if (!this.contextMenuApi) {
       this.logger.error("Context Menu API plugin not found after waiting");

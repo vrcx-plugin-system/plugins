@@ -14,7 +14,7 @@ class TagAPIPlugin extends CustomModule {
         userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
       }],
       tags: ["API", "Enhancement"],
-      required_dependencies: ["dialog-events-api"],
+      required_dependencies: [],
     });
 
     this.customWorldTags = new Map();

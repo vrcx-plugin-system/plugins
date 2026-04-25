@@ -16,7 +16,7 @@ class NavMenuTestPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Debug", "Experimental"],
-      required_dependencies: ["nav-menu-api"],
+      required_dependencies: [],
     });
 
     this.navMenuApi = null;
@@ -33,17 +33,13 @@ class NavMenuTestPlugin extends CustomModule {
   async start() {
     this.logger.log("🚀 Starting Nav Menu Test Plugin...");
 
-    // Wait for nav-menu-api dependency
-    this.logger.log("⏳ Waiting for nav-menu-api plugin...");
-    this.navMenuApi = await window.customjs.waitForModule(
-      "nav-menu-api"
-    );
+    this.navMenuApi = window.customjs.api.navigation;
 
     if (!this.navMenuApi) {
-      this.logger.error("❌ Nav Menu API plugin not found after waiting");
+      this.logger.error("❌ Core Navigation API not found");
       return;
     }
-    this.logger.log("✅ nav-menu-api plugin found!");
+    this.logger.log("✅ Navigation API found!");
 
     // Test 1: Add a tab item with content and lifecycle callbacks
     this.logger.log("🧪 TEST 1: Adding tab item with content...");

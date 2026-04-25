@@ -20,7 +20,7 @@ class PluginManagerUIPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
       }],
       tags: ["UI", "Core", "Settings"],
-      required_dependencies: ["nav-menu-api", "dialog-api"],
+      required_dependencies: [],
       optional_dependencies: ["plugin-analyzer"],
     });
 
@@ -37,17 +37,17 @@ class PluginManagerUIPlugin extends CustomModule {
   async start() {
     this.utils = window.customjs.utils;
 
-    this.navMenuApi = await window.customjs.waitForModule("nav-menu-api");
-    this.dialogApi = await window.customjs.waitForModule("dialog-api");
+    this.navMenuApi = window.customjs.api.navigation;
+    this.dialogApi = window.customjs.api.dialogs;
     this.pluginAnalyzer = await window.customjs.waitForModule("plugin-analyzer");
 
     if (!this.navMenuApi) {
-      this.logger.error("Nav Menu API plugin not found");
+      this.logger.error("Core Navigation API not found");
       return;
     }
 
     if (!this.dialogApi) {
-      this.logger.error("Dialog API plugin not found");
+      this.logger.error("Core Dialogs API not found");
       return;
     }
 

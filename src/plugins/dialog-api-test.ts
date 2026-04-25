@@ -32,11 +32,10 @@ class DialogApiTestPlugin extends CustomModule {
   }
 
   async start() {
-    // Wait for dialog API to be available
-    this.dialogApi = await window.customjs.waitForModule("dialog-api");
+    this.dialogApi = window.customjs.api.dialogs;
 
     if (!this.dialogApi) {
-      this.logger.error("Dialog API not found! Please enable the Dialog API plugin.");
+      this.logger.error("Core Dialogs API not found!");
       return;
     }
 
@@ -62,7 +61,7 @@ class DialogApiTestPlugin extends CustomModule {
         `,
         width: "500px",
         footer: `
-          <button class="el-button el-button--primary" onclick="window.customjs.getModule('dialog-api').closeDialog('dialog-test-welcome')">
+          <button class="el-button el-button--primary" onclick="window.customjs.api.dialogs.closeDialog('dialog-test-welcome')">
             <span>Got it!</span>
           </button>
         `,
@@ -143,9 +142,9 @@ class DialogApiTestPlugin extends CustomModule {
 
     // Log available commands
     this.logger.log("📋 Test dialogs registered. Try these commands:");
-    this.logger.log("  window.customjs.getModule('dialog-api').showDialog('dialog-test-simple')");
-    this.logger.log("  window.customjs.getModule('dialog-api').showDialog('dialog-test-custom')");
-    this.logger.log("  window.customjs.getModule('dialog-api').showDialog('dialog-test-fullscreen')");
+    this.logger.log("  window.customjs.api.dialogs.showDialog('dialog-test-simple')");
+    this.logger.log("  window.customjs.api.dialogs.showDialog('dialog-test-custom')");
+    this.logger.log("  window.customjs.api.dialogs.showDialog('dialog-test-fullscreen')");
   }
 
   createCustomContent(): HTMLElement {

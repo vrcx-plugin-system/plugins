@@ -246,12 +246,8 @@ class TemplatePlugin extends CustomModule {
     this.utils = window.customjs.utils;
 
     // Wait for dependencies
-    this.contextMenuApi = await window.customjs.waitForModule(
-      "context-menu-api"
-    );
-    this.navMenuApi = await window.customjs.waitForModule(
-      "nav-menu-api"
-    );
+    this.contextMenuApi = window.customjs.api.contextMenu;
+    this.navMenuApi = window.customjs.api.navigation;
 
     this.exampleData.startTime = Date.now();
 

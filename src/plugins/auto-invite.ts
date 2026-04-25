@@ -21,7 +21,7 @@ class AutoInvitePlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Automation", "Social"],
-      required_dependencies: ["context-menu-api"],
+      required_dependencies: [],
     });
 
     // Auto-invite state
@@ -131,9 +131,7 @@ class AutoInvitePlugin extends CustomModule {
     this.utils = window.customjs.utils;
 
     // Wait for dependencies
-    this.contextMenuApi = await window.customjs.waitForModule(
-      "context-menu-api"
-    );
+    this.contextMenuApi = window.customjs.api.contextMenu;
 
     // Setup location tracking
     this.setupLocationTracking();
@@ -157,8 +155,7 @@ class AutoInvitePlugin extends CustomModule {
     this.logger.log("Stopping Auto Invite plugin");
 
     // Remove context menu items
-    const contextMenu =
-      await window.customjs?.waitForModule("context-menu-api");
+    const contextMenu = window.customjs.api.contextMenu;
     if (contextMenu) {
       (contextMenu as any).removeUserItem("autoInvite");
       (contextMenu as any).removeUserItem("clearAutoInvite");

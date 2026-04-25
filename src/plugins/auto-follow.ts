@@ -48,7 +48,7 @@ class AutoFollowPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Automation", "Social"],
-      required_dependencies: ["context-menu-api"],
+      required_dependencies: [],
     });
 
     // Auto-follow state
@@ -152,9 +152,7 @@ class AutoFollowPlugin extends CustomModule {
     this.utils = window.customjs.utils;
 
     // Wait for dependencies
-    this.contextMenuApi = await window.customjs.waitForModule(
-      "context-menu-api"
-    );
+    this.contextMenuApi = window.customjs.api.contextMenu;
 
     // Setup context menu buttons
     this.setupUserButtons();
@@ -175,8 +173,7 @@ class AutoFollowPlugin extends CustomModule {
     this.logger.log("Stopping Auto Follow plugin");
 
     // Remove context menu items
-    const contextMenu =
-      await window.customjs?.waitForModule("context-menu-api");
+    const contextMenu = window.customjs.api.contextMenu;
     if (contextMenu) {
       (contextMenu as any).removeUserItem("autoFollow");
       (contextMenu as any).removeUserItem("clearAutoFollow");
