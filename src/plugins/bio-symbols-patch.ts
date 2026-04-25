@@ -70,10 +70,8 @@ class BioSymbolsPatchPlugin extends CustomModule {
       
       // Diagnostic logging
       this.logger.log(`[DIAG] window.utils=${typeof w.utils}, $debug=${typeof w.$debug}, $pinia=${typeof w.$pinia}, dayjs=${typeof w.dayjs}`);
-      const desc = Object.getOwnPropertyDescriptor(window, 'utils');
-      this.logger.log(`[DIAG] utils descriptor: ${desc ? `configurable=${desc.configurable}, writable=${desc.writable}, hasGet=${!!desc.get}, hasSet=${!!desc.set}, valType=${typeof desc.value}` : 'NONE'}`);
 
-      // Strategy 1: Direct window.utils access
+      // Strategy 1: Direct window.utils access (works if VRCX populates it)
       if (w.utils?.replaceBioSymbols) {
         this.logger.log("Found replaceBioSymbols in window.utils");
         this.patchFunction(w.utils, "replaceBioSymbols");
@@ -89,10 +87,10 @@ class BioSymbolsPatchPlugin extends CustomModule {
             return;
           }
         }
-        this.logger.log(`[DIAG] Scanned ${w.$pinia._s.size} Pinia stores, replaceBioSymbols not found`);
+        this.logger.log(`[DIAG] Scanned ${w.$pinia._s.size} Pinia stores, not found`);
       }
 
-      // Strategy 3: Scan all window properties for an object containing replaceBioSymbols
+      // Strategy 3: Scan known global candidates
       const globalSearch = this.findReplaceBioSymbolsGlobally();
       if (globalSearch) {
         this.logger.log(`Found replaceBioSymbols on window.${globalSearch.key}`);
@@ -100,9 +98,17 @@ class BioSymbolsPatchPlugin extends CustomModule {
         return;
       }
 
-      // Strategy 4: Wait for window.utils with property trap + polling
-      this.logger.log("replaceBioSymbols not found anywhere, setting up watchers...");
-      this.setupUtilsWatcher();
+      // Strategy 4: Immediate injection
+      // VRCX nightly sets window.utils=undefined (the export var is undefined at 
+      // module init time). The function is only used via ES module imports internally.
+      // We just create window.utils and inject our safe wrapper immediately.
+      this.logger.log("replaceBioSymbols not found in any scope, injecting standalone patch...");
+      if (!w.utils || typeof w.utils !== 'object') {
+        w.utils = {};
+      }
+      w.utils.replaceBioSymbols = this.createPatchedFunction(null);
+      this.patched = true;
+      this.logger.log("✓ Injected standalone replaceBioSymbols into window.utils");
     } catch (error: any) {
       this.logger.error(`Failed to patch replaceBioSymbols: ${error.message}`);
     }
@@ -122,109 +128,6 @@ class BioSymbolsPatchPlugin extends CustomModule {
       } catch {}
     }
     return null;
-  }
-
-  /**
-   * Set up watchers for window.utils to appear
-   */
-  private setupUtilsWatcher() {
-    const w = window as any;
-
-    // If utils already exists but doesn't have replaceBioSymbols, just inject our function
-    if (w.utils && typeof w.utils === 'object') {
-      this.logger.log("window.utils exists but missing replaceBioSymbols, injecting...");
-      w.utils.replaceBioSymbols = this.createPatchedFunction(null);
-      this.patched = true;
-      this.logger.log("✓ Injected patched replaceBioSymbols into existing window.utils");
-      return;
-    }
-
-    // Try defineProperty trap
-    if (typeof w.utils === 'undefined') {
-      this.logger.log("Setting up property trap on window.utils...");
-      let _utilsValue: any = undefined;
-      const self = this;
-
-      try {
-        Object.defineProperty(window, 'utils', {
-          configurable: true,
-          enumerable: true,
-          get() { return _utilsValue; },
-          set(newValue) {
-            _utilsValue = newValue;
-            self.logger.log("✓ window.utils assigned — applying patch");
-            Object.defineProperty(window, 'utils', {
-              configurable: true, enumerable: true, writable: true, value: newValue
-            });
-            self.applyUtilsPatch(newValue);
-          }
-        });
-        this.logger.log("Property trap installed");
-      } catch (e) {
-        this.logger.warn("defineProperty failed, using polling only");
-      }
-    }
-
-    // Also start polling as backup (checks utils, pinia stores, and globals)
-    this.pollForFunction(0);
-  }
-
-  private pollForFunction(retryCount: number) {
-    const MAX_RETRIES = 30;
-    const RETRY_DELAY_MS = 2000;
-
-    if (this.patched) return;
-
-    const w = window as any;
-
-    // Check window.utils
-    if (w.utils?.replaceBioSymbols) {
-      this.applyUtilsPatch(w.utils);
-      return;
-    }
-
-    // Check Pinia stores
-    if (w.$pinia?._s) {
-      for (const [, store] of w.$pinia._s) {
-        if (store && typeof (store as any).replaceBioSymbols === 'function') {
-          this.logger.log("Found replaceBioSymbols in Pinia store (via poll)");
-          this.patchFunction(store, "replaceBioSymbols");
-          return;
-        }
-      }
-    }
-
-    // Check global candidates
-    const globalSearch = this.findReplaceBioSymbolsGlobally();
-    if (globalSearch) {
-      this.logger.log(`Found replaceBioSymbols on window.${globalSearch.key} (via poll)`);
-      this.patchFunction(globalSearch.obj, "replaceBioSymbols");
-      return;
-    }
-
-    if (retryCount < MAX_RETRIES) {
-      setTimeout(() => this.pollForFunction(retryCount + 1), RETRY_DELAY_MS);
-    } else {
-      // Final fallback: just create window.utils and inject our function
-      this.logger.warn(`Not found after ${MAX_RETRIES * RETRY_DELAY_MS / 1000}s. Creating standalone patched function.`);
-      if (!w.utils) w.utils = {};
-      w.utils.replaceBioSymbols = this.createPatchedFunction(null);
-      this.patched = true;
-      this.logger.log("✓ Created standalone window.utils.replaceBioSymbols");
-    }
-  }
-
-  private applyUtilsPatch(utils: any) {
-    if (this.patched) return;
-
-    if (utils.replaceBioSymbols) {
-      this.logger.log("Found replaceBioSymbols in window.utils");
-      this.patchFunction(utils, "replaceBioSymbols");
-    } else {
-      utils.replaceBioSymbols = this.createPatchedFunction(null);
-      this.patched = true;
-      this.logger.log("✓ Injected patched replaceBioSymbols into window.utils");
-    }
   }
 
   /**
