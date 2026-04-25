@@ -12,7 +12,7 @@ class PluginAnalyzerPlugin extends CustomModule {
           userId: "usr_08082729-592d-4098-9a21-83c8dd37a844",
         }],
       tags: ["Tool", "Utility", "Analysis"],
-      required_dependencies: ["dialog-api"],
+      required_dependencies: [],
     });
   }
 
@@ -23,7 +23,7 @@ class PluginAnalyzerPlugin extends CustomModule {
 
   async start() {
     // Wait for dialog API to be available
-    this.dialogApi = await window.customjs.waitForModule("dialog-api");
+    this.dialogApi = window.customjs.api.dialogs;
 
     if (!this.dialogApi) {
       this.logger.error("Dialog API not found! Please enable the Dialog API plugin.");
