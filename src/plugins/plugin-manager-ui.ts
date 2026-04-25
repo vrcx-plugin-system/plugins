@@ -1839,7 +1839,7 @@ class PluginManagerUIPlugin extends CustomModule {
     this.togglingPlugins.add(pluginId);
 
     try {
-      const plugin = await window.customjs.waitForModule(pluginId);
+      const plugin = window.customjs.getModule(pluginId);
 
       if (!plugin) {
         // Plugin not loaded - it's a disabled plugin stub
