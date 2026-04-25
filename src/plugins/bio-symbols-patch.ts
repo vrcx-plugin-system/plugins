@@ -66,15 +66,27 @@ class BioSymbolsPatchPlugin extends CustomModule {
    */
   patchReplaceBioSymbols() {
     try {
+      // Diagnostic: check what's actually on window
+      const w = window as any;
+      this.logger.log(`Diagnostics: window.utils=${typeof w.utils}, window.$debug=${typeof w.$debug}, window.$pinia=${typeof w.$pinia}, window.dayjs=${typeof w.dayjs}`);
+      
+      // Check own property descriptor
+      const desc = Object.getOwnPropertyDescriptor(window, 'utils');
+      if (desc) {
+        this.logger.log(`utils descriptor: configurable=${desc.configurable}, enumerable=${desc.enumerable}, writable=${desc.writable}, hasGetter=${!!desc.get}, hasSetter=${!!desc.set}, value=${typeof desc.value}`);
+      } else {
+        this.logger.log("utils has no own property descriptor on window");
+      }
+
       // Try to find the function in utils
-      if ((window as any).utils?.replaceBioSymbols) {
+      if (w.utils?.replaceBioSymbols) {
         this.logger.log("Found replaceBioSymbols in window.utils");
-        this.patchFunction((window as any).utils, "replaceBioSymbols");
+        this.patchFunction(w.utils, "replaceBioSymbols");
         return;
       }
 
       // Try to find it in shared utils
-      const sharedUtils = (window as any).$pinia?._s?.get?.("Utils");
+      const sharedUtils = w.$pinia?._s?.get?.("Utils");
       if (sharedUtils?.replaceBioSymbols) {
         this.logger.log("Found replaceBioSymbols in pinia Utils store");
         this.patchFunction(sharedUtils, "replaceBioSymbols");
